@@ -4,10 +4,17 @@ import { Input } from "@/components/ui/input";
 import { Heart, Building, Flower, BookOpen, Users, Crown } from "lucide-react";
 import DonationCard from "./DonationCard";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const DonationSection = () => {
   const [customAmount, setCustomAmount] = useState("");
   const [selectedAmount, setSelectedAmount] = useState("1001");
+  const navigate = useNavigate();
+
+  const handleQuickDonate = () => {
+    const amount = customAmount || selectedAmount;
+    navigate(`/donate?amount=${amount}`);
+  };
 
   const donationTypes = [
     {
@@ -107,7 +114,7 @@ const DonationSection = () => {
                   />
                 </div>
 
-                <Button variant="sacred" size="lg" className="w-full">
+                <Button variant="sacred" size="lg" className="w-full" onClick={handleQuickDonate}>
                   <Heart className="w-4 h-4" />
                   Donate ₹{customAmount || selectedAmount}
                 </Button>

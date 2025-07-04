@@ -1,7 +1,10 @@
 import { Button } from "@/components/ui/button";
 import { Heart, Menu, User } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const Header = () => {
+  const navigate = useNavigate();
+
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-16 items-center justify-between px-4">
@@ -35,7 +38,7 @@ const Header = () => {
         </nav>
 
         <div className="flex items-center space-x-2">
-          <Button variant="divine" size="sm">
+          <Button variant="divine" size="sm" onClick={() => navigate("/donate")}>
             <Heart className="w-4 h-4" />
             Donate Now
           </Button>

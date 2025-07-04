@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Heart, Users, Target } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 interface DonationCardProps {
   title: string;
@@ -11,6 +12,12 @@ interface DonationCardProps {
 }
 
 const DonationCard = ({ title, description, amount, icon, isPopular }: DonationCardProps) => {
+  const navigate = useNavigate();
+
+  const handleDonate = () => {
+    navigate(`/donate?amount=${amount}`);
+  };
+
   return (
     <Card className={`relative hover:shadow-temple transition-all duration-300 hover:scale-105 ${
       isPopular ? 'border-primary shadow-gold' : ''
@@ -39,9 +46,10 @@ const DonationCard = ({ title, description, amount, icon, isPopular }: DonationC
           variant={isPopular ? "divine" : "temple"} 
           className="w-full"
           size="lg"
+          onClick={handleDonate}
         >
           <Heart className="w-4 h-4" />
-          Donate {amount}
+          Donate ₹{amount}
         </Button>
       </CardContent>
     </Card>
