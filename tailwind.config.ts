@@ -26,11 +26,13 @@ export default {
 				foreground: 'hsl(var(--foreground))',
 				primary: {
 					DEFAULT: 'hsl(var(--primary))',
-					foreground: 'hsl(var(--primary-foreground))'
+					foreground: 'hsl(var(--primary-foreground))',
+					glow: 'hsl(var(--primary-glow))'
 				},
 				secondary: {
 					DEFAULT: 'hsl(var(--secondary))',
-					foreground: 'hsl(var(--secondary-foreground))'
+					foreground: 'hsl(var(--secondary-foreground))',
+					rich: 'hsl(var(--secondary-rich))'
 				},
 				destructive: {
 					DEFAULT: 'hsl(var(--destructive))',
@@ -52,6 +54,12 @@ export default {
 					DEFAULT: 'hsl(var(--card))',
 					foreground: 'hsl(var(--card-foreground))'
 				},
+				temple: {
+					saffron: 'hsl(var(--temple-saffron))',
+					gold: 'hsl(var(--temple-gold))',
+					earth: 'hsl(var(--temple-earth))',
+					sacred: 'hsl(var(--temple-sacred))'
+				},
 				sidebar: {
 					DEFAULT: 'hsl(var(--sidebar-background))',
 					foreground: 'hsl(var(--sidebar-foreground))',
@@ -62,6 +70,20 @@ export default {
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
 				}
+			},
+			backgroundImage: {
+				'gradient-divine': 'var(--gradient-divine)',
+				'gradient-peaceful': 'var(--gradient-peaceful)',
+				'gradient-gold': 'var(--gradient-gold)'
+			},
+			boxShadow: {
+				'temple': 'var(--shadow-temple)',
+				'gold': 'var(--shadow-gold)',
+				'divine': 'var(--shadow-divine)'
+			},
+			transitionTimingFunction: {
+				'spiritual': 'var(--transition-spiritual)',
+				'gentle': 'var(--transition-gentle)'
 			},
 			borderRadius: {
 				lg: 'var(--radius)',

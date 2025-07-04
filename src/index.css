@@ -2,41 +2,66 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
-*/
+/* Yamrajdham Temple Design System - Spiritual & Traditional Colors */
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    /* Temple-inspired color palette */
+    --background: 45 20% 98%;
+    --foreground: 25 45% 15%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card: 45 30% 97%;
+    --card-foreground: 25 45% 15%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover: 45 30% 97%;
+    --popover-foreground: 25 45% 15%;
 
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
+    /* Saffron primary - sacred temple color */
+    --primary: 25 85% 55%;
+    --primary-foreground: 45 20% 98%;
+    --primary-glow: 30 90% 65%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    /* Gold secondary - divine accent */
+    --secondary: 45 75% 70%;
+    --secondary-foreground: 25 45% 15%;
+    --secondary-rich: 40 80% 50%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    /* Earth tone muted */
+    --muted: 40 25% 92%;
+    --muted-foreground: 25 30% 45%;
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    /* Sacred accent colors */
+    --accent: 45 75% 70%;
+    --accent-foreground: 25 45% 15%;
 
     --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive-foreground: 45 20% 98%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    --border: 40 25% 88%;
+    --input: 40 25% 90%;
+    --ring: 25 85% 55%;
 
-    --radius: 0.5rem;
+    --radius: 0.75rem;
+
+    /* Temple-specific colors */
+    --temple-saffron: 25 85% 55%;
+    --temple-gold: 45 75% 70%;
+    --temple-earth: 30 40% 85%;
+    --temple-sacred: 25 90% 60%;
+
+    /* Gradients for spiritual feel */
+    --gradient-divine: linear-gradient(135deg, hsl(var(--temple-saffron)), hsl(var(--primary-glow)));
+    --gradient-peaceful: linear-gradient(180deg, hsl(var(--background)), hsl(var(--temple-earth)));
+    --gradient-gold: linear-gradient(45deg, hsl(var(--temple-gold)), hsl(var(--secondary-rich)));
+    
+    /* Shadows with warm glow */
+    --shadow-temple: 0 10px 30px -10px hsl(var(--temple-saffron) / 0.3);
+    --shadow-gold: 0 5px 20px -5px hsl(var(--temple-gold) / 0.4);
+    --shadow-divine: 0 0 40px hsl(var(--temple-sacred) / 0.2);
+
+    /* Animations */
+    --transition-spiritual: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-gentle: all 0.3s ease-in-out;
 
     --sidebar-background: 0 0% 98%;
 
