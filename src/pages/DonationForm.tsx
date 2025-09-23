@@ -296,7 +296,7 @@ const DonationForm = () => {
                             />
                           </FormControl>
                           <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mt-3">
-                            {[101, 501, 1000, 2500, 5000, 10000, 25000, 50000].map((amount) => (
+                            {[101, 501, 1001, 2501, 5001, 10001, 25001, 50001].map((amount) => (
                               <Button
                                 key={amount}
                                 type="button"
