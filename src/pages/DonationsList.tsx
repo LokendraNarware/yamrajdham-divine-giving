@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { getDonations, updateDonationPayment } from "@/services/donations";
 import { useToast } from "@/hooks/use-toast";
 import { RefreshCw, Eye, CheckCircle, XCircle } from "lucide-react";
+import Header from "@/components/Header";
 
 interface Donation {
   id: string;
@@ -111,11 +112,14 @@ const DonationsList = () => {
 
   if (loading) {
     return (
-      <div className="container py-8 px-4">
-        <div className="flex items-center justify-center h-64">
-          <div className="text-center">
-            <RefreshCw className="w-8 h-8 animate-spin mx-auto mb-4" />
-            <p>Loading donations...</p>
+      <div className="min-h-screen bg-background">
+        <Header />
+        <div className="container py-8 px-4">
+          <div className="flex items-center justify-center h-64">
+            <div className="text-center">
+              <RefreshCw className="w-8 h-8 animate-spin mx-auto mb-4" />
+              <p>Loading donations...</p>
+            </div>
           </div>
         </div>
       </div>
@@ -123,7 +127,9 @@ const DonationsList = () => {
   }
 
   return (
-    <div className="container py-8 px-4">
+    <div className="min-h-screen bg-background">
+      <Header />
+      <div className="container py-8 px-4">
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-3xl font-bold">Donations Management</h1>
@@ -209,6 +215,7 @@ const DonationsList = () => {
           ))}
         </div>
       )}
+      </div>
     </div>
   );
 };

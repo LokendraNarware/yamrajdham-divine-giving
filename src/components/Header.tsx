@@ -6,16 +6,17 @@ const Header = () => {
   const navigate = useNavigate();
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <header className="sticky top-0 z-50 w-full border-b bg-transparent backdrop-blur supports-[backdrop-filter]:bg-transparent">
       <div className="container flex h-16 items-center justify-between px-4">
         <div className="flex items-center space-x-4">
           <div className="flex items-center space-x-2">
-            <div className="w-8 h-8 bg-gradient-divine rounded-full flex items-center justify-center">
-              <Heart className="w-4 h-4 text-primary-foreground" />
+            <div className="px-4 py-2 bg-black rounded flex items-center justify-center">
+              <img 
+                src="/LOGO.png" 
+                alt="Yamrajdham Logo" 
+                className="h-8 object-contain"
+              />
             </div>
-            <span className="font-bold text-xl bg-gradient-divine bg-clip-text text-transparent">
-              Yamrajdham
-            </span>
           </div>
         </div>
 

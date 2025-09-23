@@ -6,13 +6,15 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Heart, ArrowLeft } from "lucide-react";
+import { Heart, ArrowLeft, User, MapPin, CreditCard, MessageSquare } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
-import { createUser, getUserByEmail, createDonation } from "@/services/donations";
+import { createUser, getUserByEmail, createDonation, updateDonationPayment } from "@/services/donations";
+import PaymentModal from "@/components/PaymentModal";
+import Header from "@/components/Header";
 
 const donationFormSchema = z.object({
   amount: z.string().min(1, "Amount is required"),
@@ -20,22 +22,12 @@ const donationFormSchema = z.object({
   email: z.string().email("Valid email is required"),
   mobile: z.string().min(10, "Valid mobile number is required"),
   country: z.string().default("India"),
-  state: z.string().min(1, "State is required"),
-  city: z.string().min(1, "City is required"),
-  pinCode: z.string().min(1, "Pin/Zip code is required"),
+  state: z.string().optional(),
+  city: z.string().optional(),
+  pinCode: z.string().optional(),
   panNo: z.string().optional(),
-  preacher: z.string().optional(),
-  address: z.string().min(1, "Address is required"),
+  address: z.string().optional(),
   message: z.string().optional(),
-}).refine((data) => {
-  const amount = parseInt(data.amount);
-  if (amount > 10000 && !data.panNo) {
-    return false;
-  }
-  return true;
-}, {
-  message: "PAN No. is mandatory for donations above ₹10,000",
-  path: ["panNo"],
 });
 
 type DonationFormData = z.infer<typeof donationFormSchema>;
@@ -49,11 +41,85 @@ const indianStates = [
   "Andaman and Nicobar Islands", "Dadra and Nagar Haveli and Daman and Diu", "Lakshadweep"
 ];
 
+// Field mapping utility for prefill functionality
+const mapFormFields = (data: any) => {
+  const fieldMap: Record<string, string> = {
+    // Personal Information
+    'donor_name': 'name',
+    'donor_name_full': 'name',
+    'full_name': 'name',
+    'donor_email': 'email',
+    'email_address': 'email',
+    'donor_phone': 'mobile',
+    'donor_mobile': 'mobile',
+    'phone_number': 'mobile',
+    'mobile_number': 'mobile',
+    'pan_number': 'panNo',
+    'pan_no': 'panNo',
+    
+    // Address Information
+    'donor_state': 'state',
+    'donor_city': 'city',
+    'donor_pincode': 'pinCode',
+    'pin_code': 'pinCode',
+    'postal_code': 'pinCode',
+    'donor_address': 'address',
+    'full_address': 'address',
+    'complete_address': 'address',
+    
+    // Donation Information
+    'donation_amount': 'amount',
+    'amount': 'amount',
+    'dedication_message': 'message',
+    'message': 'message',
+    'special_message': 'message',
+  };
+  
+  const mappedData: any = {};
+  Object.keys(data).forEach(key => {
+    const mappedKey = fieldMap[key.toLowerCase()];
+    if (mappedKey && data[key]) {
+      mappedData[mappedKey] = data[key];
+    }
+  });
+  
+  return mappedData;
+};
+
 const DonationForm = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { toast } = useToast();
   const amount = searchParams.get("amount") || "";
+  
+  // Payment modal state
+  const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
+  const [donationData, setDonationData] = useState<any>(null);
+  const [currentDonationId, setCurrentDonationId] = useState<string | null>(null);
+
+  // Function to prefill form data
+  const prefillFormData = (data: any) => {
+    const mappedData = mapFormFields(data);
+    Object.keys(mappedData).forEach(key => {
+      if (mappedData[key]) {
+        form.setValue(key as any, mappedData[key]);
+      }
+    });
+  };
+
+  // Check for prefill data in URL parameters
+  useEffect(() => {
+    const prefillData: any = {};
+    searchParams.forEach((value, key) => {
+      if (key !== 'amount') {
+        prefillData[key] = value;
+      }
+    });
+    
+    if (Object.keys(prefillData).length > 0) {
+      prefillFormData(prefillData);
+    }
+  }, [searchParams]);
 
   const form = useForm<DonationFormData>({
     resolver: zodResolver(donationFormSchema),
@@ -67,14 +133,11 @@ const DonationForm = () => {
       city: "",
       pinCode: "",
       panNo: "",
-      preacher: "",
       address: "",
       message: "",
     },
   });
 
-  const watchedAmount = form.watch("amount");
-  const showPanField = parseInt(watchedAmount || "0") > 10000;
 
   const onSubmit = async (data: DonationFormData) => {
     try {
@@ -88,10 +151,10 @@ const DonationForm = () => {
           email: data.email,
           name: data.name,
           mobile: data.mobile,
-          address: data.address,
-          city: data.city,
-          state: data.state,
-          pin_code: data.pinCode,
+          address: data.address || undefined,
+          city: data.city || undefined,
+          state: data.state || undefined,
+          pin_code: data.pinCode || undefined,
           country: data.country,
           pan_no: data.panNo || undefined,
         };
@@ -110,19 +173,31 @@ const DonationForm = () => {
         donation_type: 'general',
         payment_status: 'pending' as const,
         dedication_message: data.message || undefined,
-        preacher_name: data.preacher || undefined,
       };
 
       const donationResult = await createDonation(donationData, userId);
       
       if (donationResult.success) {
+        // Generate unique order ID
+        const orderId = `YAMRAJ_${Date.now()}_${donationResult.data.id}`;
+        
+        // Set up payment data
+        const paymentData = {
+          amount: parseInt(data.amount),
+          donorName: data.name,
+          donorEmail: data.email,
+          donorPhone: data.mobile,
+          orderId: orderId,
+        };
+
+        setDonationData(paymentData);
+        setCurrentDonationId(donationResult.data.id);
+        setIsPaymentModalOpen(true);
+
         toast({
           title: "Donation Form Submitted",
-          description: "Thank you for your generous donation. You will be redirected to payment.",
+          description: "Please complete your payment to finalize the donation.",
         });
-        console.log("Donation created successfully:", donationResult.data);
-        // Here you would typically redirect to payment gateway
-        // For now, we'll just show success message
       } else {
         throw new Error(donationResult.error?.message || 'Failed to create donation');
       }
@@ -136,29 +211,45 @@ const DonationForm = () => {
     }
   };
 
+  const handlePaymentSuccess = async (paymentData: any) => {
+    try {
+      if (currentDonationId) {
+        await updateDonationPayment(currentDonationId, {
+          payment_status: 'completed',
+          payment_id: paymentData.payment_id || paymentData.order_id,
+          payment_gateway: 'cashfree',
+        });
+
+        toast({
+          title: "Payment Successful!",
+          description: "Thank you for your generous donation. You will receive a receipt via email.",
+        });
+
+        // Redirect to success page or home
+        setTimeout(() => {
+          navigate('/');
+        }, 2000);
+      }
+    } catch (error) {
+      console.error("Error updating donation:", error);
+      toast({
+        title: "Payment Successful",
+        description: "Your payment was successful, but there was an issue updating the record. Please contact support.",
+      });
+    }
+  };
+
+  const handlePaymentFailure = (error: string) => {
+    toast({
+      title: "Payment Failed",
+      description: error,
+      variant: "destructive",
+    });
+  };
+
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur">
-        <div className="container flex h-16 items-center justify-between px-4">
-          <Button
-            variant="ghost"
-            onClick={() => navigate("/")}
-            className="flex items-center gap-2"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            Back to Home
-          </Button>
-          <div className="flex items-center space-x-2">
-            <div className="w-8 h-8 bg-gradient-divine rounded-full flex items-center justify-center">
-              <Heart className="w-4 h-4 text-primary-foreground" />
-            </div>
-            <span className="font-bold text-xl bg-gradient-divine bg-clip-text text-transparent">
-              Yamrajdham
-            </span>
-          </div>
-        </div>
-      </header>
+      <Header />
 
       <main className="container py-8 px-4">
         <div className="max-w-2xl mx-auto">
@@ -175,167 +266,122 @@ const DonationForm = () => {
                   <div className="text-2xl font-bold text-primary">
                     Total Amount: ₹{amount}
                   </div>
-                  {parseInt(amount) > 10000 && (
-                    <div className="text-sm text-muted-foreground mt-2">
-                      Note: PAN No. is Mandatory only for donation amount above ₹10,000
-                    </div>
-                  )}
                 </div>
               )}
             </CardHeader>
 
             <CardContent>
               <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                  <FormField
-                    control={form.control}
-                    name="amount"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Donation Amount *</FormLabel>
-                        <FormControl>
-                          <Input
-                            placeholder="Enter amount"
-                            {...field}
-                            type="number"
-                            min="1"
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="name"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Name of Donor *</FormLabel>
-                        <FormControl>
-                          <Input placeholder="Enter your full name" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <div className="grid md:grid-cols-2 gap-4">
+                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+                  {/* Section 1: Donation Amount */}
+                  <div className="space-y-4">
+                    <div className="border-b pb-2">
+                      <h3 className="text-lg font-semibold text-primary flex items-center gap-2">
+                        <CreditCard className="w-5 h-5" />
+                        1. Donation Details
+                      </h3>
+                    </div>
                     <FormField
                       control={form.control}
-                      name="email"
+                      name="amount"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Email *</FormLabel>
+                          <FormLabel>Donation Amount *</FormLabel>
                           <FormControl>
                             <Input
-                              placeholder="Enter your email"
-                              type="email"
+                              placeholder="Enter amount"
                               {...field}
+                              type="number"
+                              min="1"
                             />
                           </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    <FormField
-                      control={form.control}
-                      name="mobile"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Mobile/Phone *</FormLabel>
-                          <FormControl>
-                            <Input
-                              placeholder="Enter your mobile number"
-                              type="tel"
-                              {...field}
-                            />
-                          </FormControl>
+                          <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mt-3">
+                            {[101, 501, 1000, 2500, 5000, 10000, 25000, 50000].map((amount) => (
+                              <Button
+                                key={amount}
+                                type="button"
+                                variant={field.value === amount.toString() ? "divine" : "outline"}
+                                size="sm"
+                                onClick={() => field.onChange(amount.toString())}
+                                className="text-sm"
+                              >
+                                ₹{amount.toLocaleString()}
+                              </Button>
+                            ))}
+                          </div>
                           <FormMessage />
                         </FormItem>
                       )}
                     />
                   </div>
 
-                  <div className="grid md:grid-cols-2 gap-4">
+                  {/* Section 2: Personal Information */}
+                  <div className="space-y-4">
+                    <div className="border-b pb-2">
+                      <h3 className="text-lg font-semibold text-primary flex items-center gap-2">
+                        <User className="w-5 h-5" />
+                        2. Personal Information
+                      </h3>
+                    </div>
+                    
                     <FormField
                       control={form.control}
-                      name="country"
+                      name="name"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Country</FormLabel>
+                          <FormLabel>Name of Donor *</FormLabel>
                           <FormControl>
-                            <Input {...field} disabled />
+                            <Input placeholder="Enter your full name" {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
                       )}
                     />
 
-                    <FormField
-                      control={form.control}
-                      name="state"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>State *</FormLabel>
-                          <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <div className="grid md:grid-cols-2 gap-4">
+                      <FormField
+                        control={form.control}
+                        name="email"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Email *</FormLabel>
                             <FormControl>
-                              <SelectTrigger>
-                                <SelectValue placeholder="Select state" />
-                              </SelectTrigger>
+                              <Input
+                                placeholder="Enter your email"
+                                type="email"
+                                {...field}
+                              />
                             </FormControl>
-                            <SelectContent>
-                              {indianStates.map((state) => (
-                                <SelectItem key={state} value={state}>
-                                  {state}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
 
-                  <div className="grid md:grid-cols-2 gap-4">
-                    <FormField
-                      control={form.control}
-                      name="city"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>City *</FormLabel>
-                          <FormControl>
-                            <Input placeholder="Enter your city" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+                      <FormField
+                        control={form.control}
+                        name="mobile"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Mobile/Phone *</FormLabel>
+                            <FormControl>
+                              <Input
+                                placeholder="Enter your mobile number"
+                                type="tel"
+                                {...field}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
 
-                    <FormField
-                      control={form.control}
-                      name="pinCode"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Pin/Zip Code *</FormLabel>
-                          <FormControl>
-                            <Input placeholder="Enter pin/zip code" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-
-                  {showPanField && (
                     <FormField
                       control={form.control}
                       name="panNo"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>PAN No *</FormLabel>
+                          <FormLabel>PAN No</FormLabel>
                           <FormControl>
                             <Input
                               placeholder="Enter PAN number"
@@ -347,61 +393,138 @@ const DonationForm = () => {
                         </FormItem>
                       )}
                     />
-                  )}
+                  </div>
 
-                  <FormField
-                    control={form.control}
-                    name="preacher"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Name of Iskcon Preacher who interacted with you</FormLabel>
-                        <FormControl>
-                          <Input placeholder="Enter preacher name (optional)" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                  {/* Section 3: Address Information */}
+                  <div className="space-y-4">
+                    <div className="border-b pb-2">
+                      <h3 className="text-lg font-semibold text-primary flex items-center gap-2">
+                        <MapPin className="w-5 h-5" />
+                        3. Address Information
+                      </h3>
+                    </div>
+                    
+                    <div className="grid md:grid-cols-2 gap-4">
+                      <FormField
+                        control={form.control}
+                        name="country"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Country</FormLabel>
+                            <FormControl>
+                              <Input {...field} disabled />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
 
-                  <FormField
-                    control={form.control}
-                    name="address"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Address *</FormLabel>
-                        <FormControl>
-                          <Textarea
-                            placeholder="Enter your complete address"
-                            {...field}
-                            rows={3}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                      <FormField
+                        control={form.control}
+                        name="state"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>State</FormLabel>
+                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                              <FormControl>
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Select state" />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                {indianStates.map((state) => (
+                                  <SelectItem key={state} value={state}>
+                                    {state}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
 
-                  <FormField
-                    control={form.control}
-                    name="message"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Message</FormLabel>
-                        <FormControl>
-                          <Textarea
-                            placeholder="Any special message or dedication (optional)"
-                            {...field}
-                            rows={3}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                    <div className="grid md:grid-cols-2 gap-4">
+                      <FormField
+                        control={form.control}
+                        name="city"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>City</FormLabel>
+                            <FormControl>
+                              <Input placeholder="Enter your city" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      <FormField
+                        control={form.control}
+                        name="pinCode"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Pin/Zip Code</FormLabel>
+                            <FormControl>
+                              <Input placeholder="Enter pin/zip code" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+
+                    <FormField
+                      control={form.control}
+                      name="address"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Complete Address</FormLabel>
+                          <FormControl>
+                            <Textarea
+                              placeholder="Enter your complete address"
+                              {...field}
+                              rows={3}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+
+                  {/* Section 4: Additional Information */}
+                  <div className="space-y-4">
+                    <div className="border-b pb-2">
+                      <h3 className="text-lg font-semibold text-primary flex items-center gap-2">
+                        <MessageSquare className="w-5 h-5" />
+                        4. Additional Information
+                      </h3>
+                    </div>
+                    
+                    <FormField
+                      control={form.control}
+                      name="message"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Dedication Message</FormLabel>
+                          <FormControl>
+                            <Textarea
+                              placeholder="Any special message or dedication (optional)"
+                              {...field}
+                              rows={3}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
 
                   <Button type="submit" variant="divine" size="lg" className="w-full">
                     <Heart className="w-4 h-4" />
-                    Proceed to Payment
+                    Donate Now
                   </Button>
                 </form>
               </Form>
@@ -409,6 +532,17 @@ const DonationForm = () => {
           </Card>
         </div>
       </main>
+
+      {/* Payment Modal */}
+      {donationData && (
+        <PaymentModal
+          isOpen={isPaymentModalOpen}
+          onClose={() => setIsPaymentModalOpen(false)}
+          donationData={donationData}
+          onPaymentSuccess={handlePaymentSuccess}
+          onPaymentFailure={handlePaymentFailure}
+        />
+      )}
     </div>
   );
 };

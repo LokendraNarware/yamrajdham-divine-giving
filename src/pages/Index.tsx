@@ -3,7 +3,6 @@ import HeroSection from "@/components/HeroSection";
 import DonationSection from "@/components/DonationSection";
 import ProgressTracker from "@/components/ProgressTracker";
 import PrayerSection from "@/components/PrayerSection";
-import SupabaseTest from "@/components/SupabaseTest";
 import { Card, CardContent } from "@/components/ui/card";
 import { Heart, Phone, Mail, MapPin } from "lucide-react";
 
@@ -15,12 +14,6 @@ const Index = () => {
       <main>
         <HeroSection />
         
-        {/* Temporary Supabase Test - Remove after testing */}
-        <section className="py-8 bg-muted/50">
-          <div className="container px-4">
-            <SupabaseTest />
-          </div>
-        </section>
         
         <DonationSection />
         <ProgressTracker />
@@ -88,10 +81,13 @@ const Index = () => {
           <div className="grid md:grid-cols-4 gap-8">
             <div className="space-y-4">
               <div className="flex items-center space-x-2">
-                <div className="w-8 h-8 bg-gradient-divine rounded-full flex items-center justify-center">
-                  <Heart className="w-4 h-4 text-primary-foreground" />
+                <div className="px-4 py-2 bg-black rounded flex items-center justify-center">
+                  <img 
+                    src="/LOGO.png" 
+                    alt="Yamrajdham Logo" 
+                    className="h-8 object-contain"
+                  />
                 </div>
-                <span className="font-bold text-xl">Yamrajdham</span>
               </div>
               <p className="text-sm opacity-80">
                 Building a sacred temple for spiritual growth and community worship.
