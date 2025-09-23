@@ -53,18 +53,35 @@ const PaymentModal = ({
         },
       };
 
+      console.log('Initiating payment with data:', sessionData);
+      
+      // Show loading message
+      toast({
+        title: "Initializing Payment",
+        description: "Setting up secure payment session...",
+      });
+      
       const response = await createPaymentSession(sessionData);
       setPaymentUrl(response.payment_url);
       
-      // Redirect to Cashfree payment page
-      window.location.href = response.payment_url;
+      // Show success message before redirect
+      toast({
+        title: "Redirecting to Payment",
+        description: "You will be redirected to Cashfree payment page.",
+      });
+      
+      // Small delay to show the message, then redirect
+      setTimeout(() => {
+        window.location.href = response.payment_url;
+      }, 1000);
 
     } catch (error) {
       console.error('Payment error:', error);
-      onPaymentFailure('Failed to initiate payment');
+      const errorMessage = error instanceof Error ? error.message : 'Failed to initiate payment';
+      onPaymentFailure(errorMessage);
       toast({
         title: "Payment Error",
-        description: "Failed to initiate payment. Please try again.",
+        description: errorMessage,
         variant: "destructive",
       });
       setIsLoading(false);

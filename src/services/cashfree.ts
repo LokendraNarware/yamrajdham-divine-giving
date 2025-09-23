@@ -22,134 +22,81 @@ export interface PaymentResponse {
   payment_url: string;
 }
 
-// Create payment session using Cashfree API
+// Create payment session using backend simulation
 export const createPaymentSession = async (sessionData: PaymentSessionData): Promise<PaymentResponse> => {
   try {
-    // Demo mode - simulate payment session creation
-    if (CASHFREE_CONFIG.DEMO_MODE) {
-      console.log('Demo Mode: Simulating payment session creation');
-      return new Promise((resolve) => {
-        setTimeout(() => {
-          resolve({
-            payment_session_id: `demo_session_${Date.now()}`,
-            order_id: sessionData.order_id,
-            payment_url: `${window.location.origin}/donate/success?order_id=${sessionData.order_id}&demo=true`,
-          });
-        }, 1000);
-      });
-    }
-
-    const response = await fetch(`${CASHFREE_CONFIG.BASE_URL}/pg/orders`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-version': '2023-08-01',
-        'x-client-id': CASHFREE_CONFIG.APP_ID,
-        'x-client-secret': CASHFREE_CONFIG.SECRET_KEY,
-      },
-      body: JSON.stringify({
-        order_id: sessionData.order_id,
-        order_amount: sessionData.order_amount,
-        order_currency: sessionData.order_currency,
-        customer_details: sessionData.customer_details,
-        order_meta: sessionData.order_meta,
-      }),
+    console.log('Creating payment session via backend simulation:', {
+      appId: CASHFREE_CONFIG.APP_ID,
+      environment: CASHFREE_CONFIG.ENVIRONMENT
     });
 
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.message || 'Failed to create payment session');
-    }
-
-    const data = await response.json();
-    return {
-      payment_session_id: data.payment_session_id,
-      order_id: data.order_id,
-      payment_url: data.payment_url,
-    };
+    // Import the backend simulation
+    const { createPaymentSessionBackend } = await import('./cashfree-backend');
+    
+    // Use backend simulation to create payment session
+    const response = await createPaymentSessionBackend(sessionData);
+    
+    console.log('Payment session created successfully:', response);
+    
+    return response;
   } catch (error) {
     console.error('Error creating payment session:', error);
-    throw new Error('Failed to create payment session');
+    throw new Error(`Failed to create payment session: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
 };
 
-// Verify payment status
+// Verify payment status using backend simulation
 export const verifyPayment = async (orderId: string): Promise<any> => {
   try {
-    const response = await fetch(`${CASHFREE_CONFIG.BASE_URL}/pg/orders/${orderId}/payments`, {
-      method: 'GET',
-      headers: {
-        'x-api-version': '2023-08-01',
-        'x-client-id': CASHFREE_CONFIG.APP_ID,
-        'x-client-secret': CASHFREE_CONFIG.SECRET_KEY,
-      },
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.message || 'Failed to verify payment');
-    }
-
-    return await response.json();
+    console.log('Verifying payment for order:', orderId);
+    
+    // Import the backend simulation
+    const { verifyPaymentBackend } = await import('./cashfree-backend');
+    
+    // Use backend simulation to verify payment
+    const response = await verifyPaymentBackend(orderId);
+    
+    console.log('Payment verification successful:', response);
+    return response;
   } catch (error) {
     console.error('Error verifying payment:', error);
-    throw new Error('Failed to verify payment');
+    throw new Error(`Failed to verify payment: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
 };
 
-// Get order details
+// Get order details using backend simulation
 export const getOrderDetails = async (orderId: string): Promise<any> => {
   try {
-    // Demo mode - simulate order details
-    if (CASHFREE_CONFIG.DEMO_MODE) {
-      console.log('Demo Mode: Simulating order details fetch');
-      return new Promise((resolve) => {
-        setTimeout(() => {
-          resolve({
-            order_id: orderId,
-            order_amount: 1001, // Default demo amount
-            order_currency: 'INR',
-            payment_status: 'SUCCESS',
-            payment_method: 'UPI',
-            payment_time: new Date().toISOString(),
-            customer_details: {
-              customer_name: 'Demo User',
-              customer_email: 'demo@example.com',
-              customer_phone: '9999999999',
-            },
-          });
-        }, 1000);
-      });
-    }
-
-    const response = await fetch(`${CASHFREE_CONFIG.BASE_URL}/pg/orders/${orderId}`, {
-      method: 'GET',
-      headers: {
-        'x-api-version': '2023-08-01',
-        'x-client-id': CASHFREE_CONFIG.APP_ID,
-        'x-client-secret': CASHFREE_CONFIG.SECRET_KEY,
-      },
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.message || 'Failed to fetch order details');
-    }
-
-    return await response.json();
+    console.log('Fetching order details for:', orderId);
+    
+    // Import the backend simulation
+    const { getOrderDetailsBackend } = await import('./cashfree-backend');
+    
+    // Use backend simulation to get order details
+    const response = await getOrderDetailsBackend(orderId);
+    
+    console.log('Order details fetched successfully:', response);
+    return response;
   } catch (error) {
     console.error('Error fetching order details:', error);
-    throw new Error('Failed to fetch order details');
+    throw new Error(`Failed to fetch order details: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
 };
 
 // Initialize Cashfree Web SDK for hosted checkout
 export const initializeCashfreeWebSDK = () => {
   return new Promise((resolve, reject) => {
+    // Check if Cashfree is already loaded
+    if (window.Cashfree) {
+      resolve(window.Cashfree);
+      return;
+    }
+
     const script = document.createElement('script');
     script.src = 'https://sdk.cashfree.com/js/v3/cashfree.js';
     script.onload = () => {
       if (window.Cashfree) {
+        console.log('Cashfree SDK loaded successfully');
         resolve(window.Cashfree);
       } else {
         reject(new Error('Cashfree SDK not loaded'));

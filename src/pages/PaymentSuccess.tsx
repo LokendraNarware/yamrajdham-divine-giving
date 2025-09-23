@@ -28,10 +28,22 @@ const PaymentSuccess = () => {
           setPaymentDetails(details);
           
           // Show success message if payment was successful
-          if (details.payment_status === 'SUCCESS') {
+          if (details.order_status === 'PAID' || details.payment_status === 'SUCCESS') {
             toast({
               title: "Payment Successful!",
               description: "Thank you for your generous donation.",
+            });
+          } else if (details.order_status === 'ACTIVE' || details.payment_status === 'PENDING') {
+            toast({
+              title: "Payment Pending",
+              description: "Your payment is being processed. Please wait.",
+              variant: "default",
+            });
+          } else {
+            toast({
+              title: "Payment Status Unknown",
+              description: "Please contact support for payment status.",
+              variant: "destructive",
             });
           }
         } catch (error) {
@@ -130,8 +142,15 @@ const PaymentSuccess = () => {
                   </div>
                   <div>
                     <label className="text-sm font-medium text-muted-foreground">Payment Status</label>
-                    <p className="text-green-600 font-medium">
-                      {paymentDetails.payment_status}
+                    <p className={`font-medium ${
+                      paymentDetails.order_status === 'PAID' || paymentDetails.payment_status === 'SUCCESS' 
+                        ? 'text-green-600' 
+                        : paymentDetails.order_status === 'ACTIVE' || paymentDetails.payment_status === 'PENDING'
+                        ? 'text-yellow-600'
+                        : 'text-red-600'
+                    }`}>
+                      {paymentDetails.order_status === 'PAID' ? 'PAID' : 
+                       paymentDetails.payment_status || paymentDetails.order_status || 'UNKNOWN'}
                     </p>
                   </div>
                   <div>
