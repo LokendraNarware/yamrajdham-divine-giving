@@ -12,6 +12,7 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
+import { createUser, getUserByEmail, createDonation } from "@/services/donations";
 
 const donationFormSchema = z.object({
   amount: z.string().min(1, "Amount is required"),
@@ -75,14 +76,64 @@ const DonationForm = () => {
   const watchedAmount = form.watch("amount");
   const showPanField = parseInt(watchedAmount || "0") > 10000;
 
-  const onSubmit = (data: DonationFormData) => {
-    console.log("Donation form submitted:", data);
-    toast({
-      title: "Donation Form Submitted",
-      description: "Thank you for your generous donation. You will be redirected to payment.",
-    });
-    // Here you would typically process the donation
-    // For now, we'll just show success message
+  const onSubmit = async (data: DonationFormData) => {
+    try {
+      // First, check if user exists or create a new user
+      let userResult = await getUserByEmail(data.email);
+      let userId = null;
+
+      if (!userResult.success) {
+        // User doesn't exist, create new user
+        const userData = {
+          email: data.email,
+          name: data.name,
+          mobile: data.mobile,
+          address: data.address,
+          city: data.city,
+          state: data.state,
+          pin_code: data.pinCode,
+          country: data.country,
+          pan_no: data.panNo || undefined,
+        };
+
+        userResult = await createUser(userData);
+        if (userResult.success) {
+          userId = userResult.data.id;
+        }
+      } else {
+        userId = userResult.data.id;
+      }
+
+      // Create donation
+      const donationData = {
+        amount: parseInt(data.amount),
+        donation_type: 'general',
+        payment_status: 'pending' as const,
+        dedication_message: data.message || undefined,
+        preacher_name: data.preacher || undefined,
+      };
+
+      const donationResult = await createDonation(donationData, userId);
+      
+      if (donationResult.success) {
+        toast({
+          title: "Donation Form Submitted",
+          description: "Thank you for your generous donation. You will be redirected to payment.",
+        });
+        console.log("Donation created successfully:", donationResult.data);
+        // Here you would typically redirect to payment gateway
+        // For now, we'll just show success message
+      } else {
+        throw new Error(donationResult.error?.message || 'Failed to create donation');
+      }
+    } catch (error) {
+      console.error("Error submitting donation:", error);
+      toast({
+        title: "Error",
+        description: "Failed to submit donation. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   return (

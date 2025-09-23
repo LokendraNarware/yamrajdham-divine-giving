@@ -9,7 +9,129 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      users: {
+        Row: {
+          id: string
+          email: string
+          name: string
+          mobile: string
+          address: string | null
+          city: string | null
+          state: string | null
+          pin_code: string | null
+          country: string | null
+          pan_no: string | null
+          created_at: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          id?: string
+          email: string
+          name: string
+          mobile: string
+          address?: string | null
+          city?: string | null
+          state?: string | null
+          pin_code?: string | null
+          country?: string | null
+          pan_no?: string | null
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          id?: string
+          email?: string
+          name?: string
+          mobile?: string
+          address?: string | null
+          city?: string | null
+          state?: string | null
+          pin_code?: string | null
+          country?: string | null
+          pan_no?: string | null
+          created_at?: string | null
+          updated_at?: string | null
+        }
+      }
+      admin: {
+        Row: {
+          id: string
+          email: string
+          name: string
+          mobile: string
+          role: string | null
+          is_active: boolean | null
+          created_at: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          id?: string
+          email: string
+          name: string
+          mobile: string
+          role?: string | null
+          is_active?: boolean | null
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          id?: string
+          email?: string
+          name?: string
+          mobile?: string
+          role?: string | null
+          is_active?: boolean | null
+          created_at?: string | null
+          updated_at?: string | null
+        }
+      }
+      user_donations: {
+        Row: {
+          id: string
+          user_id: string | null
+          amount: number
+          donation_type: string | null
+          payment_status: 'pending' | 'completed' | 'failed' | 'refunded' | null
+          payment_id: string | null
+          payment_gateway: string | null
+          receipt_number: string | null
+          is_anonymous: boolean | null
+          dedication_message: string | null
+          preacher_name: string | null
+          created_at: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          id?: string
+          user_id?: string | null
+          amount: number
+          donation_type?: string | null
+          payment_status?: 'pending' | 'completed' | 'failed' | 'refunded' | null
+          payment_id?: string | null
+          payment_gateway?: string | null
+          receipt_number?: string | null
+          is_anonymous?: boolean | null
+          dedication_message?: string | null
+          preacher_name?: string | null
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          id?: string
+          user_id?: string | null
+          amount?: number
+          donation_type?: string | null
+          payment_status?: 'pending' | 'completed' | 'failed' | 'refunded' | null
+          payment_id?: string | null
+          payment_gateway?: string | null
+          receipt_number?: string | null
+          is_anonymous?: boolean | null
+          dedication_message?: string | null
+          preacher_name?: string | null
+          created_at?: string | null
+          updated_at?: string | null
+        }
+      }
     }
     Views: {
       [_ in never]: never

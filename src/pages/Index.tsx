@@ -3,6 +3,7 @@ import HeroSection from "@/components/HeroSection";
 import DonationSection from "@/components/DonationSection";
 import ProgressTracker from "@/components/ProgressTracker";
 import PrayerSection from "@/components/PrayerSection";
+import SupabaseTest from "@/components/SupabaseTest";
 import { Card, CardContent } from "@/components/ui/card";
 import { Heart, Phone, Mail, MapPin } from "lucide-react";
 
@@ -13,6 +14,14 @@ const Index = () => {
       
       <main>
         <HeroSection />
+        
+        {/* Temporary Supabase Test - Remove after testing */}
+        <section className="py-8 bg-muted/50">
+          <div className="container px-4">
+            <SupabaseTest />
+          </div>
+        </section>
+        
         <DonationSection />
         <ProgressTracker />
         <PrayerSection />
