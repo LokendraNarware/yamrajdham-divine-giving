@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
-import { createPaymentSession } from '@/services/cashfree';
+import { createPaymentSession, generateOrderId, formatAmount } from '@/services/cashfree';
 
 export default function DonationFormPage() {
   const [formData, setFormData] = useState({
@@ -38,8 +38,11 @@ export default function DonationFormPage() {
     setIsLoading(true);
     
     try {
+      // Generate unique order ID
+      const orderId = generateOrderId('donation');
+      
       const sessionData = {
-        order_id: `order_${Date.now()}`,
+        order_id: orderId,
         order_amount: parseFloat(formData.amount),
         order_currency: 'INR',
         customer_details: {
@@ -49,12 +52,18 @@ export default function DonationFormPage() {
           customer_phone: formData.donorPhone,
         },
         order_meta: {
-          return_url: `${window.location.origin}/donate/success?order_id=order_${Date.now()}`,
+          return_url: `${window.location.origin}/donate/success?order_id=${orderId}`,
           notify_url: `${window.location.origin}/api/webhook/cashfree`,
+          payment_methods: 'card,upi,netbanking,wallet',
         },
       };
 
-      console.log('Creating payment session:', sessionData);
+      console.log('Creating payment session with SDK:', sessionData);
+      
+      toast({
+        title: "Creating Payment Session",
+        description: "Please wait while we set up your secure payment...",
+      });
       
       const response = await createPaymentSession(sessionData);
       
@@ -63,8 +72,10 @@ export default function DonationFormPage() {
         description: "Redirecting to Cashfree payment page...",
       });
       
-      // Redirect to Cashfree payment page
-      window.location.href = response.payment_url;
+      // Small delay to show the message, then redirect
+      setTimeout(() => {
+        window.location.href = response.payment_url;
+      }, 1000);
 
     } catch (error) {
       console.error('Payment error:', error);
@@ -171,7 +182,7 @@ export default function DonationFormPage() {
                 </div>
 
                 <Button type="submit" className="w-full" size="lg" disabled={isLoading}>
-                  {isLoading ? 'Creating Payment Session...' : `Donate ₹${formData.amount || '0'}`}
+                  {isLoading ? 'Creating Payment Session...' : `Donate ${formatAmount(parseFloat(formData.amount) || 0)}`}
                 </Button>
               </form>
             </CardContent>

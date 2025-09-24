@@ -80,7 +80,7 @@ export const createPaymentSession = async (sessionData: PaymentSessionData): Pro
         throw new Error('Order ID already exists. Please use a different order ID.');
       } else if (response.status === 400) {
         throw new Error(errorData.details ? 
-          `Validation failed: ${errorData.details.map((d: any) => d.message).join(', ')}` : 
+          `Validation failed: ${errorData.details.map((d: { message: string }) => d.message).join(', ')}` : 
           errorData.error || 'Invalid request data');
       } else if (response.status === 401) {
         throw new Error('Authentication failed. Please check your credentials.');
