@@ -1,6 +1,31 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { CASHFREE_CONFIG } from '@/config/cashfree';
 import { PaymentSessionDataSchema } from '@/services/cashfree';
+import { OrdersApi } from 'cashfree-pg-sdk-nodejs';
+
+// Format phone number for Cashfree API
+const formatPhoneForCashfree = (phone: string): string => {
+  // Remove all non-digit characters except +
+  const cleaned = phone.replace(/[^\d+]/g, '');
+  
+  // If it starts with +91, keep it as is
+  if (cleaned.startsWith('+91')) {
+    return cleaned;
+  }
+  
+  // If it starts with 91, add +
+  if (cleaned.startsWith('91')) {
+    return '+' + cleaned;
+  }
+  
+  // If it's a 10-digit number, add +91
+  if (cleaned.length === 10) {
+    return '+91' + cleaned;
+  }
+  
+  // Return as is if it doesn't match expected patterns
+  return cleaned;
+};
 
 export async function POST(request: NextRequest) {
   try {
@@ -15,25 +40,42 @@ export async function POST(request: NextRequest) {
       environment: CASHFREE_CONFIG.ENVIRONMENT
     });
 
-    // Prepare the request payload for Cashfree API
-    const cashfreePayload = {
-      order_id: validatedData.order_id,
+    // Format phone number for Cashfree API
+    const originalPhone = validatedData.customer_details.customer_phone;
+    const formattedPhone = formatPhoneForCashfree(originalPhone);
+    
+    console.log('Phone formatting:', {
+      original: originalPhone,
+      formatted: formattedPhone,
+    });
+    
+    const formattedCustomerDetails = {
+      ...validatedData.customer_details,
+      customer_phone: formattedPhone,
+    };
+
+    // Configure order request as per Medium article
+    const orderRequest = {
       order_amount: validatedData.order_amount,
       order_currency: validatedData.order_currency,
-      customer_details: validatedData.customer_details,
+      order_id: validatedData.order_id,
+      customer_details: formattedCustomerDetails,
       order_meta: validatedData.order_meta,
     };
 
-    // Make request to Cashfree API
+    console.log('Creating order with Cashfree SDK:', JSON.stringify(orderRequest, null, 2));
+
+    // Make request to Cashfree Create Order API directly (fallback approach)
     const response = await fetch(`${CASHFREE_CONFIG.BASE_URL}/pg/orders`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'x-api-version': '2023-08-01',
+        'Accept': 'application/json',
+        'x-api-version': CASHFREE_CONFIG.API_VERSION,
         'x-client-id': CASHFREE_CONFIG.APP_ID,
         'x-client-secret': CASHFREE_CONFIG.SECRET_KEY,
       },
-      body: JSON.stringify(cashfreePayload),
+      body: JSON.stringify(orderRequest),
     });
 
     if (!response.ok) {
@@ -66,15 +108,22 @@ export async function POST(request: NextRequest) {
 
     const data = await response.json();
     
+    console.log('Raw Cashfree API response:', JSON.stringify(data, null, 2));
     console.log('Payment session created successfully:', {
       orderId: data.order_id,
-      sessionId: data.payment_session_id
+      sessionId: data.payment_session_id,
+      paymentUrl: data.payment_url
     });
 
     return NextResponse.json({
-      payment_session_id: data.payment_session_id,
-      order_id: data.order_id,
-      payment_url: data.payment_url,
+      success: true,
+      message: "Order created successfully!",
+      data: {
+        payment_session_id: data.payment_session_id,
+        order_id: data.order_id,
+        payment_url: data.payment_url,
+        cf_order_id: data.cf_order_id,
+      }
     });
 
   } catch (error) {
@@ -88,7 +137,11 @@ export async function POST(request: NextRequest) {
     }
     
     return NextResponse.json(
-      { error: `Failed to create payment session: ${error instanceof Error ? error.message : 'Unknown error'}` },
+      { 
+        success: false,
+        message: error?.response?.data?.message || "Error processing the request.",
+        error: error instanceof Error ? error.message : 'Unknown error'
+      },
       { status: 500 }
     );
   }

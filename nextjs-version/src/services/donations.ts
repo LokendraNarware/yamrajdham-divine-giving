@@ -59,13 +59,14 @@ export const getUserByEmail = async (email: string) => {
       .from('users')
       .select('*')
       .eq('email', email)
-      .single();
+      .maybeSingle(); // Use maybeSingle() instead of single() to handle no results gracefully
 
     if (error) {
       console.error('Error fetching user:', error);
       throw error;
     }
 
+    // Return success even if no user found (data will be null)
     return { success: true, data };
   } catch (err) {
     console.error('Error in getUserByEmail:', err);

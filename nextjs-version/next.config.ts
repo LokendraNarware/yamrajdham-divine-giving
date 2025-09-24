@@ -1,7 +1,10 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  // Configure allowed development origins to prevent cross-origin warnings
+  experimental: {
+    allowedDevOrigins: ["*"],
+  },
 };
 
 export default nextConfig;

@@ -14,15 +14,27 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
 import { createUser, getUserByEmail, createDonation, updateDonationPayment } from "@/services/donations";
-import PaymentModal from "@/components/PaymentModal";
+import { generateOrderId } from "@/services/cashfree";
+
+// Declare Cashfree SDK types
+declare global {
+  interface Window {
+    Cashfree: new (config: { mode: string }) => {
+      checkout: (options: { paymentSessionId: string; redirectTarget: string }) => Promise<void>;
+    };
+  }
+}
 import Header from "@/components/Header";
 
 const donationFormSchema = z.object({
   amount: z.string().min(1, "Amount is required"),
   name: z.string().min(1, "Name is required"),
   email: z.string().email("Valid email is required"),
-  mobile: z.string().min(10, "Valid mobile number is required"),
-  country: z.string().default("India"),
+  mobile: z.string()
+    .min(10, "Mobile number must be at least 10 digits")
+    .max(15, "Mobile number must be at most 15 digits")
+    .regex(/^(\+91|91)?[6-9]\d{9}$/, "Please enter a valid Indian mobile number (e.g., 9876543210 or +919876543210)"),
+  country: z.string().optional(),
   state: z.string().optional(),
   city: z.string().optional(),
   pinCode: z.string().optional(),
@@ -97,15 +109,7 @@ export default function DonatePage() {
   const { toast } = useToast();
   const amount = searchParams.get("amount") || "";
   
-  // Payment modal state
-  const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
-  const [donationData, setDonationData] = useState<{
-    amount: number;
-    donorName: string;
-    donorEmail: string;
-    donorPhone: string;
-    orderId: string;
-  } | null>(null);
+  // Donation state
   const [currentDonationId, setCurrentDonationId] = useState<string | null>(null);
 
   // Function to prefill form data
@@ -153,10 +157,10 @@ export default function DonatePage() {
   const onSubmit = async (data: DonationFormData) => {
     try {
       // First, check if user exists or create a new user
-      let userResult = await getUserByEmail(data.email);
-      let userId = null;
+      const userResult = await getUserByEmail(data.email);
+      let userId: string | null = null;
 
-      if (!userResult.success) {
+      if (!userResult.success || !userResult.data) {
         // User doesn't exist, create new user
         const userData = {
           email: data.email,
@@ -170,9 +174,11 @@ export default function DonatePage() {
           pan_no: data.panNo || undefined,
         };
 
-        userResult = await createUser(userData);
-        if (userResult.success) {
-          userId = userResult.data.id;
+        const createUserResult = await createUser(userData);
+        if (createUserResult.success && createUserResult.data) {
+          userId = createUserResult.data.id;
+        } else {
+          throw new Error('Failed to create user');
         }
       } else {
         userId = userResult.data.id;
@@ -186,11 +192,11 @@ export default function DonatePage() {
         dedication_message: data.message || undefined,
       };
 
-      const donationResult = await createDonation(donationData, userId);
+      const donationResult = await createDonation(donationData, userId || undefined);
       
-      if (donationResult.success) {
+      if (donationResult.success && donationResult.data) {
         // Generate unique order ID
-        const orderId = `YAMRAJ_${Date.now()}_${donationResult.data.id}`;
+        const orderId = generateOrderId('YAMRAJ');
         
         // Set up payment data
         const paymentData = {
@@ -201,16 +207,18 @@ export default function DonatePage() {
           orderId: orderId,
         };
 
-        setDonationData(paymentData);
         setCurrentDonationId(donationResult.data.id);
-        setIsPaymentModalOpen(true);
-
+        
         toast({
           title: "Donation Form Submitted",
-          description: "Please complete your payment to finalize the donation.",
+          description: "Initiating payment...",
         });
+
+        // Directly initiate payment without modal
+        await initiateDirectPayment(paymentData);
       } else {
-        throw new Error(donationResult.error?.message || 'Failed to create donation');
+        const errorMessage = donationResult.error?.message || 'Failed to create donation';
+        throw new Error(errorMessage);
       }
     } catch (error) {
       console.error("Error submitting donation:", error);
@@ -228,7 +236,6 @@ export default function DonatePage() {
         await updateDonationPayment(currentDonationId, {
           payment_status: 'completed',
           payment_id: paymentData.payment_id || paymentData.order_id,
-          payment_gateway: 'cashfree',
         });
 
         toast({
@@ -256,6 +263,234 @@ export default function DonatePage() {
       description: error,
       variant: "destructive",
     });
+  };
+
+  // Direct payment initiation without modal
+  const initiateDirectPayment = async (paymentData: {
+    amount: number;
+    donorName: string;
+    donorEmail: string;
+    donorPhone: string;
+    orderId: string;
+  }) => {
+    try {
+      // Import the payment functions
+      const { createPaymentSession, generateCustomerId, generateOrderId } = await import('@/services/cashfree');
+      
+      // Format phone number for Cashfree API
+      const formatPhoneForCashfree = (phone: string): string => {
+        const cleaned = phone.replace(/[^\d+]/g, '');
+        if (cleaned.startsWith('+91')) return cleaned;
+        if (cleaned.startsWith('91')) return '+' + cleaned;
+        if (cleaned.length === 10) return '+91' + cleaned;
+        return cleaned;
+      };
+
+      const sessionData = {
+        order_id: paymentData.orderId,
+        order_amount: paymentData.amount,
+        order_currency: 'INR',
+        customer_details: {
+          customer_id: generateCustomerId(paymentData.donorEmail),
+          customer_name: paymentData.donorName,
+          customer_email: paymentData.donorEmail,
+          customer_phone: formatPhoneForCashfree(paymentData.donorPhone),
+        },
+        order_meta: {
+          return_url: `${window.location.origin}/donate/success?order_id=${paymentData.orderId}`,
+          notify_url: `${window.location.origin}/api/webhook/cashfree`,
+        },
+      };
+
+      toast({
+        title: "Creating Payment Session",
+        description: "Setting up secure payment...",
+      });
+
+      const response = await createPaymentSession(sessionData);
+      
+      if (!response.success) {
+        throw new Error(response.message || 'Failed to create payment session');
+      }
+
+      const originalSessionId = response.data.payment_session_id;
+      const cfOrderId = response.data.cf_order_id;
+      const paymentUrl = response.data.payment_url;
+      
+      // Log all available data for debugging
+      console.log('Original session ID:', originalSessionId);
+      console.log('CF Order ID:', cfOrderId);
+      console.log('Payment URL from API:', paymentUrl);
+      
+      toast({
+        title: "Payment Session Created",
+        description: "Opening Cashfree payment page...",
+      });
+
+      // Use Cashfree SDK checkout method (most reliable approach)
+      console.log('Using Cashfree SDK checkout method...');
+      await initializeCashfreeAndCheckout(originalSessionId);
+
+    } catch (error) {
+      console.error('Direct payment initiation error:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Failed to initiate payment';
+      handlePaymentFailure(errorMessage);
+    }
+  };
+
+  // Open direct payment URL from API
+  const openDirectPaymentUrl = async (paymentUrl: string) => {
+    try {
+      console.log("Opening payment URL directly:", paymentUrl);
+      
+      // Open in new window with proper dimensions
+      const newWindow = window.open(
+        paymentUrl, 
+        '_blank', 
+        'width=800,height=600,scrollbars=yes,resizable=yes,menubar=no,toolbar=no,location=no,status=no'
+      );
+      
+      if (!newWindow) {
+        // If popup is blocked, try redirecting in same window
+        console.log("Popup blocked, redirecting in same window...");
+        window.location.href = paymentUrl;
+      } else {
+        console.log("Payment window opened successfully");
+        
+        // Focus the new window
+        newWindow.focus();
+        
+        // Optional: Check if window is closed and handle accordingly
+        const checkClosed = setInterval(() => {
+          if (newWindow.closed) {
+            clearInterval(checkClosed);
+            console.log("Payment window was closed");
+            // You could add logic here to check payment status
+          }
+        }, 1000);
+      }
+      
+    } catch (error) {
+      console.error('Direct URL error:', error);
+      throw error;
+    }
+  };
+
+  // Initialize Cashfree SDK and open checkout
+  const initializeCashfreeAndCheckout = async (sessionId: string) => {
+    return new Promise((resolve, reject) => {
+      // Check if SDK is already loaded
+      if (window.Cashfree) {
+        console.log('Cashfree SDK already loaded');
+        openCheckout(sessionId).then(resolve).catch(reject);
+        return;
+      }
+
+      // Load Cashfree SDK
+      const script = document.createElement('script');
+      script.src = 'https://sdk.cashfree.com/js/v3/cashfree.js';
+      script.onload = () => {
+        console.log('Cashfree SDK loaded successfully');
+        openCheckout(sessionId).then(resolve).catch(reject);
+      };
+      script.onerror = () => {
+        console.error('Failed to load Cashfree SDK');
+        reject(new Error('Failed to load Cashfree SDK'));
+      };
+      document.head.appendChild(script);
+    });
+  };
+
+  // Open Cashfree checkout using SDK
+  const openCheckout = async (sessionId: string) => {
+    try {
+      console.log("Using Cashfree SDK checkout...");
+      
+      // Create Cashfree instance
+      const cashfreeInstance = new window.Cashfree({
+        mode: 'SANDBOX'
+      });
+      
+      console.log("Cashfree instance created:", cashfreeInstance);
+      
+      // Try different checkout options
+      const checkoutOptionsList = [
+        {
+          paymentSessionId: sessionId,
+          redirectTarget: "_blank",
+          mode: "SANDBOX"
+        },
+        {
+          paymentSessionId: sessionId,
+          redirectTarget: "_self",
+          mode: "SANDBOX"
+        },
+        {
+          paymentSessionId: sessionId,
+          mode: "SANDBOX"
+          // No redirectTarget specified
+        }
+      ];
+      
+      for (let i = 0; i < checkoutOptionsList.length; i++) {
+        const checkoutOptions = checkoutOptionsList[i];
+        console.log(`Trying checkout options ${i + 1}:`, checkoutOptions);
+        
+        try {
+          // Call checkout method
+          const result = await cashfreeInstance.checkout(checkoutOptions);
+          console.log("Checkout result:", result);
+          
+          // Check if result contains an error
+          if (result && result.error) {
+            console.error('Checkout returned error:', result.error);
+            if (i === checkoutOptionsList.length - 1) {
+              throw new Error(result.error.message || 'Checkout failed');
+            }
+            continue; // Try next option
+          } else {
+            console.log("Checkout successful with options:", checkoutOptions);
+            return; // Success, exit the function
+          }
+        } catch (checkoutError) {
+          console.error(`Checkout attempt ${i + 1} failed:`, checkoutError);
+          if (i === checkoutOptionsList.length - 1) {
+            throw checkoutError; // Re-throw if this was the last attempt
+          }
+        }
+      }
+      
+    } catch (error) {
+      console.error('SDK checkout error:', error);
+      
+      // Fallback: Try direct URL with different formats
+      console.log("SDK failed, trying direct URL fallback...");
+      
+      // Try multiple URL formats
+      const urlFormats = [
+        `https://sandbox.cashfree.com/checkout/${sessionId}`,
+        `https://sandbox.cashfree.com/pg/checkout/${sessionId}`,
+        `https://sandbox.cashfree.com/payments/${sessionId}`,
+      ];
+      
+      for (const url of urlFormats) {
+        console.log("Trying URL:", url);
+        try {
+          const newWindow = window.open(url, '_blank', 'width=800,height=600,scrollbars=yes,resizable=yes');
+          if (newWindow) {
+            console.log("Successfully opened payment window with URL:", url);
+            newWindow.focus();
+            return; // Success, exit the function
+          }
+        } catch (urlError) {
+          console.error("Failed to open URL:", url, urlError);
+        }
+      }
+      
+      // If all URLs fail, redirect in same window
+      console.log("All popup attempts failed, redirecting in same window...");
+      window.location.href = urlFormats[0];
+    }
   };
 
   return (
@@ -547,16 +782,6 @@ export default function DonatePage() {
         </div>
       </main>
 
-      {/* Payment Modal */}
-      {donationData && (
-        <PaymentModal
-          isOpen={isPaymentModalOpen}
-          onClose={() => setIsPaymentModalOpen(false)}
-          donationData={donationData}
-          onPaymentSuccess={handlePaymentSuccess}
-          onPaymentFailure={handlePaymentFailure}
-        />
-      )}
     </div>
   );
 }

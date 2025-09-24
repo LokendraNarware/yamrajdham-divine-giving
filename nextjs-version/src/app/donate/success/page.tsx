@@ -5,7 +5,7 @@ import { useSearchParams, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { CheckCircle, Download, Mail, Heart } from "lucide-react";
-import { getOrderDetails } from "@/services/cashfree";
+import { verifyPayment } from "@/services/cashfree";
 import { useToast } from "@/hooks/use-toast";
 import Header from "@/components/Header";
 
@@ -33,7 +33,7 @@ export default function PaymentSuccessPage() {
           // Add a small delay to ensure payment is processed
           await new Promise(resolve => setTimeout(resolve, 2000));
           
-          const details = await getOrderDetails(orderId);
+          const details = await verifyPayment(orderId);
           setPaymentDetails(details);
           
           // Show success message if payment was successful
