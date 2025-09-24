@@ -262,18 +262,18 @@ export default function DonatePage() {
     <div className="min-h-screen bg-background">
       <Header />
 
-      <main className="container py-8 px-4">
+      <main className="container mx-auto py-8 px-4">
         <div className="max-w-2xl mx-auto">
-          <Card>
-            <CardHeader className="text-center">
-              <CardTitle className="text-2xl md:text-3xl font-bold">
+          <Card className="shadow-lg">
+            <CardHeader className="text-center pb-6">
+              <CardTitle className="text-2xl md:text-3xl font-bold mb-2">
                 Sponsorship / Donation Form
               </CardTitle>
-              <CardDescription>
+              <CardDescription className="text-base">
                 Complete your donation to support the temple construction
               </CardDescription>
               {amount && (
-                <div className="mt-4 p-4 bg-gradient-peaceful rounded-lg">
+                <div className="mt-6 p-4 bg-gradient-peaceful rounded-lg border border-primary/20">
                   <div className="text-2xl font-bold text-primary">
                     Total Amount: ₹{amount}
                   </div>
@@ -281,12 +281,12 @@ export default function DonatePage() {
               )}
             </CardHeader>
 
-            <CardContent>
+            <CardContent className="px-6 pb-6">
               <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-10">
                   {/* Section 1: Donation Amount */}
-                  <div className="space-y-4">
-                    <div className="border-b pb-2">
+                  <div className="space-y-6">
+                    <div className="border-b border-border/50 pb-3">
                       <h3 className="text-lg font-semibold text-primary flex items-center gap-2">
                         <CreditCard className="w-5 h-5" />
                         1. Donation Details
@@ -304,9 +304,10 @@ export default function DonatePage() {
                               {...field}
                               type="number"
                               min="1"
+                              className="h-11 text-base"
                             />
                           </FormControl>
-                          <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mt-3">
+                          <div className="grid grid-cols-4 gap-3 mt-4">
                             {[101, 501, 1001, 2501, 5001, 10001, 25001, 50001].map((amount) => (
                               <Button
                                 key={amount}
@@ -314,7 +315,7 @@ export default function DonatePage() {
                                 variant={field.value === amount.toString() ? "divine" : "outline"}
                                 size="sm"
                                 onClick={() => field.onChange(amount.toString())}
-                                className="text-sm"
+                                className="text-sm font-medium"
                               >
                                 ₹{amount.toLocaleString()}
                               </Button>
@@ -327,8 +328,8 @@ export default function DonatePage() {
                   </div>
 
                   {/* Section 2: Personal Information */}
-                  <div className="space-y-4">
-                    <div className="border-b pb-2">
+                  <div className="space-y-6">
+                    <div className="border-b border-border/50 pb-3">
                       <h3 className="text-lg font-semibold text-primary flex items-center gap-2">
                         <User className="w-5 h-5" />
                         2. Personal Information
@@ -407,8 +408,8 @@ export default function DonatePage() {
                   </div>
 
                   {/* Section 3: Address Information */}
-                  <div className="space-y-4">
-                    <div className="border-b pb-2">
+                  <div className="space-y-6">
+                    <div className="border-b border-border/50 pb-3">
                       <h3 className="text-lg font-semibold text-primary flex items-center gap-2">
                         <MapPin className="w-5 h-5" />
                         3. Address Information
@@ -506,8 +507,8 @@ export default function DonatePage() {
                   </div>
 
                   {/* Section 4: Additional Information */}
-                  <div className="space-y-4">
-                    <div className="border-b pb-2">
+                  <div className="space-y-6">
+                    <div className="border-b border-border/50 pb-3">
                       <h3 className="text-lg font-semibold text-primary flex items-center gap-2">
                         <MessageSquare className="w-5 h-5" />
                         4. Additional Information
@@ -533,10 +534,12 @@ export default function DonatePage() {
                     />
                   </div>
 
-                  <Button type="submit" variant="divine" size="lg" className="w-full">
-                    <Heart className="w-4 h-4" />
-                    Donate Now
-                  </Button>
+                  <div className="pt-6">
+                    <Button type="submit" variant="divine" size="lg" className="w-full h-12 text-lg font-semibold">
+                      <Heart className="w-5 h-5 mr-2" />
+                      Donate Now
+                    </Button>
+                  </div>
                 </form>
               </Form>
             </CardContent>

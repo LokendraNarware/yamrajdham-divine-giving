@@ -232,6 +232,18 @@ export const generateOrderId = (prefix: string = 'order'): string => {
 };
 
 /**
+ * Utility function to generate valid customer ID from email
+ * @param email - Customer email address
+ * @returns string - Valid customer ID for Cashfree
+ */
+export const generateCustomerId = (email: string): string => {
+  // Remove special characters and replace with underscores
+  const cleanEmail = email.replace(/[^a-zA-Z0-9]/g, '_');
+  const timestamp = Date.now();
+  return `customer_${cleanEmail}_${timestamp}`;
+};
+
+/**
  * Utility function to format amount for display
  * @param amount - Amount in paise
  * @returns string - Formatted amount

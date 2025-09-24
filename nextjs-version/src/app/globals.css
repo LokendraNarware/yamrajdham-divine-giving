@@ -128,3 +128,92 @@
     color: var(--color-foreground);
   }
 }
+
+/* Ensure accent colors work properly */
+.text-primary {
+  color: var(--color-primary);
+}
+
+.text-primary-foreground {
+  color: var(--color-primary-foreground);
+}
+
+.text-muted-foreground {
+  color: var(--color-muted-foreground);
+}
+
+.bg-primary {
+  background-color: var(--color-primary);
+}
+
+.bg-primary-foreground {
+  background-color: var(--color-primary-foreground);
+}
+
+.bg-muted {
+  background-color: var(--color-muted);
+}
+
+.bg-accent {
+  background-color: var(--color-accent);
+}
+
+.bg-card {
+  background-color: var(--color-card);
+}
+
+.bg-background {
+  background-color: var(--color-background);
+}
+
+.bg-foreground {
+  background-color: var(--color-foreground);
+}
+
+.border-border {
+  border-color: var(--color-border);
+}
+
+.hover\:text-primary:hover {
+  color: var(--color-primary);
+}
+
+/* Button variant styles */
+.bg-gradient-divine {
+  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-glow));
+  color: var(--color-primary-foreground);
+}
+
+.bg-gradient-divine:hover {
+  box-shadow: 0 10px 30px -10px rgba(217, 119, 6, 0.3);
+  transform: scale(1.05);
+}
+
+.bg-gradient-gold {
+  background: linear-gradient(45deg, var(--color-temple-gold), var(--color-secondary-rich));
+  color: var(--color-secondary-foreground);
+}
+
+.bg-gradient-gold:hover {
+  box-shadow: 0 5px 20px -5px rgba(251, 191, 36, 0.4);
+}
+
+.bg-temple-sacred {
+  background-color: var(--color-temple-sacred);
+  color: var(--color-primary-foreground);
+}
+
+.bg-temple-sacred:hover {
+  background-color: var(--color-primary-glow);
+  box-shadow: 0 0 40px rgba(234, 88, 12, 0.2);
+}
+
+.bg-temple-saffron {
+  background-color: var(--color-temple-saffron);
+  color: var(--color-primary-foreground);
+}
+
+.bg-temple-saffron:hover {
+  background-color: var(--color-temple-sacred);
+  box-shadow: 0 10px 30px -10px rgba(217, 119, 6, 0.3);
+}

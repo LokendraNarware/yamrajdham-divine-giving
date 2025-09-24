@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Loader2, CreditCard, Smartphone, Building, CheckCircle, XCircle } from "lucide-react";
-import { createPaymentSession, PaymentSessionData } from "@/services/cashfree";
+import { createPaymentSession, PaymentSessionData, generateCustomerId } from "@/services/cashfree";
 import { CASHFREE_CONFIG } from "@/config/cashfree";
 import { useToast } from "@/hooks/use-toast";
 
@@ -31,6 +31,8 @@ const PaymentModal = ({
   onPaymentFailure 
 }: PaymentModalProps) => {
   const [isLoading, setIsLoading] = useState(false);
+  const [paymentUrl, setPaymentUrl] = useState<string | null>(null);
+  const [paymentStatus, setPaymentStatus] = useState<'pending' | 'success' | 'failed'>('pending');
   const { toast } = useToast();
 
   const handlePayment = async () => {
@@ -41,7 +43,7 @@ const PaymentModal = ({
         order_amount: donationData.amount,
         order_currency: 'INR',
         customer_details: {
-          customer_id: donationData.donorEmail,
+          customer_id: generateCustomerId(donationData.donorEmail),
           customer_name: donationData.donorName,
           customer_email: donationData.donorEmail,
           customer_phone: donationData.donorPhone,
@@ -53,6 +55,8 @@ const PaymentModal = ({
       };
 
       console.log('Initiating payment with data:', sessionData);
+      console.log('Generated customer_id:', generateCustomerId(donationData.donorEmail));
+      console.log('PaymentModal version:', '2024-01-25-v2');
       
       // Show loading message
       toast({
