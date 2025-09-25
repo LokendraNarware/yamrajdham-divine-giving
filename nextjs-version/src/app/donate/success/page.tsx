@@ -36,8 +36,31 @@ export default function PaymentSuccessPage() {
           const details = await verifyPayment(orderId);
           setPaymentDetails(details);
           
-          // Show success message if payment was successful
+          // Update donation status in database if payment was successful
           if (details.order_status === 'PAID' || details.payment_status === 'SUCCESS') {
+            try {
+              // Update donation status to completed
+              const updateResponse = await fetch('/api/payment/update-status', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                  donationId: orderId,
+                  status: 'completed',
+                  paymentId: details.payment_id
+                }),
+              });
+
+              if (updateResponse.ok) {
+                console.log('✅ Donation status updated to completed');
+              } else {
+                console.error('❌ Failed to update donation status');
+              }
+            } catch (error) {
+              console.error('❌ Error updating donation status:', error);
+            }
+
             toast({
               title: "Payment Successful!",
               description: "Thank you for your generous donation.",
@@ -87,6 +110,44 @@ export default function PaymentSuccessPage() {
       title: "Receipt Sent",
       description: "Receipt has been sent to your email address.",
     });
+  };
+
+  const handleManualStatusUpdate = async () => {
+    if (!orderId) return;
+    
+    try {
+      const updateResponse = await fetch('/api/payment/update-status', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          donationId: orderId,
+          status: 'completed',
+          paymentId: paymentDetails?.payment_id
+        }),
+      });
+
+      if (updateResponse.ok) {
+        toast({
+          title: "Status Updated!",
+          description: "Donation status has been updated to completed.",
+        });
+      } else {
+        toast({
+          title: "Update Failed",
+          description: "Failed to update donation status.",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error('Error updating status:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update donation status.",
+        variant: "destructive",
+      });
+    }
   };
 
   if (isLoading) {
@@ -209,6 +270,18 @@ export default function PaymentSuccessPage() {
                     Email Receipt
                   </Button>
                 </div>
+                
+                {/* Manual Status Update Button for Testing */}
+                {paymentDetails && (paymentDetails.order_status === 'PAID' || paymentDetails.payment_status === 'SUCCESS') && (
+                  <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                    <p className="text-sm text-yellow-800 mb-2">
+                      <strong>Testing:</strong> If the donation status is still showing as pending in your dashboard, click the button below to manually update it.
+                    </p>
+                    <Button onClick={handleManualStatusUpdate} variant="outline" size="sm">
+                      Update Status to Completed
+                    </Button>
+                  </div>
+                )}
               </div>
             </CardContent>
           </Card>

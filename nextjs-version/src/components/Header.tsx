@@ -1,11 +1,25 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Heart, Menu } from "lucide-react";
+import { Heart, Menu, User, LogOut } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useAuth } from "@/contexts/AuthContext";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const Header = () => {
   const router = useRouter();
+  const { user, signOut } = useAuth();
+
+  const handleSignOut = async () => {
+    await signOut();
+    router.push('/');
+  };
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-transparent backdrop-blur supports-[backdrop-filter]:bg-transparent">
@@ -41,10 +55,47 @@ const Header = () => {
         </nav>
 
         <div className="flex items-center space-x-2">
-          <Button variant="divine" size="sm" onClick={() => router.push("/donate")}>
-            <Heart className="w-4 h-4" />
-            Donate Now
-          </Button>
+          {user ? (
+            <>
+              <Button variant="divine" size="sm" onClick={() => router.push("/donate")}>
+                <Heart className="w-4 h-4" />
+                Donate Now
+              </Button>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="sm" className="flex items-center gap-2">
+                    <User className="w-4 h-4" />
+                    <span className="hidden sm:inline">My Account</span>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={() => router.push("/profile")}>
+                    <User className="w-4 h-4 mr-2" />
+                    Profile
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => router.push("/dashboard")}>
+                    <User className="w-4 h-4 mr-2" />
+                    Dashboard
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={handleSignOut}>
+                    <LogOut className="w-4 h-4 mr-2" />
+                    Sign Out
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </>
+          ) : (
+            <>
+              <Button variant="outline" size="sm" onClick={() => router.push("/login")}>
+                Sign In
+              </Button>
+              <Button variant="divine" size="sm" onClick={() => router.push("/donate")}>
+                <Heart className="w-4 h-4" />
+                Donate Now
+              </Button>
+            </>
+          )}
           <Button variant="ghost" size="icon" className="md:hidden">
             <Menu className="w-4 h-4" />
           </Button>

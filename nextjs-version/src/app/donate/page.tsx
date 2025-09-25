@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -13,14 +13,14 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
-import { createUser, getUserByEmail, createDonation, updateDonationPayment } from "@/services/donations";
-import { generateOrderId } from "@/services/cashfree";
+import { createUser, getUserByEmail, getUserById, createDonation } from "@/services/donations";
+import { useAuth } from "@/contexts/AuthContext";
 
 // Declare Cashfree SDK types
 declare global {
   interface Window {
     Cashfree: new (config: { mode: string }) => {
-      checkout: (options: { paymentSessionId: string; redirectTarget: string }) => Promise<void>;
+      checkout: (options: { paymentSessionId: string; redirectTarget?: string; mode?: string }) => Promise<unknown>;
     };
   }
 }
@@ -105,36 +105,11 @@ const mapFormFields = (data: PrefillData) => {
 
 export default function DonatePage() {
   const searchParams = useSearchParams();
-  const router = useRouter();
   const { toast } = useToast();
+  const { user } = useAuth();
   const amount = searchParams.get("amount") || "";
   
-  // Donation state
-  const [currentDonationId, setCurrentDonationId] = useState<string | null>(null);
-
-  // Function to prefill form data
-  const prefillFormData = (data: PrefillData) => {
-    const mappedData = mapFormFields(data);
-    Object.keys(mappedData).forEach(key => {
-      if (mappedData[key]) {
-        form.setValue(key as keyof DonationFormData, mappedData[key]);
-      }
-    });
-  };
-
-  // Check for prefill data in URL parameters
-  useEffect(() => {
-    const prefillData: PrefillData = {};
-    searchParams.forEach((value, key) => {
-      if (key !== 'amount') {
-        prefillData[key] = value;
-      }
-    });
-    
-    if (Object.keys(prefillData).length > 0) {
-      prefillFormData(prefillData);
-    }
-  }, [searchParams, prefillFormData]);
+  // Removed unused donation state
 
   const form = useForm<DonationFormData>({
     resolver: zodResolver(donationFormSchema),
@@ -153,15 +128,86 @@ export default function DonatePage() {
     },
   });
 
+  // Check for prefill data in URL parameters and user data
+  useEffect(() => {
+    const prefillData: PrefillData = {};
+    
+    // First, check URL parameters
+    searchParams.forEach((value, key) => {
+      if (key !== 'amount') {
+        prefillData[key] = value;
+      }
+    });
+    
+    // Function to prefill form data
+    const prefillFormData = (data: PrefillData) => {
+      const mappedData = mapFormFields(data);
+      Object.keys(mappedData).forEach(key => {
+        if (mappedData[key]) {
+          form.setValue(key as keyof DonationFormData, mappedData[key]);
+        }
+      });
+    };
+    
+    // If user is logged in, fetch their data and prefill
+    if (user && !Object.keys(prefillData).length) {
+      const fetchUserData = async () => {
+        try {
+          const result = await getUserById(user.id);
+          if (result.success && result.data) {
+            const userData = result.data;
+            const userPrefillData: PrefillData = {
+              name: userData.name || '',
+              email: userData.email || '',
+              mobile: userData.mobile || '',
+              country: userData.country || 'India',
+              state: userData.state || '',
+              city: userData.city || '',
+              pinCode: userData.pin_code || '',
+              panNo: userData.pan_no || '',
+              address: userData.address || '',
+            };
+            
+            // Only prefill non-empty values
+            Object.keys(userPrefillData).forEach(key => {
+              if (userPrefillData[key]) {
+                form.setValue(key as keyof DonationFormData, userPrefillData[key]);
+              }
+            });
+            
+            console.log('✅ User data prefilled from profile');
+          }
+        } catch (error) {
+          console.error('Error fetching user data for prefill:', error);
+        }
+      };
+      
+      fetchUserData();
+    } else if (Object.keys(prefillData).length > 0) {
+      // Use URL prefill data if available
+      prefillFormData(prefillData);
+    }
+  }, [searchParams, user, form]);
+
 
   const onSubmit = async (data: DonationFormData) => {
     try {
-      // First, check if user exists or create a new user
-      const userResult = await getUserByEmail(data.email);
+      console.log('🚀 Processing donation for:', data.email);
+      
+      // Auto account creation logic - no login required
       let userId: string | null = null;
 
-      if (!userResult.success || !userResult.data) {
-        // User doesn't exist, create new user
+      // Check if user already exists by email
+      const userResult = await getUserByEmail(data.email);
+      
+      if (userResult.success && userResult.data) {
+        // User exists, use their ID
+        console.log('✅ User already exists:', userResult.data.email);
+        userId = userResult.data.id;
+      } else {
+        // User doesn't exist, create new account automatically
+        console.log('🆕 Creating new user account for:', data.email);
+        
         const userData = {
           email: data.email,
           name: data.name,
@@ -177,11 +223,11 @@ export default function DonatePage() {
         const createUserResult = await createUser(userData);
         if (createUserResult.success && createUserResult.data) {
           userId = createUserResult.data.id;
+          console.log('✅ New user account created:', userId);
         } else {
-          throw new Error('Failed to create user');
+          const errorMessage = createUserResult.error?.message || 'Failed to create user account';
+          throw new Error(`Account creation failed: ${errorMessage}`);
         }
-      } else {
-        userId = userResult.data.id;
       }
 
       // Create donation
@@ -195,8 +241,8 @@ export default function DonatePage() {
       const donationResult = await createDonation(donationData, userId || undefined);
       
       if (donationResult.success && donationResult.data) {
-        // Generate unique order ID
-        const orderId = generateOrderId('YAMRAJ');
+        // Use donation ID as order ID for Cashfree
+        const orderId = donationResult.data.id;
         
         // Set up payment data
         const paymentData = {
@@ -207,12 +253,12 @@ export default function DonatePage() {
           orderId: orderId,
         };
 
-        setCurrentDonationId(donationResult.data.id);
+        // Removed unused setCurrentDonationId
         
-        toast({
-          title: "Donation Form Submitted",
-          description: "Initiating payment...",
-        });
+      toast({
+        title: "Account & Donation Created",
+        description: "Account created automatically. Initiating payment...",
+      });
 
         // Directly initiate payment without modal
         await initiateDirectPayment(paymentData);
@@ -230,32 +276,7 @@ export default function DonatePage() {
     }
   };
 
-  const handlePaymentSuccess = async (paymentData: { payment_id?: string; order_id?: string }) => {
-    try {
-      if (currentDonationId) {
-        await updateDonationPayment(currentDonationId, {
-          payment_status: 'completed',
-          payment_id: paymentData.payment_id || paymentData.order_id,
-        });
-
-        toast({
-          title: "Payment Successful!",
-          description: "Thank you for your generous donation. You will receive a receipt via email.",
-        });
-
-        // Redirect to success page or home
-        setTimeout(() => {
-          router.push('/');
-        }, 2000);
-      }
-    } catch (error) {
-      console.error("Error updating donation:", error);
-      toast({
-        title: "Payment Successful",
-        description: "Your payment was successful, but there was an issue updating the record. Please contact support.",
-      });
-    }
-  };
+  // Removed unused handlePaymentSuccess function
 
   const handlePaymentFailure = (error: string) => {
     toast({
@@ -275,7 +296,7 @@ export default function DonatePage() {
   }) => {
     try {
       // Import the payment functions
-      const { createPaymentSession, generateCustomerId, generateOrderId } = await import('@/services/cashfree');
+      const { createPaymentSession, generateCustomerId } = await import('@/services/cashfree');
       
       // Format phone number for Cashfree API
       const formatPhoneForCashfree = (phone: string): string => {
@@ -339,42 +360,7 @@ export default function DonatePage() {
   };
 
   // Open direct payment URL from API
-  const openDirectPaymentUrl = async (paymentUrl: string) => {
-    try {
-      console.log("Opening payment URL directly:", paymentUrl);
-      
-      // Open in new window with proper dimensions
-      const newWindow = window.open(
-        paymentUrl, 
-        '_blank', 
-        'width=800,height=600,scrollbars=yes,resizable=yes,menubar=no,toolbar=no,location=no,status=no'
-      );
-      
-      if (!newWindow) {
-        // If popup is blocked, try redirecting in same window
-        console.log("Popup blocked, redirecting in same window...");
-        window.location.href = paymentUrl;
-      } else {
-        console.log("Payment window opened successfully");
-        
-        // Focus the new window
-        newWindow.focus();
-        
-        // Optional: Check if window is closed and handle accordingly
-        const checkClosed = setInterval(() => {
-          if (newWindow.closed) {
-            clearInterval(checkClosed);
-            console.log("Payment window was closed");
-            // You could add logic here to check payment status
-          }
-        }, 1000);
-      }
-      
-    } catch (error) {
-      console.error('Direct URL error:', error);
-      throw error;
-    }
-  };
+  // Removed unused openDirectPaymentUrl function
 
   // Initialize Cashfree SDK and open checkout
   const initializeCashfreeAndCheckout = async (sessionId: string) => {
@@ -417,18 +403,18 @@ export default function DonatePage() {
       const checkoutOptionsList = [
         {
           paymentSessionId: sessionId,
-          redirectTarget: "_blank",
+          redirectTarget: "_blank" as string,
           mode: "SANDBOX"
         },
         {
           paymentSessionId: sessionId,
-          redirectTarget: "_self",
+          redirectTarget: "_self" as string,
           mode: "SANDBOX"
         },
         {
           paymentSessionId: sessionId,
+          redirectTarget: "_blank" as string,
           mode: "SANDBOX"
-          // No redirectTarget specified
         }
       ];
       
@@ -436,28 +422,29 @@ export default function DonatePage() {
         const checkoutOptions = checkoutOptionsList[i];
         console.log(`Trying checkout options ${i + 1}:`, checkoutOptions);
         
-        try {
-          // Call checkout method
-          const result = await cashfreeInstance.checkout(checkoutOptions);
-          console.log("Checkout result:", result);
-          
-          // Check if result contains an error
-          if (result && result.error) {
-            console.error('Checkout returned error:', result.error);
-            if (i === checkoutOptionsList.length - 1) {
-              throw new Error(result.error.message || 'Checkout failed');
+          try {
+            // Call checkout method
+            const result = await cashfreeInstance.checkout(checkoutOptions);
+            console.log("Checkout result:", result);
+
+            // Check if result contains an error
+            if (result && typeof result === 'object' && 'error' in result) {
+              const errorResult = result as { error: { message?: string } };
+              console.error('Checkout returned error:', errorResult.error);
+              if (i === checkoutOptionsList.length - 1) {
+                throw new Error(errorResult.error.message || 'Checkout failed');
+              }
+              continue; // Try next option
+            } else {
+              console.log("Checkout successful with options:", checkoutOptions);
+              return; // Success, exit the function
             }
-            continue; // Try next option
-          } else {
-            console.log("Checkout successful with options:", checkoutOptions);
-            return; // Success, exit the function
+          } catch (checkoutError) {
+            console.error(`Checkout attempt ${i + 1} failed:`, checkoutError);
+            if (i === checkoutOptionsList.length - 1) {
+              throw checkoutError; // Re-throw if this was the last attempt
+            }
           }
-        } catch (checkoutError) {
-          console.error(`Checkout attempt ${i + 1} failed:`, checkoutError);
-          if (i === checkoutOptionsList.length - 1) {
-            throw checkoutError; // Re-throw if this was the last attempt
-          }
-        }
       }
       
     } catch (error) {

@@ -33,11 +33,11 @@ export interface AdminData {
 }
 
 // User Management Functions
-export const createUser = async (userData: UserData) => {
+export const createUser = async (userData: UserData): Promise<{ success: boolean; data?: any; error?: any }> => {
   try {
     const { data, error } = await supabase
       .from('users')
-      .insert([userData])
+      .insert(userData as any)
       .select()
       .single();
 
@@ -53,7 +53,7 @@ export const createUser = async (userData: UserData) => {
   }
 };
 
-export const getUserByEmail = async (email: string) => {
+export const getUserByEmail = async (email: string): Promise<{ success: boolean; data?: any; error?: any }> => {
   try {
     const { data, error } = await supabase
       .from('users')
@@ -74,8 +74,189 @@ export const getUserByEmail = async (email: string) => {
   }
 };
 
+export const getUserById = async (userId: string): Promise<{ success: boolean; data?: any; error?: any }> => {
+  try {
+    console.log('Fetching user by ID:', userId);
+    
+    // First, try to get the current auth user to get their email
+    const { data: { user: authUser } } = await supabase.auth.getUser();
+    
+    if (!authUser || !authUser.email) {
+      console.error('No auth user or email found');
+      return { success: false, error: 'No authenticated user found' };
+    }
+
+    // Try to find user by email first (this seems to work better)
+    console.log('Looking up user by email:', authUser.email);
+    const { data: userByEmail, error: emailError } = await supabase
+      .from('users')
+      .select('*')
+      .eq('email', authUser.email)
+      .maybeSingle();
+
+    if (emailError) {
+      console.error('Error fetching user by email:', emailError);
+      return { success: false, error: emailError };
+    }
+
+    if (userByEmail) {
+      console.log('Found user by email:', (userByEmail as any).id);
+      return { success: true, data: userByEmail };
+    }
+
+    // If no user found by email, try by ID as fallback
+    console.log('No user found by email, trying by ID...');
+    const { data: userById, error: idError } = await supabase
+      .from('users')
+      .select('*')
+      .eq('id', userId)
+      .maybeSingle();
+
+    if (idError) {
+      console.error('Error fetching user by ID:', idError);
+      return { success: false, error: idError };
+    }
+
+    if (userById) {
+      console.log('Found user by ID:', (userById as any).id);
+      return { success: true, data: userById };
+    }
+
+    // If no user found, create a new one
+    console.log('No existing user found, creating new record...');
+    const newUserData = {
+      id: userId,
+      email: authUser.email || '',
+      name: authUser.user_metadata?.name || '',
+      mobile: authUser.user_metadata?.phone || '',
+      created_at: new Date().toISOString(),
+    };
+
+    const { data: newData, error: createError } = await supabase
+      .from('users')
+      .insert(newUserData as any)
+      .select()
+      .single();
+
+    if (createError) {
+      console.error('Error creating user from auth:', createError);
+      return { success: false, error: createError };
+    }
+
+    console.log('Created new user:', (newData as any).id);
+    return { success: true, data: newData };
+  } catch (err) {
+    console.error('Error in getUserById:', err);
+    return { success: false, error: err };
+  }
+};
+
+export const updateUser = async (userId: string, userData: Partial<UserData>): Promise<{ success: boolean; data?: any; error?: any }> => {
+  try {
+    console.log('Updating user with ID:', userId, 'Data:', userData);
+    
+    // Get the current auth user to get their email
+    const { data: { user: authUser } } = await supabase.auth.getUser();
+    
+    if (!authUser || !authUser.email) {
+      console.error('No auth user or email found');
+      return { success: false, error: 'No authenticated user found' };
+    }
+
+    // Try to find user by email first (this seems to work better)
+    console.log('Looking up user by email for update:', authUser.email);
+    const { data: existingUser, error: emailError } = await supabase
+      .from('users')
+      .select('*')
+      .eq('email', authUser.email)
+      .maybeSingle();
+
+    if (emailError) {
+      console.error('Error fetching user by email:', emailError);
+      return { success: false, error: emailError };
+    }
+
+    if (existingUser) {
+      console.log('Found existing user by email, updating data...');
+      
+      // Update the existing user's data using their database ID
+      const { data: updatedUser, error: updateError } = await (supabase as any)
+        .from('users')
+        .update(userData)
+        .eq('id', (existingUser as any).id) // Use the database ID, not the auth ID
+        .select()
+        .maybeSingle();
+
+      if (updateError) {
+        console.error('Error updating existing user:', updateError);
+        return { success: false, error: updateError };
+      }
+
+      return { success: true, data: updatedUser };
+    }
+
+    // If no user found by email, try by ID as fallback
+    console.log('No user found by email, trying by ID...');
+    const { data: userById, error: idError } = await supabase
+      .from('users')
+      .select('*')
+      .eq('id', userId)
+      .maybeSingle();
+
+    if (idError) {
+      console.error('Error fetching user by ID:', idError);
+      return { success: false, error: idError };
+    }
+
+    if (userById) {
+      console.log('Found user by ID, updating data...');
+      
+      // Update the existing user's data
+      const { data: updatedUser, error: updateError } = await (supabase as any)
+        .from('users')
+        .update(userData)
+        .eq('id', userId)
+        .select()
+        .maybeSingle();
+
+      if (updateError) {
+        console.error('Error updating user by ID:', updateError);
+        return { success: false, error: updateError };
+      }
+
+      return { success: true, data: updatedUser };
+    }
+
+    // If no user found, create new one
+    console.log('No existing user found, creating new record...');
+    const newUserData = {
+      id: userId,
+      email: authUser.email || '',
+      ...userData,
+      created_at: new Date().toISOString(),
+    };
+
+    const { data: newData, error: createError } = await supabase
+      .from('users')
+      .insert(newUserData as any)
+      .select()
+      .single();
+
+    if (createError) {
+      console.error('Error creating user:', createError);
+      return { success: false, error: createError };
+    }
+
+    console.log('Created new user:', (newData as any).id);
+    return { success: true, data: newData };
+  } catch (err) {
+    console.error('Error in updateUser:', err);
+    return { success: false, error: err };
+  }
+};
+
 // Donation Management Functions
-export const createDonation = async (donationData: DonationData, userId?: string) => {
+export const createDonation = async (donationData: DonationData, userId?: string): Promise<{ success: boolean; data?: any; error?: any }> => {
   try {
     const donationWithUser = {
       ...donationData,
@@ -84,7 +265,7 @@ export const createDonation = async (donationData: DonationData, userId?: string
 
     const { data, error } = await supabase
       .from('user_donations')
-      .insert([donationWithUser])
+      .insert(donationWithUser as any)
       .select()
       .single();
 
@@ -100,7 +281,7 @@ export const createDonation = async (donationData: DonationData, userId?: string
   }
 };
 
-export const getDonations = async () => {
+export const getDonations = async (): Promise<{ success: boolean; data?: any; error?: any }> => {
   try {
     const { data, error } = await supabase
       .from('user_donations')
@@ -127,9 +308,9 @@ export const getDonations = async () => {
   }
 };
 
-export const updateDonationPayment = async (id: string, paymentData: { payment_status: string; payment_id?: string }) => {
+export const updateDonationPayment = async (id: string, paymentData: { payment_status: string; payment_id?: string }): Promise<{ success: boolean; data?: any; error?: any }> => {
   try {
-    const { data, error } = await supabase
+    const { data, error } = await (supabase as any)
       .from('user_donations')
       .update(paymentData)
       .eq('id', id)
@@ -149,11 +330,11 @@ export const updateDonationPayment = async (id: string, paymentData: { payment_s
 };
 
 // Admin Management Functions
-export const createAdmin = async (adminData: AdminData) => {
+export const createAdmin = async (adminData: AdminData): Promise<{ success: boolean; data?: any; error?: any }> => {
   try {
     const { data, error } = await supabase
       .from('admin')
-      .insert([adminData])
+      .insert(adminData as any)
       .select()
       .single();
 
@@ -169,7 +350,7 @@ export const createAdmin = async (adminData: AdminData) => {
   }
 };
 
-export const getAdmins = async () => {
+export const getAdmins = async (): Promise<{ success: boolean; data?: any; error?: any }> => {
   try {
     const { data, error } = await supabase
       .from('admin')

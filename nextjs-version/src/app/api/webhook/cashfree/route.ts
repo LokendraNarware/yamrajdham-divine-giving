@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { CASHFREE_CONFIG } from '@/config/cashfree';
+import { supabase } from '@/integrations/supabase/client';
 
 export async function POST(request: NextRequest) {
   try {
@@ -48,57 +49,99 @@ async function handlePaymentSuccess(data: any) {
   const order = data.order;
   const payment = data.payment;
   
-  console.log('Payment successful:', {
+  console.log('✅ Payment successful:', {
     orderId: order.order_id,
     amount: order.order_amount,
     paymentId: payment.payment_id,
     paymentMethod: payment.payment_method
   });
 
-  // Here you can:
-  // 1. Update your database with payment success
-  // 2. Send confirmation email to donor
-  // 3. Update donation records
-  // 4. Trigger any other business logic
-  
-  // Example: Update donation status in database
-  // await updateDonationStatus(order.order_id, 'completed', payment);
+  try {
+    // Update donation status in database
+    const { data: updatedDonation, error } = await supabase
+      .from('user_donations')
+      .update({
+        payment_status: 'completed',
+        payment_id: payment.payment_id,
+        payment_gateway: 'cashfree',
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', order.order_id) // order_id is the donation id
+      .select()
+      .single();
+
+    if (error) {
+      console.error('❌ Error updating donation status:', error);
+    } else {
+      console.log('✅ Donation status updated successfully:', updatedDonation);
+    }
+  } catch (error) {
+    console.error('❌ Error in handlePaymentSuccess:', error);
+  }
 }
 
 async function handlePaymentFailed(data: any) {
   const order = data.order;
   const payment = data.payment;
   
-  console.log('Payment failed:', {
+  console.log('❌ Payment failed:', {
     orderId: order.order_id,
     amount: order.order_amount,
     failureReason: payment.payment_message
   });
 
-  // Here you can:
-  // 1. Update your database with payment failure
-  // 2. Send notification to donor about failure
-  // 3. Log the failure for analysis
-  
-  // Example: Update donation status in database
-  // await updateDonationStatus(order.order_id, 'failed', payment);
+  try {
+    // Update donation status in database
+    const { data: updatedDonation, error } = await supabase
+      .from('user_donations')
+      .update({
+        payment_status: 'failed',
+        payment_id: payment.payment_id || null,
+        payment_gateway: 'cashfree',
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', order.order_id)
+      .select()
+      .single();
+
+    if (error) {
+      console.error('❌ Error updating donation status:', error);
+    } else {
+      console.log('✅ Donation status updated to failed:', updatedDonation);
+    }
+  } catch (error) {
+    console.error('❌ Error in handlePaymentFailed:', error);
+  }
 }
 
 async function handlePaymentDropped(data: any) {
   const order = data.order;
   
-  console.log('Payment dropped by user:', {
+  console.log('⚠️ Payment dropped by user:', {
     orderId: order.order_id,
     amount: order.order_amount
   });
 
-  // Here you can:
-  // 1. Update your database with payment dropped
-  // 2. Send follow-up email to donor
-  // 3. Track abandonment for analytics
-  
-  // Example: Update donation status in database
-  // await updateDonationStatus(order.order_id, 'abandoned', null);
+  try {
+    // Update donation status in database
+    const { data: updatedDonation, error } = await supabase
+      .from('user_donations')
+      .update({
+        payment_status: 'pending', // Keep as pending since user can retry
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', order.order_id)
+      .select()
+      .single();
+
+    if (error) {
+      console.error('❌ Error updating donation status:', error);
+    } else {
+      console.log('✅ Donation status updated (dropped):', updatedDonation);
+    }
+  } catch (error) {
+    console.error('❌ Error in handlePaymentDropped:', error);
+  }
 }
 
 function verifyWebhookSignature(body: any, signature: string): boolean {
