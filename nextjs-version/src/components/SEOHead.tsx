@@ -24,12 +24,12 @@ export default function SEOHead({
     'Rajasthan Temple'
   ],
   image = '/temple-hero.jpg',
-  url = 'https://yamrajdhamtemple.org',
+  url = 'https://yamrajdhamtemple.com',
   type = 'website',
   structuredData,
   canonical
 }: SEOHeadProps) {
-  const baseUrl = 'https://yamrajdhamtemple.org';
+  const baseUrl = 'https://yamrajdhamtemple.com';
   const fullImageUrl = image.startsWith('http') ? image : `${baseUrl}${image}`;
   const fullUrl = url.startsWith('http') ? url : `${baseUrl}${url}`;
   const canonicalUrl = canonical ? `${baseUrl}${canonical}` : fullUrl;

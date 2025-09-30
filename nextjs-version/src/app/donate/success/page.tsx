@@ -306,6 +306,30 @@ export default function PaymentSuccessPage() {
             </CardContent>
           </Card>
 
+          {/* Donation Receipt Preview */}
+          {paymentDetails && (
+            <Card className="mb-6">
+              <CardHeader>
+                <CardTitle>Receipt Preview</CardTitle>
+                <CardDescription>
+                  Preview of your donation receipt
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div ref={setReceiptRef}>
+                  <DonationReceipt
+                    donationId={paymentDetails.order_id}
+                    donorName="Devotee" // You can get this from user data
+                    amount={paymentDetails.order_amount}
+                    date={paymentDetails.payment_time || new Date().toISOString()}
+                    purpose="Temple Construction"
+                    paymentMethod={paymentDetails.payment_method || "Online Payment"}
+                  />
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
           {/* Next Steps */}
           <Card>
             <CardHeader>

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect, useState, useCallback, useMemo } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { User } from '@supabase/supabase-js';
 
@@ -18,31 +18,66 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    // Get initial session
-    const getInitialSession = async () => {
+  const getInitialSession = useCallback(async () => {
+    try {
       console.log('Getting initial session...');
-      const { data: { session } } = await supabase.auth.getSession();
+      const { data: { session }, error } = await supabase.auth.getSession();
+      if (error) {
+        console.error('Error getting session:', error);
+        setLoading(false);
+        return;
+      }
       console.log('Initial session:', session);
       setUser(session?.user ?? null);
       setLoading(false);
-    };
-
-    getInitialSession();
-
-    // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        console.log('Auth state changed:', event, session);
-        setUser(session?.user ?? null);
-        setLoading(false);
-      }
-    );
-
-    return () => subscription.unsubscribe();
+    } catch (error) {
+      console.error('Error in getInitialSession:', error);
+      setLoading(false);
+    }
   }, []);
 
-  const signUp = async (email: string, password: string, userData: { name: string; phone?: string }) => {
+  useEffect(() => {
+    let mounted = true;
+    let subscription: any = null;
+
+    const initializeAuth = async () => {
+      if (!mounted) return;
+      
+      try {
+        await getInitialSession();
+        
+        if (!mounted) return;
+
+        // Listen for auth changes
+        const { data: { subscription: authSubscription } } = supabase.auth.onAuthStateChange(
+          async (event, session) => {
+            if (!mounted) return;
+            console.log('Auth state changed:', event, session);
+            setUser(session?.user ?? null);
+            setLoading(false);
+          }
+        );
+        
+        subscription = authSubscription;
+      } catch (error) {
+        console.error('Error initializing auth:', error);
+        if (mounted) {
+          setLoading(false);
+        }
+      }
+    };
+
+    initializeAuth();
+
+    return () => {
+      mounted = false;
+      if (subscription) {
+        subscription.unsubscribe();
+      }
+    };
+  }, [getInitialSession]);
+
+  const signUp = useCallback(async (email: string, password: string, userData: { name: string; phone?: string }) => {
     try {
       const { data, error } = await supabase.auth.signUp({
         email,
@@ -56,6 +91,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       });
 
       if (error) {
+        console.error('Sign up error:', error);
         return { success: false, error: error.message };
       }
 
@@ -83,11 +119,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       return { success: true };
     } catch (error) {
+      console.error('Sign up unexpected error:', error);
       return { success: false, error: 'An unexpected error occurred' };
     }
-  };
+  }, []);
 
-  const signIn = async (email: string, password: string) => {
+  const signIn = useCallback(async (email: string, password: string) => {
     try {
       const { error } = await supabase.auth.signInWithPassword({
         email,
@@ -95,26 +132,35 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       });
 
       if (error) {
+        console.error('Sign in error:', error);
         return { success: false, error: error.message };
       }
 
       return { success: true };
     } catch (error) {
+      console.error('Sign in unexpected error:', error);
       return { success: false, error: 'An unexpected error occurred' };
     }
-  };
+  }, []);
 
-  const signOut = async () => {
-    await supabase.auth.signOut();
-  };
+  const signOut = useCallback(async () => {
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) {
+        console.error('Sign out error:', error);
+      }
+    } catch (error) {
+      console.error('Sign out unexpected error:', error);
+    }
+  }, []);
 
-  const value = {
+  const value = useMemo(() => ({
     user,
     loading,
     signUp,
     signIn,
     signOut,
-  };
+  }), [user, loading, signUp, signIn, signOut]);
 
   return (
     <AuthContext.Provider value={value}>

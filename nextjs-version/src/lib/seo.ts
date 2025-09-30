@@ -10,7 +10,7 @@ interface SEOConfig {
 }
 
 export function generateMetadata(config: SEOConfig): Metadata {
-  const baseUrl = 'https://yamrajdhamtemple.org';
+  const baseUrl = 'https://yamrajdhamtemple.com';
   const defaultImage = '/temple-hero.jpg';
   
   return {
@@ -169,7 +169,7 @@ export const seoConfigs = {
 
 // Generate structured data for different page types
 export function generateStructuredData(type: 'organization' | 'website' | 'place' | 'event', data?: any) {
-  const baseUrl = 'https://yamrajdhamtemple.org';
+  const baseUrl = 'https://yamrajdhamtemple.com';
   
   const baseStructuredData = {
     "@context": "https://schema.org",
@@ -235,7 +235,7 @@ export function generateStructuredData(type: 'organization' | 'website' | 'place
           "addressRegion": "Rajasthan",
           "addressCountry": "IN"
         },
-        "telephone": "+91-XXXX-XXXXXX",
+        "telephone": "+91-84273-83381",
         "url": baseUrl,
         "sameAs": baseUrl
       });
@@ -272,7 +272,7 @@ export function generateStructuredData(type: 'organization' | 'website' | 'place
 
 // Utility function to generate breadcrumb structured data
 export function generateBreadcrumbStructuredData(items: Array<{name: string, url: string}>) {
-  const baseUrl = 'https://yamrajdhamtemple.org';
+  const baseUrl = 'https://yamrajdhamtemple.com';
   
   return {
     "@context": "https://schema.org",

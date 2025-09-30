@@ -21,36 +21,6 @@ const ProgressTracker = () => {
 
         <div className="grid lg:grid-cols-2 gap-8 items-center">
           <div className="space-y-6">
-            <div className="text-center space-y-4">
-              <div className="text-lg">
-                <span className="font-semibold">Construction Milestones:</span>
-              </div>
-              <div className="flex flex-wrap justify-center gap-2">
-                <span className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm">Foundation complete</span>
-                <span className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm">Structure complete</span>
-                <span className="px-3 py-1 bg-temple-cream text-temple-gold rounded-full text-sm">Domes & interiors in progress</span>
-              </div>
-            </div>
-
-            <Card className="bg-gradient-gold">
-              <CardContent className="pt-6">
-                <h3 className="font-semibold text-lg mb-2">Latest Update (Dec 2024)</h3>
-                <p className="text-sm text-secondary-foreground">
-                  Traditional domes & stone carvings are now being crafted by master artisans.
-                </p>
-              </CardContent>
-            </Card>
-          </div>
-
-          <div className="space-y-6">
-            <div className="rounded-xl overflow-hidden shadow-temple">
-              <img 
-                src="/construction-progress.jpg" 
-                alt="Temple construction progress" 
-                className="w-full h-64 object-cover"
-              />
-            </div>
-            
             <Card className="border-primary/20">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -69,6 +39,36 @@ const ProgressTracker = () => {
                     Master artisans are crafting traditional domes & stone carvings
                   </div>
                 </div>
+              </CardContent>
+            </Card>
+
+            <div className="text-center space-y-4">
+              <div className="text-lg">
+                <span className="font-semibold">Construction Milestones:</span>
+              </div>
+              <div className="flex flex-wrap justify-center gap-2">
+                <span className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm">Foundation complete</span>
+                <span className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm">Structure complete</span>
+                <span className="px-3 py-1 bg-temple-cream text-temple-gold rounded-full text-sm">Domes & interiors in progress</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="space-y-6">
+            <div className="rounded-xl overflow-hidden shadow-temple">
+              <img 
+                src="/construction-progress.jpg" 
+                alt="Temple construction progress" 
+                className="w-full h-64 object-cover"
+              />
+            </div>
+            
+            <Card className="bg-gradient-gold">
+              <CardContent className="pt-6">
+                <h3 className="font-semibold text-lg mb-2">Latest Update (Dec 2024)</h3>
+                <p className="text-sm text-secondary-foreground">
+                  Traditional domes & stone carvings are now being crafted by master artisans.
+                </p>
               </CardContent>
             </Card>
           </div>

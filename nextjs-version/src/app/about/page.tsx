@@ -572,7 +572,7 @@ export default function AboutPage() {
                     </div>
                     <div>
                       <h3 className="font-semibold text-temple-charcoal">Website</h3>
-                      <p className="text-temple-grey">dharamdhamtrust.org</p>
+                      <p className="text-temple-grey">yamrajdhamtemple.com</p>
                       <p className="text-sm text-temple-grey mt-1">Stay updated with temple progress</p>
                     </div>
                   </div>
@@ -603,7 +603,7 @@ export default function AboutPage() {
                     </div>
                     <div>
                       <h3 className="font-semibold text-temple-charcoal">Phone</h3>
-                      <p className="text-temple-grey">[Contact Number]</p>
+                      <p className="text-temple-grey">+91-84273-83381</p>
                     </div>
                   </div>
                   
@@ -655,7 +655,7 @@ export default function AboutPage() {
                   </div>
                   <div>
                     <strong>Location:</strong> Rajgarh Churu, Rajasthan<br/>
-                    <strong>Website:</strong> dharamdhamtrust.org<br/>
+                    <strong>Website:</strong> yamrajdhamtemple.com<br/>
                     <strong>Office Hours:</strong> 6:00 AM - 9:00 PM (Daily)
                   </div>
                 </div>

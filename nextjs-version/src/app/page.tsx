@@ -63,11 +63,13 @@ export default function Home() {
                 <div className="grid md:grid-cols-2 gap-4 text-sm">
                   <div>
                     <strong>Trust Name:</strong> Dharam Dham Paavan Nagari Trust<br/>
-                    <strong>Email:</strong> dharamdhamtrust@gmail.com
+                    <strong>Email:</strong> dharamdhamtrust@gmail.com<br/>
+                    <strong>Phone:</strong> +91-84273-83381
                   </div>
                   <div>
                     <strong>Location:</strong> Rajgarh Churu, Rajasthan<br/>
-                    <strong>Registration:</strong> [Trust Registration No.]
+                    <strong>Registration:</strong> [Trust Registration No.]<br/>
+                    <strong>Website:</strong> yamrajdhamtemple.com
                   </div>
                 </div>
               </div>

@@ -46,14 +46,14 @@ export const metadata: Metadata = {
     address: false,
     telephone: false,
   },
-  metadataBase: new URL('https://yamrajdhamtemple.org'),
+  metadataBase: new URL('https://yamrajdhamtemple.com'),
   alternates: {
     canonical: '/',
   },
   openGraph: {
     title: "Yamrajdham Temple - Divine Giving | Dharam Dham Paavan Nagari Trust",
     description: "Support the construction of Yamrajdham Temple through your generous donations. Join us in building a sacred space for spiritual growth and community worship.",
-    url: 'https://yamrajdhamtemple.org',
+    url: 'https://yamrajdhamtemple.com',
     siteName: 'Yamrajdham Temple',
     images: [
       {
@@ -101,13 +101,13 @@ export default function RootLayout({
     "@graph": [
       {
         "@type": "Organization",
-        "@id": "https://yamrajdhamtemple.org/#organization",
+        "@id": "https://yamrajdhamtemple.com/#organization",
         "name": "Dharam Dham Paavan Nagari Trust",
         "alternateName": "Yamrajdham Temple Trust",
-        "url": "https://yamrajdhamtemple.org",
+        "url": "https://yamrajdhamtemple.com",
         "logo": {
           "@type": "ImageObject",
-          "url": "https://yamrajdhamtemple.org/LOGO.png",
+          "url": "https://yamrajdhamtemple.com/LOGO.png",
           "width": 400,
           "height": 400
         },
@@ -120,24 +120,24 @@ export default function RootLayout({
           "addressCountry": "IN"
         },
         "sameAs": [
-          "https://yamrajdhamtemple.org"
+          "https://yamrajdhamtemple.com"
         ]
       },
       {
         "@type": "WebSite",
-        "@id": "https://yamrajdhamtemple.org/#website",
-        "url": "https://yamrajdhamtemple.org",
+        "@id": "https://yamrajdhamtemple.com/#website",
+        "url": "https://yamrajdhamtemple.com",
         "name": "Yamrajdham Temple - Divine Giving",
         "description": "Support the construction of Yamrajdham Temple through your generous donations. Join us in building a sacred space for spiritual growth and community worship.",
         "publisher": {
-          "@id": "https://yamrajdhamtemple.org/#organization"
+          "@id": "https://yamrajdhamtemple.com/#organization"
         },
         "potentialAction": [
           {
             "@type": "SearchAction",
             "target": {
               "@type": "EntryPoint",
-              "urlTemplate": "https://yamrajdhamtemple.org/search?q={search_term_string}"
+              "urlTemplate": "https://yamrajdhamtemple.com/search?q={search_term_string}"
             },
             "query-input": "required name=search_term_string"
           }
@@ -145,7 +145,7 @@ export default function RootLayout({
       },
       {
         "@type": "PlaceOfWorship",
-        "@id": "https://yamrajdhamtemple.org/#place",
+        "@id": "https://yamrajdhamtemple.com/#place",
         "name": "Yamrajdham Temple",
         "description": "A sacred temple dedicated to Yamraj (Dharmaraj), the divine guardian of moral order and justice in Hindu mythology.",
         "address": {
@@ -154,9 +154,9 @@ export default function RootLayout({
           "addressRegion": "Rajasthan",
           "addressCountry": "IN"
         },
-        "telephone": "+91-XXXX-XXXXXX",
-        "url": "https://yamrajdhamtemple.org",
-        "sameAs": "https://yamrajdhamtemple.org"
+        "telephone": "+91-84273-83381",
+        "url": "https://yamrajdhamtemple.com",
+        "sameAs": "https://yamrajdhamtemple.com"
       }
     ]
   };

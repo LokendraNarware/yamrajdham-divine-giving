@@ -4,6 +4,14 @@ const nextConfig: NextConfig = {
   // Configure allowed development origins to prevent cross-origin warnings
   experimental: {
     allowedDevOrigins: ["*"],
+    // Disable turbopack for better HMR stability with React 19
+    turbo: {
+      rules: {
+        '*.tsx': {
+          loaders: ['swc-loader'],
+        },
+      },
+    },
   },
   
   // SEO and Performance Optimizations
