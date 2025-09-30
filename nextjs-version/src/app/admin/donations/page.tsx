@@ -5,11 +5,12 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { Shield, AlertCircle, DollarSign, TrendingUp, Users, Clock } from "lucide-react";
+import { DollarSign, TrendingUp, Users, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import DataTable from "@/components/admin/DataTable";
+import AdminLayout from "@/components/admin/AdminLayout";
 
 interface Donation {
   id: string;
@@ -42,8 +43,6 @@ interface DashboardStats {
 }
 
 export default function DonationsManagement() {
-  const [isAdmin, setIsAdmin] = useState(false);
-  const [checkingAuth, setCheckingAuth] = useState(true);
   const [donations, setDonations] = useState<Donation[]>([]);
   const [stats, setStats] = useState<DashboardStats>({
     totalDonations: 0,
@@ -56,56 +55,15 @@ export default function DonationsManagement() {
   const [loading, setLoading] = useState(true);
   const [selectedDonation, setSelectedDonation] = useState<Donation | null>(null);
   const { toast } = useToast();
-  const { user, signOut } = useAuth();
+  const { user } = useAuth();
   const router = useRouter();
 
-  // Hide global header and footer for admin pages
+  // Fetch donations on component mount
   useEffect(() => {
-    const style = document.createElement('style');
-    style.textContent = `
-      header { display: none !important; }
-      footer { display: none !important; }
-      main { padding-top: 0 !important; }
-    `;
-    document.head.appendChild(style);
-    
-    return () => {
-      document.head.removeChild(style);
-    };
-  }, []);
-
-  // Check admin authentication
-  useEffect(() => {
-    const checkAdminAuth = async () => {
-      if (!user) {
-        router.push('/login');
-        return;
-      }
-
-      try {
-        const { data: adminData, error } = await supabase
-          .from('admin')
-          .select('*')
-          .eq('email', user.email)
-          .eq('is_active', true)
-          .single();
-
-        if (error || !adminData) {
-          setCheckingAuth(false);
-          return;
-        }
-
-        setIsAdmin(true);
-        setCheckingAuth(false);
-        fetchDonations();
-      } catch (error) {
-        console.error('Error checking admin auth:', error);
-        setCheckingAuth(false);
-      }
-    };
-
-    checkAdminAuth();
-  }, [user, router]);
+    if (user) {
+      fetchDonations();
+    }
+  }, [user]);
 
   const fetchDonations = async () => {
     try {
@@ -303,237 +261,180 @@ export default function DonationsManagement() {
     }
   ];
 
-  if (checkingAuth) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <Shield className="w-12 h-12 animate-pulse mx-auto mb-4 text-primary" />
-          <p className="text-lg font-medium">Verifying admin access...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (!isAdmin) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <Card className="w-full max-w-md">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-red-600">
-              <AlertCircle className="w-5 h-5" />
-              Access Denied
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <p className="text-gray-600">You don&apos;t have admin privileges.</p>
-            <Button onClick={() => router.push('/')} className="w-full">
-              Go Home
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
-
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Admin Header */}
-      <header className="bg-white shadow-sm border-b border-gray-200">
-        <div className="px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => router.push('/admin')}
-              >
-                ← Back to Dashboard
-              </Button>
-              <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-sm">Y</span>
-              </div>
-              <div>
-                <h1 className="text-xl font-bold text-gray-900">Donations Management</h1>
-                <p className="text-sm text-gray-500">Manage temple donations</p>
-              </div>
-            </div>
-            <Button onClick={() => signOut()} variant="outline" size="sm">
-              Sign Out
-            </Button>
-          </div>
+    <AdminLayout>
+      <div className="space-y-6">
+        <div className="mb-6">
+          <h2 className="text-2xl font-bold text-gray-900">Donations Management</h2>
+          <p className="text-gray-600">Manage temple donations and track contributions</p>
         </div>
-      </header>
 
-      {/* Main Content */}
-      <main className="p-6">
-        <div className="max-w-7xl mx-auto space-y-6">
-          {/* Stats Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium text-gray-600">Total Donations</CardTitle>
-                <DollarSign className="h-4 w-4 text-gray-600" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{stats.totalDonations}</div>
-                <p className="text-xs text-gray-500">All time donations</p>
-              </CardContent>
-            </Card>
+        {/* Stats Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium text-gray-600">Total Donations</CardTitle>
+              <DollarSign className="h-4 w-4 text-gray-600" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{stats.totalDonations}</div>
+              <p className="text-xs text-gray-500">All time donations</p>
+            </CardContent>
+          </Card>
 
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium text-gray-600">Total Amount</CardTitle>
-                <TrendingUp className="h-4 w-4 text-gray-600" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold text-green-600">
-                  {formatCurrency(stats.totalAmount)}
-                </div>
-                <p className="text-xs text-gray-500">Total funds raised</p>
-              </CardContent>
-            </Card>
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium text-gray-600">Total Amount</CardTitle>
+              <TrendingUp className="h-4 w-4 text-gray-600" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-green-600">
+                {formatCurrency(stats.totalAmount)}
+              </div>
+              <p className="text-xs text-gray-500">Total funds raised</p>
+            </CardContent>
+          </Card>
 
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium text-gray-600">Pending</CardTitle>
-                <Clock className="h-4 w-4 text-gray-600" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold text-yellow-600">{stats.pendingDonations}</div>
-                <p className="text-xs text-gray-500">Awaiting processing</p>
-              </CardContent>
-            </Card>
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium text-gray-600">Pending</CardTitle>
+              <Clock className="h-4 w-4 text-gray-600" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-yellow-600">{stats.pendingDonations}</div>
+              <p className="text-xs text-gray-500">Awaiting processing</p>
+            </CardContent>
+          </Card>
 
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium text-gray-600">Completed</CardTitle>
-                <Users className="h-4 w-4 text-gray-600" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold text-green-600">{stats.completedDonations}</div>
-                <p className="text-xs text-gray-500">Successfully processed</p>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Donations Table */}
-          <DataTable
-            data={donations}
-            columns={columns}
-            searchKey="receipt_number"
-            searchPlaceholder="Search by receipt number, donor name, or email..."
-            onRowClick={setSelectedDonation}
-            onStatusChange={handleStatusChange}
-            onExport={handleExport}
-            loading={loading}
-          />
-
-          {/* Donation Details Modal */}
-          {selectedDonation && (
-            <Card className="fixed inset-4 z-50 overflow-auto">
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <CardTitle>Donation Details</CardTitle>
-                  <Button 
-                    variant="ghost" 
-                    size="sm"
-                    onClick={() => setSelectedDonation(null)}
-                  >
-                    ×
-                  </Button>
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="text-sm font-medium text-gray-600">Receipt Number</label>
-                    <p className="text-lg font-mono">
-                      {selectedDonation.receipt_number || `DON-${selectedDonation.id.slice(-8).toUpperCase()}`}
-                    </p>
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium text-gray-600">Amount</label>
-                    <p className="text-lg font-semibold text-green-600">
-                      {formatCurrency(selectedDonation.amount)}
-                    </p>
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium text-gray-600">Status</label>
-                    <div className="mt-1">{getStatusBadge(selectedDonation.payment_status)}</div>
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium text-gray-600">Type</label>
-                    <p className="capitalize">{selectedDonation.donation_type}</p>
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium text-gray-600">Donor Name</label>
-                    <p>{selectedDonation.is_anonymous ? 'Anonymous' : (selectedDonation.user?.name || 'Unknown')}</p>
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium text-gray-600">Email</label>
-                    <p>{selectedDonation.is_anonymous ? 'Hidden' : (selectedDonation.user?.email || 'N/A')}</p>
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium text-gray-600">Mobile</label>
-                    <p>{selectedDonation.is_anonymous ? 'Hidden' : (selectedDonation.user?.mobile || 'N/A')}</p>
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium text-gray-600">Date</label>
-                    <p>{formatDate(selectedDonation.created_at)}</p>
-                  </div>
-                </div>
-                
-                {selectedDonation.dedication_message && (
-                  <div>
-                    <label className="text-sm font-medium text-gray-600">Dedication Message</label>
-                    <p className="mt-1 p-3 bg-gray-50 rounded-lg">
-                      {selectedDonation.dedication_message}
-                    </p>
-                  </div>
-                )}
-
-                {selectedDonation.preacher_name && (
-                  <div>
-                    <label className="text-sm font-medium text-gray-600">Preacher Name</label>
-                    <p>{selectedDonation.preacher_name}</p>
-                  </div>
-                )}
-
-                <div className="flex gap-2 pt-4">
-                  {selectedDonation.payment_status === 'pending' && (
-                    <>
-                      <Button 
-                        onClick={() => {
-                          handleStatusChange(selectedDonation.id, 'completed');
-                          setSelectedDonation(null);
-                        }}
-                        className="bg-green-600 hover:bg-green-700"
-                      >
-                        Mark Completed
-                      </Button>
-                      <Button 
-                        onClick={() => {
-                          handleStatusChange(selectedDonation.id, 'failed');
-                          setSelectedDonation(null);
-                        }}
-                        variant="destructive"
-                      >
-                        Mark Failed
-                      </Button>
-                    </>
-                  )}
-                  <Button 
-                    onClick={() => setSelectedDonation(null)}
-                    variant="outline"
-                  >
-                    Close
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          )}
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium text-gray-600">Completed</CardTitle>
+              <Users className="h-4 w-4 text-gray-600" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-green-600">{stats.completedDonations}</div>
+              <p className="text-xs text-gray-500">Successfully processed</p>
+            </CardContent>
+          </Card>
         </div>
-      </main>
-    </div>
+
+        {/* Donations Table */}
+        <DataTable
+          data={donations}
+          columns={columns}
+          searchKey="receipt_number"
+          searchPlaceholder="Search by receipt number, donor name, or email..."
+          onRowClick={setSelectedDonation}
+          onStatusChange={handleStatusChange}
+          onExport={handleExport}
+          loading={loading}
+        />
+
+        {/* Donation Details Modal */}
+        {selectedDonation && (
+          <Card className="fixed inset-4 z-50 overflow-auto">
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <CardTitle>Donation Details</CardTitle>
+                <Button 
+                  variant="ghost" 
+                  size="sm"
+                  onClick={() => setSelectedDonation(null)}
+                >
+                  ×
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm font-medium text-gray-600">Receipt Number</label>
+                  <p className="text-lg font-mono">
+                    {selectedDonation.receipt_number || `DON-${selectedDonation.id.slice(-8).toUpperCase()}`}
+                  </p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-600">Amount</label>
+                  <p className="text-lg font-semibold text-green-600">
+                    {formatCurrency(selectedDonation.amount)}
+                  </p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-600">Status</label>
+                  <div className="mt-1">{getStatusBadge(selectedDonation.payment_status)}</div>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-600">Type</label>
+                  <p className="capitalize">{selectedDonation.donation_type}</p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-600">Donor Name</label>
+                  <p>{selectedDonation.is_anonymous ? 'Anonymous' : (selectedDonation.user?.name || 'Unknown')}</p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-600">Email</label>
+                  <p>{selectedDonation.is_anonymous ? 'Hidden' : (selectedDonation.user?.email || 'N/A')}</p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-600">Mobile</label>
+                  <p>{selectedDonation.is_anonymous ? 'Hidden' : (selectedDonation.user?.mobile || 'N/A')}</p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-600">Date</label>
+                  <p>{formatDate(selectedDonation.created_at)}</p>
+                </div>
+              </div>
+              
+              {selectedDonation.dedication_message && (
+                <div>
+                  <label className="text-sm font-medium text-gray-600">Dedication Message</label>
+                  <p className="mt-1 p-3 bg-gray-50 rounded-lg">
+                    {selectedDonation.dedication_message}
+                  </p>
+                </div>
+              )}
+
+              {selectedDonation.preacher_name && (
+                <div>
+                  <label className="text-sm font-medium text-gray-600">Preacher Name</label>
+                  <p>{selectedDonation.preacher_name}</p>
+                </div>
+              )}
+
+              <div className="flex gap-2 pt-4">
+                {selectedDonation.payment_status === 'pending' && (
+                  <>
+                    <Button 
+                      onClick={() => {
+                        handleStatusChange(selectedDonation.id, 'completed');
+                        setSelectedDonation(null);
+                      }}
+                      className="bg-green-600 hover:bg-green-700"
+                    >
+                      Mark Completed
+                    </Button>
+                    <Button 
+                      onClick={() => {
+                        handleStatusChange(selectedDonation.id, 'failed');
+                        setSelectedDonation(null);
+                      }}
+                      variant="destructive"
+                    >
+                      Mark Failed
+                    </Button>
+                  </>
+                )}
+                <Button 
+                  onClick={() => setSelectedDonation(null)}
+                  variant="outline"
+                >
+                  Close
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+      </div>
+    </AdminLayout>
   );
 }

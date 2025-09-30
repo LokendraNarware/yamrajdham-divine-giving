@@ -133,10 +133,22 @@ const listeners: Array<(state: State) => void> = []
 let memoryState: State = { toasts: [] }
 
 function dispatch(action: Action) {
-  memoryState = reducer(memoryState, action)
-  listeners.forEach((listener) => {
-    listener(memoryState)
-  })
+  try {
+    memoryState = reducer(memoryState, action)
+    if (listeners && Array.isArray(listeners)) {
+      listeners.forEach((listener) => {
+        try {
+          if (listener && typeof listener === 'function') {
+            listener(memoryState)
+          }
+        } catch (error) {
+          console.error('Toast listener error:', error)
+        }
+      })
+    }
+  } catch (error) {
+    console.error('Toast dispatch error:', error)
+  }
 }
 
 type Toast = Omit<ToasterToast, "id">
@@ -171,22 +183,43 @@ function toast({ ...props }: Toast) {
 }
 
 function useToast() {
-  const [state, setState] = React.useState<State>(memoryState)
+  const [state, setState] = React.useState<State>(() => {
+    try {
+      return memoryState || { toasts: [] }
+    } catch (error) {
+      console.error('Toast state initialization error:', error)
+      return { toasts: [] }
+    }
+  })
 
   React.useEffect(() => {
-    listeners.push(setState)
-    return () => {
-      const index = listeners.indexOf(setState)
-      if (index > -1) {
-        listeners.splice(index, 1)
+    try {
+      listeners.push(setState)
+      return () => {
+        try {
+          const index = listeners.indexOf(setState)
+          if (index > -1) {
+            listeners.splice(index, 1)
+          }
+        } catch (error) {
+          console.error('Toast cleanup error:', error)
+        }
       }
+    } catch (error) {
+      console.error('Toast effect setup error:', error)
     }
-  }, [state])
+  }, [])
 
   return {
-    ...state,
+    toasts: (state?.toasts || []),
     toast,
-    dismiss: (toastId?: string) => dispatch({ type: "DISMISS_TOAST", toastId }),
+    dismiss: (toastId?: string) => {
+      try {
+        dispatch({ type: "DISMISS_TOAST", toastId })
+      } catch (error) {
+        console.error('Toast dismiss error:', error)
+      }
+    },
   }
 }
 
