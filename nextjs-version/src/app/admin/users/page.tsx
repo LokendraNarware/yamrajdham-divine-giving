@@ -21,83 +21,184 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import AdminLayout from "@/components/admin/AdminLayout";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
+import { useToast } from "@/hooks/use-toast";
 
 interface User {
   id: string;
   email: string;
   name: string;
+  mobile: string;
+  address?: string;
+  city?: string;
+  state?: string;
+  pin_code?: string;
+  country?: string;
+  pan_no?: string;
   created_at: string;
-  last_login: string;
+  updated_at: string;
+  donation_count?: number;
+  total_donated?: number;
+}
+
+interface UserWithStats extends User {
   donation_count: number;
   total_donated: number;
-  status: 'active' | 'inactive';
-  role: 'user' | 'admin';
 }
 
 export default function UsersPage() {
-  const [users, setUsers] = useState<User[]>([]);
+  const [users, setUsers] = useState<UserWithStats[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [isLoading, setIsLoading] = useState(true);
+  const { user } = useAuth();
+  const { toast } = useToast();
 
-  // Mock data for demonstration
   useEffect(() => {
-    const mockUsers: User[] = [
-      {
-        id: "1",
-        email: "user1@example.com",
-        name: "John Doe",
-        created_at: "2024-01-15",
-        last_login: "2024-01-20",
-        donation_count: 5,
-        total_donated: 2500,
-        status: 'active',
-        role: 'user'
-      },
-      {
-        id: "2",
-        email: "user2@example.com",
-        name: "Jane Smith",
-        created_at: "2024-01-10",
-        last_login: "2024-01-19",
-        donation_count: 3,
-        total_donated: 1500,
-        status: 'active',
-        role: 'user'
-      },
-      {
-        id: "3",
-        email: "admin@yamrajdham.org",
-        name: "Admin User",
-        created_at: "2024-01-01",
-        last_login: "2024-01-20",
+    if (user) {
+      fetchUsers();
+    }
+  }, [user]);
+
+  const fetchUsers = async () => {
+    try {
+      setIsLoading(true);
+
+      // Fetch users with ONLY completed donation stats
+      const { data: usersData, error: usersError } = await supabase
+        .from('users')
+        .select(`
+          *,
+          user_donations!inner(
+            id,
+            amount,
+            payment_status
+          )
+        `)
+        .eq('user_donations.payment_status', 'completed')
+        .order('created_at', { ascending: false });
+
+      if (usersError) {
+        console.error('Error fetching users:', usersError);
+        toast({
+          title: "Error",
+          description: "Failed to load users.",
+          variant: "destructive",
+        });
+        setIsLoading(false);
+        return;
+      }
+
+      // Also fetch users without donations
+      const { data: usersWithoutDonations, error: usersWithoutDonationsError } = await supabase
+        .from('users')
+        .select('*')
+        .not('id', 'in', `(${usersData?.map(u => u.id).join(',') || 'null'})`);
+
+      if (usersWithoutDonationsError) {
+        console.error('Error fetching users without donations:', usersWithoutDonationsError);
+      }
+
+      // Process users with completed donations only
+      const usersWithStats: UserWithStats[] = usersData?.map(user => {
+        const donations = user.user_donations || [];
+        // All donations here are already completed due to the filter above
+        const donationCount = donations.length;
+        const totalDonated = donations.reduce((sum, d) => sum + d.amount, 0);
+
+        return {
+          ...user,
+          donation_count: donationCount,
+          total_donated: totalDonated,
+        };
+      }) || [];
+
+      // Add users without donations
+      const usersWithoutDonationsStats: UserWithStats[] = usersWithoutDonations?.map(user => ({
+        ...user,
         donation_count: 0,
         total_donated: 0,
-        status: 'active',
-        role: 'admin'
-      }
-    ];
-    
-    setTimeout(() => {
-      setUsers(mockUsers);
+      })) || [];
+
+      // Combine all users
+      const allUsers = [...usersWithStats, ...usersWithoutDonationsStats];
+      setUsers(allUsers);
       setIsLoading(false);
-    }, 1000);
-  }, []);
+    } catch (error) {
+      console.error('Error fetching users:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load users.",
+        variant: "destructive",
+      });
+      setIsLoading(false);
+    }
+  };
 
   const filteredUsers = users.filter(user =>
     user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    user.email.toLowerCase().includes(searchTerm.toLowerCase())
+    user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    user.mobile.includes(searchTerm)
   );
 
-  const getStatusBadge = (status: string) => {
-    return status === 'active' ? 
-      <Badge className="bg-green-100 text-green-800">Active</Badge> :
-      <Badge className="bg-red-100 text-red-800">Inactive</Badge>;
+  const getStatusBadge = (user: UserWithStats) => {
+    // For now, all users are considered active
+    // You can add a status field to the users table if needed
+    return <Badge className="bg-green-100 text-green-800">Active</Badge>;
   };
 
-  const getRoleBadge = (role: string) => {
-    return role === 'admin' ? 
+  const getRoleBadge = (user: UserWithStats) => {
+    // Check if user is admin
+    return user.email.includes('admin') || user.email.includes('yamrajdham.org') ? 
       <Badge className="bg-purple-100 text-purple-800">Admin</Badge> :
       <Badge className="bg-blue-100 text-blue-800">User</Badge>;
+  };
+
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('en-IN', {
+      style: 'currency',
+      currency: 'INR',
+    }).format(amount);
+  };
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('en-IN', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    });
+  };
+
+  const handleDeleteUser = async (userId: string) => {
+    if (!confirm('Are you sure you want to delete this user? This action cannot be undone.')) {
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from('users')
+        .delete()
+        .eq('id', userId);
+
+      if (error) {
+        throw error;
+      }
+
+      toast({
+        title: "Success",
+        description: "User deleted successfully.",
+      });
+
+      // Refresh users list
+      fetchUsers();
+    } catch (error) {
+      console.error('Error deleting user:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete user.",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
@@ -129,7 +230,7 @@ export default function UsersPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{users.length}</div>
-            <p className="text-xs text-muted-foreground">+2 from last month</p>
+            <p className="text-xs text-muted-foreground">Registered users</p>
           </CardContent>
         </Card>
         <Card>
@@ -138,18 +239,18 @@ export default function UsersPage() {
             <UserCheck className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{users.filter(u => u.status === 'active').length}</div>
-            <p className="text-xs text-muted-foreground">Currently online</p>
+            <div className="text-2xl font-bold">{users.length}</div>
+            <p className="text-xs text-muted-foreground">All users active</p>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">New This Month</CardTitle>
+            <CardTitle className="text-sm font-medium">Donors</CardTitle>
             <UserCheck className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">2</div>
-            <p className="text-xs text-muted-foreground">New registrations</p>
+            <div className="text-2xl font-bold">{users.filter(u => u.donation_count > 0).length}</div>
+            <p className="text-xs text-muted-foreground">Users with completed donations</p>
           </CardContent>
         </Card>
         <Card>
@@ -158,7 +259,7 @@ export default function UsersPage() {
             <UserCheck className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{users.filter(u => u.role === 'admin').length}</div>
+            <div className="text-2xl font-bold">{users.filter(u => u.email.includes('admin') || u.email.includes('yamrajdham.org')).length}</div>
             <p className="text-xs text-muted-foreground">Administrators</p>
           </CardContent>
         </Card>
@@ -196,7 +297,7 @@ export default function UsersPage() {
                   <TableHead>Status</TableHead>
                   <TableHead>Donations</TableHead>
                   <TableHead>Total Donated</TableHead>
-                  <TableHead>Last Login</TableHead>
+                  <TableHead>Joined</TableHead>
                   <TableHead className="w-[50px]">Actions</TableHead>
                 </TableRow>
               </TableHeader>
@@ -207,13 +308,14 @@ export default function UsersPage() {
                       <div>
                         <div className="font-medium">{user.name}</div>
                         <div className="text-sm text-gray-500">{user.email}</div>
+                        <div className="text-xs text-gray-400">{user.mobile}</div>
                       </div>
                     </TableCell>
-                    <TableCell>{getRoleBadge(user.role)}</TableCell>
-                    <TableCell>{getStatusBadge(user.status)}</TableCell>
+                    <TableCell>{getRoleBadge(user)}</TableCell>
+                    <TableCell>{getStatusBadge(user)}</TableCell>
                     <TableCell>{user.donation_count}</TableCell>
-                    <TableCell>₹{user.total_donated.toLocaleString()}</TableCell>
-                    <TableCell>{user.last_login}</TableCell>
+                    <TableCell>{formatCurrency(user.total_donated)}</TableCell>
+                    <TableCell>{formatDate(user.created_at)}</TableCell>
                     <TableCell>
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
@@ -230,20 +332,10 @@ export default function UsersPage() {
                             <Edit className="mr-2 h-4 w-4" />
                             Edit User
                           </DropdownMenuItem>
-                          <DropdownMenuItem>
-                            {user.status === 'active' ? (
-                              <>
-                                <UserX className="mr-2 h-4 w-4" />
-                                Deactivate
-                              </>
-                            ) : (
-                              <>
-                                <UserCheck className="mr-2 h-4 w-4" />
-                                Activate
-                              </>
-                            )}
-                          </DropdownMenuItem>
-                          <DropdownMenuItem className="text-red-600">
+                          <DropdownMenuItem 
+                            className="text-red-600"
+                            onClick={() => handleDeleteUser(user.id)}
+                          >
                             <Trash2 className="mr-2 h-4 w-4" />
                             Delete
                           </DropdownMenuItem>

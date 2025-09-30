@@ -97,14 +97,32 @@ export default function DonationsManagement() {
   };
 
   const calculateStats = (donationsData: Donation[]) => {
+    // Only count completed donations for totals
+    const completedDonations = donationsData.filter(d => d.payment_status === 'completed');
+    const pendingDonations = donationsData.filter(d => d.payment_status === 'pending');
+    const failedDonations = donationsData.filter(d => d.payment_status === 'failed');
+    const refundedDonations = donationsData.filter(d => d.payment_status === 'refunded');
+    
+    // Calculate totals ONLY from completed donations
+    const totalAmount = completedDonations.reduce((sum, d) => sum + d.amount, 0);
+    
     const stats = {
-      totalDonations: donationsData.length,
-      totalAmount: donationsData.reduce((sum, d) => sum + d.amount, 0),
-      pendingDonations: donationsData.filter(d => d.payment_status === 'pending').length,
-      completedDonations: donationsData.filter(d => d.payment_status === 'completed').length,
-      failedDonations: donationsData.filter(d => d.payment_status === 'failed').length,
-      refundedDonations: donationsData.filter(d => d.payment_status === 'refunded').length,
+      totalDonations: completedDonations.length, // Only completed donations count
+      totalAmount: totalAmount, // Only completed donations amount
+      pendingDonations: pendingDonations.length,
+      completedDonations: completedDonations.length,
+      failedDonations: failedDonations.length,
+      refundedDonations: refundedDonations.length,
     };
+    
+    console.log('Donations Stats Calculation:', {
+      totalDonations: donationsData.length,
+      completedDonations: completedDonations.length,
+      pendingDonations: pendingDonations.length,
+      totalAmount: totalAmount,
+      completedAmounts: completedDonations.map(d => d.amount)
+    });
+    
     setStats(stats);
   };
 
@@ -273,32 +291,19 @@ export default function DonationsManagement() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-gray-600">Total Donations</CardTitle>
-              <DollarSign className="h-4 w-4 text-gray-600" />
+              <CardTitle className="text-sm font-medium text-gray-600">Completed Donations</CardTitle>
+              <Users className="h-4 w-4 text-green-600" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{stats.totalDonations}</div>
-              <p className="text-xs text-gray-500">All time donations</p>
+              <div className="text-2xl font-bold text-green-600">{stats.completedDonations}</div>
+              <p className="text-xs text-gray-500">Successfully processed</p>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-gray-600">Total Amount</CardTitle>
-              <TrendingUp className="h-4 w-4 text-gray-600" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-green-600">
-                {formatCurrency(stats.totalAmount)}
-              </div>
-              <p className="text-xs text-gray-500">Total funds raised</p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-gray-600">Pending</CardTitle>
-              <Clock className="h-4 w-4 text-gray-600" />
+              <CardTitle className="text-sm font-medium text-gray-600">Pending Donations</CardTitle>
+              <Clock className="h-4 w-4 text-yellow-600" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-yellow-600">{stats.pendingDonations}</div>
@@ -308,15 +313,60 @@ export default function DonationsManagement() {
 
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-gray-600">Completed</CardTitle>
-              <Users className="h-4 w-4 text-gray-600" />
+              <CardTitle className="text-sm font-medium text-gray-600">Total Donations</CardTitle>
+              <DollarSign className="h-4 w-4 text-blue-600" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-green-600">{stats.completedDonations}</div>
-              <p className="text-xs text-gray-500">Successfully processed</p>
+              <div className="text-2xl font-bold text-blue-600">{donations.length}</div>
+              <p className="text-xs text-gray-500">All donations (completed + pending + failed + refunded)</p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium text-gray-600">Total Amount</CardTitle>
+              <TrendingUp className="h-4 w-4 text-green-600" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-green-600">
+                {formatCurrency(stats.totalAmount)}
+              </div>
+              <p className="text-xs text-gray-500">
+                {stats.totalAmount === 0 ? 'No funds raised' : 'From completed donations only'}
+              </p>
             </CardContent>
           </Card>
         </div>
+
+        {/* Summary Information */}
+        <Card className="bg-gray-50 border-gray-200">
+          <CardHeader>
+            <CardTitle className="text-gray-800">Donation Summary</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+              <div className="text-center p-3 bg-white rounded-lg">
+                <div className="text-lg font-bold text-green-600">{stats.completedDonations}</div>
+                <div className="text-xs text-gray-600">Completed</div>
+              </div>
+              <div className="text-center p-3 bg-white rounded-lg">
+                <div className="text-lg font-bold text-yellow-600">{stats.pendingDonations}</div>
+                <div className="text-xs text-gray-600">Pending</div>
+              </div>
+              <div className="text-center p-3 bg-white rounded-lg">
+                <div className="text-lg font-bold text-red-600">{stats.failedDonations}</div>
+                <div className="text-xs text-gray-600">Failed</div>
+              </div>
+              <div className="text-center p-3 bg-white rounded-lg">
+                <div className="text-lg font-bold text-blue-600">{donations.length}</div>
+                <div className="text-xs text-gray-600">Total</div>
+              </div>
+            </div>
+            <div className="mt-3 text-xs text-gray-600 text-center">
+              <p><strong>Total Amount:</strong> {formatCurrency(stats.totalAmount)} (from completed donations only)</p>
+            </div>
+          </CardContent>
+        </Card>
 
         {/* Donations Table */}
         <DataTable

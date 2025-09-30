@@ -1,11 +1,107 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { BarChart3, TrendingUp, DollarSign, Users, Calendar, Download } from "lucide-react";
 import AdminLayout from "@/components/admin/AdminLayout";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
+
+interface AnalyticsData {
+  totalRevenue: number;
+  totalDonations: number;
+  activeDonors: number;
+  averageDonation: number;
+  recentDonations: Array<{
+    id: string;
+    amount: number;
+    donor_name: string;
+    created_at: string;
+  }>;
+}
 
 export default function AnalyticsPage() {
+  const [analyticsData, setAnalyticsData] = useState<AnalyticsData>({
+    totalRevenue: 0,
+    totalDonations: 0,
+    activeDonors: 0,
+    averageDonation: 0,
+    recentDonations: [],
+  });
+  const [loading, setLoading] = useState(true);
+  const { user } = useAuth();
+
+  useEffect(() => {
+    if (user) {
+      fetchAnalyticsData();
+    }
+  }, [user]);
+
+  const fetchAnalyticsData = async () => {
+    try {
+      setLoading(true);
+
+      // Fetch completed donations with user data
+      const { data: donationsData, error: donationsError } = await supabase
+        .from('user_donations')
+        .select(`
+          id,
+          amount,
+          created_at,
+          user:users(name)
+        `)
+        .eq('payment_status', 'completed')
+        .order('created_at', { ascending: false })
+        .limit(10);
+
+      if (donationsError) {
+        console.error('Error fetching donations:', donationsError);
+      }
+
+      // Calculate analytics
+      const donations = donationsData || [];
+      const totalRevenue = donations.reduce((sum, d) => sum + d.amount, 0);
+      const totalDonations = donations.length;
+      const uniqueDonors = new Set(donations.map(d => d.user?.name)).size;
+      const averageDonation = totalDonations > 0 ? totalRevenue / totalDonations : 0;
+
+      setAnalyticsData({
+        totalRevenue,
+        totalDonations,
+        activeDonors: uniqueDonors,
+        averageDonation,
+        recentDonations: donations.map(d => ({
+          id: d.id,
+          amount: d.amount,
+          donor_name: d.user?.name || 'Anonymous',
+          created_at: d.created_at,
+        })),
+      });
+
+      setLoading(false);
+    } catch (error) {
+      console.error('Error fetching analytics data:', error);
+      setLoading(false);
+    }
+  };
+
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('en-IN', {
+      style: 'currency',
+      currency: 'INR',
+    }).format(amount);
+  };
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('en-IN', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
   return (
     <AdminLayout>
       <div className="space-y-6">
@@ -34,9 +130,11 @@ export default function AnalyticsPage() {
             <DollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">₹1,234,567</div>
+            <div className="text-2xl font-bold">
+              {loading ? '...' : formatCurrency(analyticsData.totalRevenue)}
+            </div>
             <p className="text-xs text-muted-foreground">
-              <span className="text-green-600">+20.1%</span> from last month
+              {analyticsData.totalRevenue > 0 ? 'From completed donations only' : 'No revenue yet'}
             </p>
           </CardContent>
         </Card>
@@ -46,9 +144,11 @@ export default function AnalyticsPage() {
             <BarChart3 className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">1,234</div>
+            <div className="text-2xl font-bold">
+              {loading ? '...' : analyticsData.totalDonations}
+            </div>
             <p className="text-xs text-muted-foreground">
-              <span className="text-green-600">+15.3%</span> from last month
+              {analyticsData.totalDonations > 0 ? 'Completed donations only' : 'No completed donations yet'}
             </p>
           </CardContent>
         </Card>
@@ -58,9 +158,11 @@ export default function AnalyticsPage() {
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">456</div>
+            <div className="text-2xl font-bold">
+              {loading ? '...' : analyticsData.activeDonors}
+            </div>
             <p className="text-xs text-muted-foreground">
-              <span className="text-green-600">+8.2%</span> from last month
+              {analyticsData.activeDonors > 0 ? 'Donors with completed donations' : 'No donors yet'}
             </p>
           </CardContent>
         </Card>
@@ -70,9 +172,11 @@ export default function AnalyticsPage() {
             <TrendingUp className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">₹2,708</div>
+            <div className="text-2xl font-bold">
+              {loading ? '...' : formatCurrency(analyticsData.averageDonation)}
+            </div>
             <p className="text-xs text-muted-foreground">
-              <span className="text-green-600">+4.1%</span> from last month
+              {analyticsData.averageDonation > 0 ? 'Per completed donation' : 'No data yet'}
             </p>
           </CardContent>
         </Card>
@@ -114,33 +218,36 @@ export default function AnalyticsPage() {
       {/* Recent Activity */}
       <Card>
         <CardHeader>
-          <CardTitle>Recent Activity</CardTitle>
+          <CardTitle>Recent Donations</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {[
-              { action: "New donation received", amount: "₹5,000", time: "2 hours ago", type: "donation" },
-              { action: "User registered", amount: "", time: "4 hours ago", type: "user" },
-              { action: "Large donation received", amount: "₹25,000", time: "1 day ago", type: "donation" },
-              { action: "Payment processed", amount: "₹1,500", time: "2 days ago", type: "donation" },
-              { action: "New admin user created", amount: "", time: "3 days ago", type: "admin" }
-            ].map((activity, index) => (
-              <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
-                <div className="flex items-center gap-3">
-                  <div className={`w-2 h-2 rounded-full ${
-                    activity.type === 'donation' ? 'bg-green-500' : 
-                    activity.type === 'user' ? 'bg-blue-500' : 'bg-purple-500'
-                  }`}></div>
-                  <div>
-                    <p className="font-medium">{activity.action}</p>
-                    <p className="text-sm text-gray-500">{activity.time}</p>
-                  </div>
-                </div>
-                {activity.amount && (
-                  <span className="font-semibold text-green-600">{activity.amount}</span>
-                )}
+            {loading ? (
+              <div className="text-center py-8">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
+                <p className="mt-2 text-gray-500">Loading recent donations...</p>
               </div>
-            ))}
+            ) : analyticsData.recentDonations.length > 0 ? (
+              analyticsData.recentDonations.map((donation) => (
+                <div key={donation.id} className="flex items-center justify-between p-3 border rounded-lg">
+                  <div className="flex items-center gap-3">
+                    <div className="w-2 h-2 rounded-full bg-green-500"></div>
+                    <div>
+                      <p className="font-medium">Donation from {donation.donor_name}</p>
+                      <p className="text-sm text-gray-500">{formatDate(donation.created_at)}</p>
+                    </div>
+                  </div>
+                  <span className="font-semibold text-green-600">
+                    {formatCurrency(donation.amount)}
+                  </span>
+                </div>
+              ))
+            ) : (
+              <div className="text-center py-8">
+                <p className="text-gray-500">No recent donations found</p>
+                <p className="text-sm text-gray-400">Donations will appear here once they are completed</p>
+              </div>
+            )}
           </div>
         </CardContent>
       </Card>
