@@ -1,4 +1,6 @@
 import { Metadata } from 'next';
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
 
 export const metadata: Metadata = {
   title: 'Donation Policy | Dharam Dham Paavan Nagari Trust',
@@ -7,7 +9,10 @@ export const metadata: Metadata = {
 
 export default function DonationPolicyPage() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-temple-charcoal via-temple-dark to-temple-charcoal">
+    <div className="min-h-screen bg-background">
+      <Header />
+      
+      <main className="w-full">
       <div className="container mx-auto px-4 py-12">
         <div className="max-w-4xl mx-auto">
           {/* Header */}
@@ -19,13 +24,13 @@ export default function DonationPolicyPage() {
               <span className="text-2xl">🕉️</span>
               <span className="text-temple-gold text-lg">Dharam Dham Paavan Nagari Trust</span>
             </div>
-            <p className="text-temple-sand/80 text-lg">
+            <p className="text-muted-foreground text-lg">
               Last updated: January 15, 2025
             </p>
           </div>
 
           {/* Content */}
-          <div className="bg-temple-charcoal/50 backdrop-blur-sm rounded-xl border border-temple-gold/20 p-8 space-y-8">
+          <div className="bg-background rounded-xl border border-border p-8 space-y-8 shadow-sm">
             
             {/* Introduction */}
             <section>
@@ -33,7 +38,7 @@ export default function DonationPolicyPage() {
                 <span className="text-xl">📋</span>
                 Introduction
               </h2>
-              <div className="text-temple-sand/90 leading-relaxed space-y-4">
+              <div className="text-foreground leading-relaxed space-y-4">
                 <p>
                   Welcome to Dharam Dham Paavan Nagari Trust's Donation Policy. This policy outlines our guidelines, processes, and commitments regarding donations made to support the construction and maintenance of Yamrajdham Temple.
                 </p>
@@ -49,7 +54,7 @@ export default function DonationPolicyPage() {
                 <span className="text-xl">🎯</span>
                 Mission and Purpose
               </h2>
-              <div className="text-temple-sand/90 leading-relaxed space-y-4">
+              <div className="text-foreground leading-relaxed space-y-4">
                 <p>
                   Dharam Dham Paavan Nagari Trust is dedicated to:
                 </p>
@@ -76,7 +81,7 @@ export default function DonationPolicyPage() {
                 <span className="text-xl">💰</span>
                 Types of Donations
               </h2>
-              <div className="text-temple-sand/90 leading-relaxed space-y-4">
+              <div className="text-foreground leading-relaxed space-y-4">
                 <div>
                   <h3 className="text-lg font-medium text-temple-gold mb-2">1. General Donations:</h3>
                   <p>
@@ -114,7 +119,7 @@ export default function DonationPolicyPage() {
                 <span className="text-xl">📝</span>
                 Donation Guidelines
               </h2>
-              <div className="text-temple-sand/90 leading-relaxed space-y-4">
+              <div className="text-foreground leading-relaxed space-y-4">
                 <div>
                   <h3 className="text-lg font-medium text-temple-gold mb-2">Donation Amounts:</h3>
                   <ul className="list-disc list-inside space-y-1 ml-4">
@@ -153,7 +158,7 @@ export default function DonationPolicyPage() {
                 <span className="text-xl">🏗️</span>
                 How Donations Are Used
               </h2>
-              <div className="text-temple-sand/90 leading-relaxed space-y-4">
+              <div className="text-foreground leading-relaxed space-y-4">
                 <div>
                   <h3 className="text-lg font-medium text-temple-gold mb-2">Construction and Infrastructure (70%):</h3>
                   <ul className="list-disc list-inside space-y-1 ml-4">
@@ -193,7 +198,7 @@ export default function DonationPolicyPage() {
                 <span className="text-xl">📊</span>
                 Transparency and Accountability
               </h2>
-              <div className="text-temple-sand/90 leading-relaxed space-y-4">
+              <div className="text-foreground leading-relaxed space-y-4">
                 <div>
                   <h3 className="text-lg font-medium text-temple-gold mb-2">Financial Reporting:</h3>
                   <ul className="list-disc list-inside space-y-1 ml-4">
@@ -230,7 +235,7 @@ export default function DonationPolicyPage() {
                 <span className="text-xl">🧾</span>
                 Tax Benefits and Receipts
               </h2>
-              <div className="text-temple-sand/90 leading-relaxed space-y-4">
+              <div className="text-foreground leading-relaxed space-y-4">
                 <div className="bg-temple-charcoal/30 p-4 rounded-lg border border-temple-gold/20">
                   <p className="text-temple-gold font-medium mb-2">Tax-Exempt Status:</p>
                   <p>
@@ -262,7 +267,7 @@ export default function DonationPolicyPage() {
                 <span className="text-xl">🔒</span>
                 Donor Privacy and Confidentiality
               </h2>
-              <div className="text-temple-sand/90 leading-relaxed space-y-4">
+              <div className="text-foreground leading-relaxed space-y-4">
                 <div>
                   <h3 className="text-lg font-medium text-temple-gold mb-2">Privacy Protection:</h3>
                   <ul className="list-disc list-inside space-y-1 ml-4">
@@ -290,7 +295,7 @@ export default function DonationPolicyPage() {
                 <span className="text-xl">⭐</span>
                 Special Donation Programs
               </h2>
-              <div className="text-temple-sand/90 leading-relaxed space-y-4">
+              <div className="text-foreground leading-relaxed space-y-4">
                 <div>
                   <h3 className="text-lg font-medium text-temple-gold mb-2">Memorial Donations:</h3>
                   <p>
@@ -324,7 +329,7 @@ export default function DonationPolicyPage() {
                 <span className="text-xl">🔄</span>
                 Donation Process
               </h2>
-              <div className="text-temple-sand/90 leading-relaxed space-y-4">
+              <div className="text-foreground leading-relaxed space-y-4">
                 <div>
                   <h3 className="text-lg font-medium text-temple-gold mb-2">Online Donations:</h3>
                   <ol className="list-decimal list-inside space-y-1 ml-4">
@@ -353,7 +358,7 @@ export default function DonationPolicyPage() {
                 <span className="text-xl">📞</span>
                 Contact for Donations
               </h2>
-              <div className="text-temple-sand/90 leading-relaxed space-y-4">
+              <div className="text-foreground leading-relaxed space-y-4">
                 <p>For donation-related inquiries, please contact us:</p>
                 <div className="bg-temple-charcoal/30 p-4 rounded-lg border border-temple-gold/20">
                   <p><strong className="text-temple-gold">Dharam Dham Paavan Nagari Trust</strong></p>
@@ -386,12 +391,15 @@ export default function DonationPolicyPage() {
 
           {/* Footer Note */}
           <div className="text-center mt-8">
-            <p className="text-temple-sand/60 text-sm">
+            <p className="text-muted-foreground text-sm">
               Thank you for your generous support in helping us build Yamrajdham Temple. Together, we can create a sacred space that will serve our community for generations to come.
             </p>
           </div>
         </div>
       </div>
+      </main>
+      
+      <Footer />
     </div>
   );
 }

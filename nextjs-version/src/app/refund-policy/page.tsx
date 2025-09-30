@@ -24,13 +24,13 @@ export default function RefundPolicyPage() {
               <span className="text-2xl">🕉️</span>
               <span className="text-temple-gold text-lg">Dharam Dham Paavan Nagari Trust</span>
             </div>
-            <p className="text-temple-sand/80 text-lg">
+            <p className="text-muted-foreground text-lg">
               Last updated: January 15, 2025
             </p>
           </div>
 
           {/* Content */}
-          <div className="bg-temple-charcoal/50 backdrop-blur-sm rounded-xl border border-temple-gold/20 p-8 space-y-8">
+          <div className="bg-background rounded-xl border border-border p-8 space-y-8 shadow-sm">
             
             {/* Introduction */}
             <section>
@@ -38,7 +38,7 @@ export default function RefundPolicyPage() {
                 <span className="text-xl">📋</span>
                 Introduction
               </h2>
-              <div className="text-temple-sand/90 leading-relaxed space-y-4">
+              <div className="text-foreground leading-relaxed space-y-4">
                 <p>
                   At Dharam Dham Paavan Nagari Trust, we understand that circumstances may change, and you may need to cancel or request a refund for your donation. This Refund & Cancellation Policy outlines the terms and conditions under which refunds may be processed.
                 </p>
@@ -54,7 +54,7 @@ export default function RefundPolicyPage() {
                 <span className="text-xl">📜</span>
                 General Refund Policy
               </h2>
-              <div className="text-temple-sand/90 leading-relaxed space-y-4">
+              <div className="text-foreground leading-relaxed space-y-4">
                 <div className="bg-temple-charcoal/30 p-4 rounded-lg border border-temple-gold/20">
                   <p className="text-temple-gold font-medium mb-2">Important Notice:</p>
                   <p>
@@ -73,7 +73,7 @@ export default function RefundPolicyPage() {
                 <span className="text-xl">✅</span>
                 Eligible Refund Scenarios
               </h2>
-              <div className="text-temple-sand/90 leading-relaxed space-y-4">
+              <div className="text-foreground leading-relaxed space-y-4">
                 <div>
                   <h3 className="text-lg font-medium text-temple-gold mb-2">1. Technical Errors:</h3>
                   <ul className="list-disc list-inside space-y-1 ml-4">
@@ -116,7 +116,7 @@ export default function RefundPolicyPage() {
                 <span className="text-xl">❌</span>
                 Non-Refundable Scenarios
               </h2>
-              <div className="text-temple-sand/90 leading-relaxed space-y-4">
+              <div className="text-foreground leading-relaxed space-y-4">
                 <p>The following scenarios are generally not eligible for refunds:</p>
                 <ul className="list-disc list-inside space-y-2 ml-4">
                   <li>Change of mind after successful donation</li>
@@ -136,7 +136,7 @@ export default function RefundPolicyPage() {
                 <span className="text-xl">🔄</span>
                 Refund Process
               </h2>
-              <div className="text-temple-sand/90 leading-relaxed space-y-4">
+              <div className="text-foreground leading-relaxed space-y-4">
                 <div>
                   <h3 className="text-lg font-medium text-temple-gold mb-2">Step 1: Submit Refund Request</h3>
                   <p>
@@ -177,7 +177,7 @@ export default function RefundPolicyPage() {
                 <span className="text-xl">⏰</span>
                 Refund Timeline
               </h2>
-              <div className="text-temple-sand/90 leading-relaxed space-y-4">
+              <div className="text-foreground leading-relaxed space-y-4">
                 <div className="bg-temple-charcoal/30 p-4 rounded-lg border border-temple-gold/20">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
@@ -207,7 +207,7 @@ export default function RefundPolicyPage() {
                 <span className="text-xl">💳</span>
                 Payment Method Specific Information
               </h2>
-              <div className="text-temple-sand/90 leading-relaxed space-y-4">
+              <div className="text-foreground leading-relaxed space-y-4">
                 <div>
                   <h3 className="text-lg font-medium text-temple-gold mb-2">Credit/Debit Cards:</h3>
                   <p>
@@ -241,7 +241,7 @@ export default function RefundPolicyPage() {
                 <span className="text-xl">💰</span>
                 Partial Refunds
               </h2>
-              <div className="text-temple-sand/90 leading-relaxed space-y-4">
+              <div className="text-foreground leading-relaxed space-y-4">
                 <p>
                   In certain circumstances, we may offer partial refunds instead of full refunds:
                 </p>
@@ -263,7 +263,7 @@ export default function RefundPolicyPage() {
                 <span className="text-xl">📄</span>
                 Required Documentation
               </h2>
-              <div className="text-temple-sand/90 leading-relaxed space-y-4">
+              <div className="text-foreground leading-relaxed space-y-4">
                 <div>
                   <h3 className="text-lg font-medium text-temple-gold mb-2">For All Refund Requests:</h3>
                   <ul className="list-disc list-inside space-y-1 ml-4">
@@ -291,7 +291,7 @@ export default function RefundPolicyPage() {
                 <span className="text-xl">📞</span>
                 Contact for Refund Requests
               </h2>
-              <div className="text-temple-sand/90 leading-relaxed space-y-4">
+              <div className="text-foreground leading-relaxed space-y-4">
                 <p>To submit a refund request, please contact us:</p>
                 <div className="bg-temple-charcoal/30 p-4 rounded-lg border border-temple-gold/20">
                   <p><strong className="text-temple-gold">Dharam Dham Paavan Nagari Trust</strong></p>
@@ -324,12 +324,15 @@ export default function RefundPolicyPage() {
 
           {/* Footer Note */}
           <div className="text-center mt-8">
-            <p className="text-temple-sand/60 text-sm">
+            <p className="text-muted-foreground text-sm">
               This policy is effective as of January 15, 2025. For any questions regarding refunds, please contact us at refunds@dharamdhamtrust.org.
             </p>
           </div>
         </div>
       </div>
+      </main>
+      
+      <Footer />
     </div>
   );
 }

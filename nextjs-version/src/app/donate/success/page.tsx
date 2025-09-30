@@ -8,6 +8,8 @@ import { CheckCircle, Download, Mail, Heart } from "lucide-react";
 import { verifyPayment } from "@/services/cashfree";
 import { useToast } from "@/hooks/use-toast";
 import Header from "@/components/Header";
+import DonationReceipt from "@/components/DonationReceipt";
+import { generateReceiptPDF } from "@/lib/receipt-utils";
 
 export default function PaymentSuccessPage() {
   const searchParams = useSearchParams();
@@ -22,6 +24,7 @@ export default function PaymentSuccessPage() {
     payment_time?: string;
   } | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [receiptRef, setReceiptRef] = useState<HTMLDivElement | null>(null);
   
   const orderId = searchParams.get("order_id");
   const isDemo = searchParams.get("demo") === "true";
@@ -96,12 +99,38 @@ export default function PaymentSuccessPage() {
     fetchPaymentDetails();
   }, [orderId, toast]);
 
-  const handleDownloadReceipt = () => {
-    // In a real implementation, you would generate and download a PDF receipt
-    toast({
-      title: "Donation Receipt Download",
-      description: "Donation receipt will be sent to your email address.",
-    });
+  const handleDownloadReceipt = async () => {
+    if (!receiptRef || !paymentDetails) {
+      toast({
+        title: "Error",
+        description: "Receipt data not available",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      await generateReceiptPDF(receiptRef, {
+        donationId: paymentDetails.order_id,
+        donorName: "Devotee", // You can get this from user data
+        amount: paymentDetails.order_amount,
+        date: paymentDetails.payment_time || new Date().toISOString(),
+        purpose: "Temple Construction",
+        paymentMethod: paymentDetails.payment_method || "Online Payment"
+      });
+
+      toast({
+        title: "Donation Receipt Downloaded",
+        description: "Your donation receipt has been downloaded successfully.",
+      });
+    } catch (error) {
+      console.error('Error downloading receipt:', error);
+      toast({
+        title: "Error",
+        description: "Failed to download receipt. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleEmailReceipt = () => {

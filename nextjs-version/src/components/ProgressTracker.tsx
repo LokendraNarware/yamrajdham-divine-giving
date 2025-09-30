@@ -1,16 +1,7 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
-import { Building, Users, Target, Calendar } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Building, Calendar } from "lucide-react";
 
 const ProgressTracker = () => {
-  const progressData = {
-    totalGoal: 5000000, // 50 lakhs
-    currentAmount: 3250000, // 32.5 lakhs
-    percentage: 65,
-    donors: 1247,
-    daysLeft: 180
-  };
-
   const milestones = [
     { name: "Foundation complete", completed: true, icon: Building },
     { name: "Structure complete", completed: true, icon: Building },
@@ -30,35 +21,9 @@ const ProgressTracker = () => {
 
         <div className="grid lg:grid-cols-2 gap-8 items-center">
           <div className="space-y-6">
-            <Card className="border-primary/20">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Target className="w-5 h-5 text-primary" />
-                  Funding Progress
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <div className="flex justify-between text-sm">
-                    <span>Raised: ₹{(progressData.currentAmount / 100000).toFixed(1)} Lakhs</span>
-                    <span>Goal: ₹{(progressData.totalGoal / 100000)} Lakhs</span>
-                  </div>
-                  <Progress value={progressData.percentage} className="h-3" />
-                  <div className="text-center">
-                    <span className="text-2xl font-bold text-primary">
-                      {progressData.percentage}% Complete
-                    </span>
-                  </div>
-                  <div className="text-center text-sm text-muted-foreground">
-                    {progressData.donors.toLocaleString()} Donors • {progressData.daysLeft} Days Left
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <div className="text-center space-y-2">
+            <div className="text-center space-y-4">
               <div className="text-lg">
-                <span className="font-semibold">Milestones:</span>
+                <span className="font-semibold">Construction Milestones:</span>
               </div>
               <div className="flex flex-wrap justify-center gap-2">
                 <span className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm">Foundation complete</span>
@@ -67,6 +32,14 @@ const ProgressTracker = () => {
               </div>
             </div>
 
+            <Card className="bg-gradient-gold">
+              <CardContent className="pt-6">
+                <h3 className="font-semibold text-lg mb-2">Latest Update (Dec 2024)</h3>
+                <p className="text-sm text-secondary-foreground">
+                  Traditional domes & stone carvings are now being crafted by master artisans.
+                </p>
+              </CardContent>
+            </Card>
           </div>
 
           <div className="space-y-6">
@@ -78,12 +51,24 @@ const ProgressTracker = () => {
               />
             </div>
             
-            <Card className="bg-gradient-gold">
-              <CardContent className="pt-6">
-                <h3 className="font-semibold text-lg mb-2">Latest Update (Dec 2024)</h3>
-                <p className="text-sm text-secondary-foreground">
-                  Traditional domes & stone carvings are now being crafted by master artisans.
-                </p>
+            <Card className="border-primary/20">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Building className="w-5 h-5 text-primary" />
+                  Temple Construction Progress
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="text-center">
+                    <span className="text-2xl font-bold text-primary">
+                      Construction in Progress
+                    </span>
+                  </div>
+                  <div className="text-center text-sm text-muted-foreground">
+                    Master artisans are crafting traditional domes & stone carvings
+                  </div>
+                </div>
               </CardContent>
             </Card>
           </div>

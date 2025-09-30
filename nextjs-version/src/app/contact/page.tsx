@@ -1,4 +1,6 @@
 import { Metadata } from 'next';
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
 
 export const metadata: Metadata = {
   title: 'Contact Us | Dharam Dham Paavan Nagari Trust',
@@ -7,7 +9,10 @@ export const metadata: Metadata = {
 
 export default function ContactPage() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-temple-charcoal via-temple-dark to-temple-charcoal">
+    <div className="min-h-screen bg-background">
+      <Header />
+      
+      <main className="w-full">
       <div className="container mx-auto px-4 py-12">
         <div className="max-w-6xl mx-auto">
           {/* Header */}
@@ -19,7 +24,7 @@ export default function ContactPage() {
               <span className="text-2xl">🕉️</span>
               <span className="text-temple-gold text-lg">Dharam Dham Paavan Nagari Trust</span>
             </div>
-            <p className="text-temple-sand/80 text-lg max-w-2xl mx-auto">
+            <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
               We would love to hear from you. Reach out to us for any inquiries, donations, or spiritual guidance.
             </p>
           </div>
@@ -28,7 +33,7 @@ export default function ContactPage() {
             
             {/* Contact Information */}
             <div className="space-y-8">
-              <div className="bg-temple-charcoal/50 backdrop-blur-sm rounded-xl border border-temple-gold/20 p-8">
+              <div className="bg-background rounded-xl border border-border p-8 shadow-sm">
                 <h2 className="text-2xl font-semibold text-temple-saffron mb-6 flex items-center gap-2">
                   <span className="text-xl">📍</span>
                   Temple Address
@@ -38,7 +43,7 @@ export default function ContactPage() {
                     <span className="text-temple-gold text-lg">🏛️</span>
                     <div>
                       <p className="text-temple-gold font-medium">Dharam Dham Paavan Nagari Trust</p>
-                      <p className="text-temple-sand/90">
+                      <p className="text-foreground">
                         Raju ki dhani, Yamrajdham Temple<br />
                         On road NH-52, Rajgarh Churu<br />
                         Taranagar, Rajasthan 331304
@@ -49,7 +54,7 @@ export default function ContactPage() {
                     <span className="text-temple-gold text-lg">🕐</span>
                     <div>
                       <p className="text-temple-gold font-medium">Temple Hours</p>
-                      <p className="text-temple-sand/90">
+                      <p className="text-foreground">
                         Open 24 Hours<br />
                         Daily Darshan Available
                       </p>
@@ -58,7 +63,7 @@ export default function ContactPage() {
                 </div>
               </div>
 
-              <div className="bg-temple-charcoal/50 backdrop-blur-sm rounded-xl border border-temple-gold/20 p-8">
+              <div className="bg-background rounded-xl border border-border p-8 shadow-sm">
                 <h2 className="text-2xl font-semibold text-temple-saffron mb-6 flex items-center gap-2">
                   <span className="text-xl">📞</span>
                   Contact Details
@@ -68,33 +73,33 @@ export default function ContactPage() {
                     <span className="text-temple-gold text-lg">📱</span>
                     <div>
                       <p className="text-temple-gold font-medium">Phone</p>
-                      <p className="text-temple-sand/90">+91 84273 83381</p>
+                      <p className="text-foreground">+91 84273 83381</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-3">
                     <span className="text-temple-gold text-lg">📧</span>
                     <div>
                       <p className="text-temple-gold font-medium">Email</p>
-                      <p className="text-temple-sand/90">info@dharamdhamtrust.org</p>
+                      <p className="text-foreground">info@dharamdhamtrust.org</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-3">
                     <span className="text-temple-gold text-lg">💰</span>
                     <div>
                       <p className="text-temple-gold font-medium">Donations</p>
-                      <p className="text-temple-sand/90">donations@dharamdhamtrust.org</p>
+                      <p className="text-foreground">donations@dharamdhamtrust.org</p>
                     </div>
                   </div>
                 </div>
               </div>
 
-              <div className="bg-temple-charcoal/50 backdrop-blur-sm rounded-xl border border-temple-gold/20 p-8">
+              <div className="bg-background rounded-xl border border-border p-8 shadow-sm">
                 <h2 className="text-2xl font-semibold text-temple-saffron mb-6 flex items-center gap-2">
                   <span className="text-xl">🏦</span>
                   Banking Details
                 </h2>
                 <div className="space-y-4">
-                  <div className="bg-temple-charcoal/30 p-4 rounded-lg border border-temple-gold/20">
+                  <div className="bg-muted p-4 rounded-lg border border-border">
                     <p className="text-temple-gold font-medium mb-2">Bank Account:</p>
                     <p className="text-temple-sand/90">Account Name: Dharam Dham Paavan Nagari Trust</p>
                     <p className="text-temple-sand/90">Bank: State Bank of India</p>
@@ -102,7 +107,7 @@ export default function ContactPage() {
                     <p className="text-temple-sand/90">IFSC Code: SBIN0001234</p>
                     <p className="text-temple-sand/90">Branch: Taranagar Branch, Rajasthan</p>
                   </div>
-                  <div className="bg-temple-charcoal/30 p-4 rounded-lg border border-temple-gold/20">
+                  <div className="bg-muted p-4 rounded-lg border border-border">
                     <p className="text-temple-gold font-medium mb-2">UPI Details:</p>
                     <p className="text-temple-sand/90">UPI ID: donations@dharamdhamtrust</p>
                     <p className="text-temple-sand/90">PhonePe: +91 84273 83381</p>
@@ -128,7 +133,7 @@ export default function ContactPage() {
                     id="name"
                     name="name"
                     required
-                    className="w-full px-4 py-3 bg-temple-charcoal/30 border border-temple-gold/30 rounded-lg text-temple-sand placeholder-temple-sand/60 focus:border-temple-saffron focus:outline-none transition-colors"
+                     className="w-full px-4 py-3 bg-background border border-border rounded-lg text-foreground placeholder-muted-foreground focus:border-primary focus:outline-none transition-colors"
                     placeholder="Enter your full name"
                   />
                 </div>
@@ -142,7 +147,7 @@ export default function ContactPage() {
                     id="email"
                     name="email"
                     required
-                    className="w-full px-4 py-3 bg-temple-charcoal/30 border border-temple-gold/30 rounded-lg text-temple-sand placeholder-temple-sand/60 focus:border-temple-saffron focus:outline-none transition-colors"
+                     className="w-full px-4 py-3 bg-background border border-border rounded-lg text-foreground placeholder-muted-foreground focus:border-primary focus:outline-none transition-colors"
                     placeholder="Enter your email address"
                   />
                 </div>
@@ -155,7 +160,7 @@ export default function ContactPage() {
                     type="tel"
                     id="phone"
                     name="phone"
-                    className="w-full px-4 py-3 bg-temple-charcoal/30 border border-temple-gold/30 rounded-lg text-temple-sand placeholder-temple-sand/60 focus:border-temple-saffron focus:outline-none transition-colors"
+                     className="w-full px-4 py-3 bg-background border border-border rounded-lg text-foreground placeholder-muted-foreground focus:border-primary focus:outline-none transition-colors"
                     placeholder="Enter your phone number"
                   />
                 </div>
@@ -197,7 +202,7 @@ export default function ContactPage() {
                 
                 <button
                   type="submit"
-                  className="w-full bg-temple-saffron text-white py-3 px-6 rounded-lg hover:bg-temple-gold transition-colors font-medium"
+                     className="w-full bg-primary text-primary-foreground py-3 px-6 rounded-lg hover:bg-primary/90 transition-colors font-medium"
                 >
                   Send Message
                 </button>
@@ -214,21 +219,24 @@ export default function ContactPage() {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
                 <div>
                   <h3 className="text-temple-gold font-medium mb-2">Facebook</h3>
-                  <p className="text-temple-sand/80 text-sm">Stay updated with construction progress</p>
+                  <p className="text-muted-foreground text-sm">Stay updated with construction progress</p>
                 </div>
                 <div>
                   <h3 className="text-temple-gold font-medium mb-2">Instagram</h3>
-                  <p className="text-temple-sand/80 text-sm">See daily temple activities and events</p>
+                  <p className="text-muted-foreground text-sm">See daily temple activities and events</p>
                 </div>
                 <div>
                   <h3 className="text-temple-gold font-medium mb-2">YouTube</h3>
-                  <p className="text-temple-sand/80 text-sm">Watch ceremonies and spiritual content</p>
+                  <p className="text-muted-foreground text-sm">Watch ceremonies and spiritual content</p>
                 </div>
               </div>
             </div>
           </div>
-        </div>
-      </div>
-    </div>
-  );
-}
+         </div>
+       </div>
+       </main>
+       
+       <Footer />
+     </div>
+   );
+ }

@@ -1,10 +1,46 @@
-"use client";
-
+import type { Metadata } from "next";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { useRouter } from "next/navigation";
+
+export const metadata: Metadata = {
+  title: "About Us - Dharam Dham Paavan Nagari Trust",
+  description: "Learn about Dharam Dham Paavan Nagari Trust, our mission to build Yamrajdham Temple, and our spiritual leader Mataji's divine guidance in Rajgarh Churu, Rajasthan.",
+  keywords: [
+    "About Dharam Dham Paavan Nagari Trust",
+    "Yamrajdham Temple Trust",
+    "Mataji Spiritual Leader",
+    "Temple Mission",
+    "Spiritual Guidance",
+    "Rajgarh Churu Temple",
+    "Hindu Temple Trust",
+    "Divine Mission",
+    "Spiritual Education",
+    "Community Service"
+  ],
+  openGraph: {
+    title: "About Us - Dharam Dham Paavan Nagari Trust",
+    description: "Learn about Dharam Dham Paavan Nagari Trust, our mission to build Yamrajdham Temple, and our spiritual leader Mataji's divine guidance.",
+    images: [
+      {
+        url: '/mataji.png',
+        width: 1200,
+        height: 630,
+        alt: 'Mataji - Spiritual Leader of Dharam Dham Paavan Nagari Trust',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: "About Us - Dharam Dham Paavan Nagari Trust",
+    description: "Learn about our mission to build Yamrajdham Temple and Mataji's divine guidance.",
+    images: ['/mataji.png'],
+  },
+  alternates: {
+    canonical: '/about',
+  },
+};
 
 export default function AboutPage() {
   return (

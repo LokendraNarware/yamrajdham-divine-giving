@@ -1,0 +1,57 @@
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://yamrajdhamtemple.org/sitemap.xml
+
+# Crawl-delay for respectful crawling
+Crawl-delay: 1
+
+# Disallow admin and private areas
+Disallow: /admin/
+Disallow: /api/
+Disallow: /dashboard/
+Disallow: /debug-dashboard/
+Disallow: /create-admin/
+Disallow: /test-*/
+
+# Allow important pages
+Allow: /
+Allow: /about
+Allow: /donate
+Allow: /contact
+Allow: /gallery
+Allow: /privacy-policy
+Allow: /terms-conditions
+Allow: /refund-policy
+Allow: /donation-policy
+Allow: /disclaimer
+
+# Block common bot traps
+Disallow: /*.json$
+Disallow: /*?*
+Disallow: /_next/
+Disallow: /static/
+
+# Allow social media bots
+User-agent: facebookexternalhit
+Allow: /
+
+User-agent: Twitterbot
+Allow: /
+
+User-agent: LinkedInBot
+Allow: /
+
+User-agent: WhatsApp
+Allow: /
+
+# Block aggressive scrapers
+User-agent: AhrefsBot
+Disallow: /
+
+User-agent: MJ12bot
+Disallow: /
+
+User-agent: DotBot
+Disallow: /

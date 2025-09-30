@@ -1,4 +1,6 @@
 import { Metadata } from 'next';
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
 
 export const metadata: Metadata = {
   title: 'Disclaimer | Dharam Dham Paavan Nagari Trust',
@@ -7,7 +9,10 @@ export const metadata: Metadata = {
 
 export default function DisclaimerPage() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-temple-charcoal via-temple-dark to-temple-charcoal">
+    <div className="min-h-screen bg-background">
+      <Header />
+      
+      <main className="w-full">
       <div className="container mx-auto px-4 py-12">
         <div className="max-w-4xl mx-auto">
           {/* Header */}
@@ -19,13 +24,13 @@ export default function DisclaimerPage() {
               <span className="text-2xl">🕉️</span>
               <span className="text-temple-gold text-lg">Dharam Dham Paavan Nagari Trust</span>
             </div>
-            <p className="text-temple-sand/80 text-lg">
+            <p className="text-muted-foreground text-lg">
               Last updated: January 15, 2025
             </p>
           </div>
 
           {/* Content */}
-          <div className="bg-temple-charcoal/50 backdrop-blur-sm rounded-xl border border-temple-gold/20 p-8 space-y-8">
+          <div className="bg-background rounded-xl border border-border p-8 space-y-8 shadow-sm">
             
             {/* Introduction */}
             <section>
@@ -33,7 +38,7 @@ export default function DisclaimerPage() {
                 <span className="text-xl">📋</span>
                 Introduction
               </h2>
-              <div className="text-temple-sand/90 leading-relaxed space-y-4">
+              <div className="text-foreground leading-relaxed space-y-4">
                 <p>
                   This disclaimer ("Disclaimer") is a legal statement that limits the liability of Dharam Dham Paavan Nagari Trust ("we," "our," or "us") regarding the use of our website and services. By accessing and using our website, you acknowledge and agree to the terms outlined in this Disclaimer.
                 </p>
@@ -49,7 +54,7 @@ export default function DisclaimerPage() {
                 <span className="text-xl">🌐</span>
                 Website Information Disclaimer
               </h2>
-              <div className="text-temple-sand/90 leading-relaxed space-y-4">
+              <div className="text-foreground leading-relaxed space-y-4">
                 <div className="bg-temple-charcoal/30 p-4 rounded-lg border border-temple-gold/20">
                   <p className="text-temple-gold font-medium mb-2">Important Notice:</p>
                   <p>
@@ -74,7 +79,7 @@ export default function DisclaimerPage() {
                 <span className="text-xl">🕉️</span>
                 Religious Content Disclaimer
               </h2>
-              <div className="text-temple-sand/90 leading-relaxed space-y-4">
+              <div className="text-foreground leading-relaxed space-y-4">
                 <p>
                   The religious content, spiritual guidance, and interpretations provided on this website are for educational and informational purposes only:
                 </p>
@@ -97,7 +102,7 @@ export default function DisclaimerPage() {
                 <span className="text-xl">💰</span>
                 Financial and Donation Disclaimer
               </h2>
-              <div className="text-temple-sand/90 leading-relaxed space-y-4">
+              <div className="text-foreground leading-relaxed space-y-4">
                 <div>
                   <h3 className="text-lg font-medium text-temple-gold mb-2">Donation Information:</h3>
                   <ul className="list-disc list-inside space-y-1 ml-4">
@@ -131,7 +136,7 @@ export default function DisclaimerPage() {
                 <span className="text-xl">⚙️</span>
                 Technical and Website Disclaimer
               </h2>
-              <div className="text-temple-sand/90 leading-relaxed space-y-4">
+              <div className="text-foreground leading-relaxed space-y-4">
                 <div>
                   <h3 className="text-lg font-medium text-temple-gold mb-2">Website Availability:</h3>
                   <ul className="list-disc list-inside space-y-1 ml-4">
@@ -159,7 +164,7 @@ export default function DisclaimerPage() {
                 <span className="text-xl">🔗</span>
                 Third-Party Content and Links Disclaimer
               </h2>
-              <div className="text-temple-sand/90 leading-relaxed space-y-4">
+              <div className="text-foreground leading-relaxed space-y-4">
                 <p>
                   Our website may contain links to external websites and third-party content:
                 </p>
@@ -185,7 +190,7 @@ export default function DisclaimerPage() {
                 <span className="text-xl">⚖️</span>
                 Limitation of Liability
               </h2>
-              <div className="text-temple-sand/90 leading-relaxed space-y-4">
+              <div className="text-foreground leading-relaxed space-y-4">
                 <p>
                   To the maximum extent permitted by law, Dharam Dham Paavan Nagari Trust shall not be liable for:
                 </p>
@@ -214,7 +219,7 @@ export default function DisclaimerPage() {
                 <span className="text-xl">🚫</span>
                 No Warranty Disclaimer
               </h2>
-              <div className="text-temple-sand/90 leading-relaxed space-y-4">
+              <div className="text-foreground leading-relaxed space-y-4">
                 <p>
                   We provide our website and services "as is" without any warranties, express or implied:
                 </p>
@@ -274,7 +279,7 @@ export default function DisclaimerPage() {
                 <span className="text-xl">🏛️</span>
                 Governing Law and Jurisdiction
               </h2>
-              <div className="text-temple-sand/90 leading-relaxed space-y-4">
+              <div className="text-foreground leading-relaxed space-y-4">
                 <p>
                   This Disclaimer shall be governed by and construed in accordance with the laws of India. Any disputes arising from this Disclaimer or your use of our website shall be subject to the exclusive jurisdiction of the courts in Rajasthan, India.
                 </p>
@@ -287,7 +292,7 @@ export default function DisclaimerPage() {
                 <span className="text-xl">📞</span>
                 Contact Information
               </h2>
-              <div className="text-temple-sand/90 leading-relaxed space-y-4">
+              <div className="text-foreground leading-relaxed space-y-4">
                 <p>If you have any questions about this Disclaimer, please contact us:</p>
                 <div className="bg-temple-charcoal/30 p-4 rounded-lg border border-temple-gold/20">
                   <p><strong className="text-temple-gold">Dharam Dham Paavan Nagari Trust</strong></p>
@@ -317,12 +322,15 @@ export default function DisclaimerPage() {
 
           {/* Footer Note */}
           <div className="text-center mt-8">
-            <p className="text-temple-sand/60 text-sm">
+            <p className="text-muted-foreground text-sm">
               This Disclaimer is effective as of January 15, 2025. By using our website, you acknowledge that you have read and understood this Disclaimer.
             </p>
           </div>
         </div>
       </div>
+      </main>
+      
+      <Footer />
     </div>
   );
 }

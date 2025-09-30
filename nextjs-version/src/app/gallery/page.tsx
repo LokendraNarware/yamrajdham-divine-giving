@@ -1,4 +1,6 @@
 import { Metadata } from 'next';
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
 
 export const metadata: Metadata = {
   title: 'Gallery | Dharam Dham Paavan Nagari Trust',
@@ -7,7 +9,10 @@ export const metadata: Metadata = {
 
 export default function GalleryPage() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-temple-charcoal via-temple-dark to-temple-charcoal">
+    <div className="min-h-screen bg-background">
+      <Header />
+      
+      <main className="w-full">
       <div className="container mx-auto px-4 py-12">
         <div className="max-w-6xl mx-auto">
           {/* Header */}
@@ -19,7 +24,7 @@ export default function GalleryPage() {
               <span className="text-2xl">🕉️</span>
               <span className="text-temple-gold text-lg">Dharam Dham Paavan Nagari Trust</span>
             </div>
-            <p className="text-temple-sand/80 text-lg max-w-2xl mx-auto">
+            <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
               Witness the divine journey of Yamrajdham Temple construction and our community's spiritual moments
             </p>
           </div>
@@ -33,26 +38,26 @@ export default function GalleryPage() {
                 🏗️ Construction Progress
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <div className="bg-temple-charcoal/50 backdrop-blur-sm rounded-xl border border-temple-gold/20 p-4">
-                  <div className="aspect-video bg-temple-gold/20 rounded-lg mb-4 flex items-center justify-center">
-                    <span className="text-temple-sand/60">Foundation Work</span>
+                <div className="bg-background rounded-xl border border-border p-4 shadow-sm">
+                  <div className="aspect-video bg-muted rounded-lg mb-4 flex items-center justify-center">
+                    <span className="text-muted-foreground">Foundation Work</span>
                   </div>
                   <h3 className="text-temple-gold font-medium mb-2">Foundation Phase</h3>
-                  <p className="text-temple-sand/80 text-sm">Completed foundation work with reinforced concrete</p>
+                  <p className="text-muted-foreground text-sm">Completed foundation work with reinforced concrete</p>
                 </div>
-                <div className="bg-temple-charcoal/50 backdrop-blur-sm rounded-xl border border-temple-gold/20 p-4">
-                  <div className="aspect-video bg-temple-gold/20 rounded-lg mb-4 flex items-center justify-center">
-                    <span className="text-temple-sand/60">Ground Floor</span>
+                <div className="bg-background rounded-xl border border-border p-4 shadow-sm">
+                  <div className="aspect-video bg-muted rounded-lg mb-4 flex items-center justify-center">
+                    <span className="text-muted-foreground">Ground Floor</span>
                   </div>
                   <h3 className="text-temple-gold font-medium mb-2">Ground Floor Construction</h3>
-                  <p className="text-temple-sand/80 text-sm">Ground floor walls and pillars in progress</p>
+                  <p className="text-muted-foreground text-sm">Ground floor walls and pillars in progress</p>
                 </div>
-                <div className="bg-temple-charcoal/50 backdrop-blur-sm rounded-xl border border-temple-gold/20 p-4">
-                  <div className="aspect-video bg-temple-gold/20 rounded-lg mb-4 flex items-center justify-center">
-                    <span className="text-temple-sand/60">Planning</span>
+                <div className="bg-background rounded-xl border border-border p-4 shadow-sm">
+                  <div className="aspect-video bg-muted rounded-lg mb-4 flex items-center justify-center">
+                    <span className="text-muted-foreground">Planning</span>
                   </div>
                   <h3 className="text-temple-gold font-medium mb-2">Future Phases</h3>
-                  <p className="text-temple-sand/80 text-sm">First floor and dome construction planned</p>
+                  <p className="text-muted-foreground text-sm">First floor and dome construction planned</p>
                 </div>
               </div>
             </section>
@@ -63,26 +68,26 @@ export default function GalleryPage() {
                 🙏 Religious Ceremonies
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <div className="bg-temple-charcoal/50 backdrop-blur-sm rounded-xl border border-temple-gold/20 p-4">
-                  <div className="aspect-video bg-temple-gold/20 rounded-lg mb-4 flex items-center justify-center">
-                    <span className="text-temple-sand/60">Ground Breaking</span>
+                <div className="bg-background rounded-xl border border-border p-4 shadow-sm">
+                  <div className="aspect-video bg-muted rounded-lg mb-4 flex items-center justify-center">
+                    <span className="text-muted-foreground">Ground Breaking</span>
                   </div>
                   <h3 className="text-temple-gold font-medium mb-2">Bhoomi Pujan</h3>
-                  <p className="text-temple-sand/80 text-sm">Sacred ground breaking ceremony</p>
+                  <p className="text-muted-foreground text-sm">Sacred ground breaking ceremony</p>
                 </div>
-                <div className="bg-temple-charcoal/50 backdrop-blur-sm rounded-xl border border-temple-gold/20 p-4">
-                  <div className="aspect-video bg-temple-gold/20 rounded-lg mb-4 flex items-center justify-center">
-                    <span className="text-temple-sand/60">Daily Prayers</span>
+                <div className="bg-background rounded-xl border border-border p-4 shadow-sm">
+                  <div className="aspect-video bg-muted rounded-lg mb-4 flex items-center justify-center">
+                    <span className="text-muted-foreground">Daily Prayers</span>
                   </div>
                   <h3 className="text-temple-gold font-medium mb-2">Daily Aarti</h3>
-                  <p className="text-temple-sand/80 text-sm">Regular prayer sessions at the temple site</p>
+                  <p className="text-muted-foreground text-sm">Regular prayer sessions at the temple site</p>
                 </div>
-                <div className="bg-temple-charcoal/50 backdrop-blur-sm rounded-xl border border-temple-gold/20 p-4">
-                  <div className="aspect-video bg-temple-gold/20 rounded-lg mb-4 flex items-center justify-center">
-                    <span className="text-temple-sand/60">Festivals</span>
+                <div className="bg-background rounded-xl border border-border p-4 shadow-sm">
+                  <div className="aspect-video bg-muted rounded-lg mb-4 flex items-center justify-center">
+                    <span className="text-muted-foreground">Festivals</span>
                   </div>
                   <h3 className="text-temple-gold font-medium mb-2">Festival Celebrations</h3>
-                  <p className="text-temple-sand/80 text-sm">Special religious festivals and events</p>
+                  <p className="text-muted-foreground text-sm">Special religious festivals and events</p>
                 </div>
               </div>
             </section>
@@ -93,26 +98,26 @@ export default function GalleryPage() {
                 👥 Community Events
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <div className="bg-temple-charcoal/50 backdrop-blur-sm rounded-xl border border-temple-gold/20 p-4">
-                  <div className="aspect-video bg-temple-gold/20 rounded-lg mb-4 flex items-center justify-center">
-                    <span className="text-temple-sand/60">Donation Events</span>
+                <div className="bg-background rounded-xl border border-border p-4 shadow-sm">
+                  <div className="aspect-video bg-muted rounded-lg mb-4 flex items-center justify-center">
+                    <span className="text-muted-foreground">Donation Events</span>
                   </div>
                   <h3 className="text-temple-gold font-medium mb-2">Fundraising Events</h3>
-                  <p className="text-temple-sand/80 text-sm">Community fundraising activities</p>
+                  <p className="text-muted-foreground text-sm">Community fundraising activities</p>
                 </div>
-                <div className="bg-temple-charcoal/50 backdrop-blur-sm rounded-xl border border-temple-gold/20 p-4">
-                  <div className="aspect-video bg-temple-gold/20 rounded-lg mb-4 flex items-center justify-center">
-                    <span className="text-temple-sand/60">Volunteer Work</span>
+                <div className="bg-background rounded-xl border border-border p-4 shadow-sm">
+                  <div className="aspect-video bg-muted rounded-lg mb-4 flex items-center justify-center">
+                    <span className="text-muted-foreground">Volunteer Work</span>
                   </div>
                   <h3 className="text-temple-gold font-medium mb-2">Volunteer Activities</h3>
-                  <p className="text-temple-sand/80 text-sm">Community members helping with temple work</p>
+                  <p className="text-muted-foreground text-sm">Community members helping with temple work</p>
                 </div>
-                <div className="bg-temple-charcoal/50 backdrop-blur-sm rounded-xl border border-temple-gold/20 p-4">
-                  <div className="aspect-video bg-temple-gold/20 rounded-lg mb-4 flex items-center justify-center">
-                    <span className="text-temple-sand/60">Cultural Programs</span>
+                <div className="bg-background rounded-xl border border-border p-4 shadow-sm">
+                  <div className="aspect-video bg-muted rounded-lg mb-4 flex items-center justify-center">
+                    <span className="text-muted-foreground">Cultural Programs</span>
                   </div>
                   <h3 className="text-temple-gold font-medium mb-2">Cultural Events</h3>
-                  <p className="text-temple-sand/80 text-sm">Traditional music and dance performances</p>
+                  <p className="text-muted-foreground text-sm">Traditional music and dance performances</p>
                 </div>
               </div>
             </section>
@@ -124,29 +129,29 @@ export default function GalleryPage() {
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="bg-temple-charcoal/50 backdrop-blur-sm rounded-xl border border-temple-gold/20 p-6">
-                  <div className="aspect-video bg-temple-gold/20 rounded-lg mb-4 flex items-center justify-center">
-                    <span className="text-temple-sand/60">Architectural Plans</span>
+                  <div className="aspect-video bg-muted rounded-lg mb-4 flex items-center justify-center">
+                    <span className="text-muted-foreground">Architectural Plans</span>
                   </div>
                   <h3 className="text-temple-gold font-medium mb-2">Design Plans</h3>
-                  <p className="text-temple-sand/80 text-sm">Detailed architectural drawings and 3D models</p>
+                  <p className="text-muted-foreground text-sm">Detailed architectural drawings and 3D models</p>
                 </div>
                 <div className="bg-temple-charcoal/50 backdrop-blur-sm rounded-xl border border-temple-gold/20 p-6">
-                  <div className="aspect-video bg-temple-gold/20 rounded-lg mb-4 flex items-center justify-center">
-                    <span className="text-temple-sand/60">Artistic Elements</span>
+                  <div className="aspect-video bg-muted rounded-lg mb-4 flex items-center justify-center">
+                    <span className="text-muted-foreground">Artistic Elements</span>
                   </div>
                   <h3 className="text-temple-gold font-medium mb-2">Sacred Artwork</h3>
-                  <p className="text-temple-sand/80 text-sm">Traditional Hindu architectural elements and sculptures</p>
+                  <p className="text-muted-foreground text-sm">Traditional Hindu architectural elements and sculptures</p>
                 </div>
               </div>
             </section>
 
             {/* Call to Action */}
             <section className="text-center">
-              <div className="bg-temple-charcoal/50 backdrop-blur-sm rounded-xl border border-temple-gold/20 p-8">
+              <div className="bg-background rounded-xl border border-border p-8 shadow-sm">
                 <h3 className="text-2xl font-semibold text-temple-saffron mb-4">
                   Share Your Temple Moments
                 </h3>
-                <p className="text-temple-sand/80 mb-6 max-w-2xl mx-auto">
+                <p className="text-muted-foreground mb-6 max-w-2xl mx-auto">
                   Have photos from temple events or construction progress? Share them with our community to help document this sacred journey.
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -169,6 +174,9 @@ export default function GalleryPage() {
           </div>
         </div>
       </div>
+      </main>
+      
+      <Footer />
     </div>
   );
 }
