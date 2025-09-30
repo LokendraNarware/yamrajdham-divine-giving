@@ -74,9 +74,9 @@ export default function AnalyticsPage() {
 
       // Calculate analytics
       const donations = donationsData || [];
-      const totalRevenue = donations.reduce((sum, d) => sum + d.amount, 0);
+      const totalRevenue = donations.reduce((sum: number, d: any) => sum + (d.amount || 0), 0);
       const totalDonations = donations.length;
-      const uniqueDonors = new Set(donations.map(d => d.user?.name)).size;
+      const uniqueDonors = new Set(donations.map((d: any) => d.user?.name)).size;
       const averageDonation = totalDonations > 0 ? totalRevenue / totalDonations : 0;
 
       // Generate monthly trends data (last 6 months)
@@ -90,7 +90,7 @@ export default function AnalyticsPage() {
         totalDonations,
         activeDonors: uniqueDonors,
         averageDonation,
-        recentDonations: donations.slice(0, 10).map(d => ({
+        recentDonations: donations.slice(0, 10).map((d: any) => ({
           id: d.id,
           amount: d.amount,
           donor_name: d.user?.name || 'Anonymous',
@@ -310,7 +310,7 @@ export default function AnalyticsPage() {
                       cx="50%"
                       cy="50%"
                       labelLine={false}
-                      label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                      label={({ name, percent }: any) => `${name} ${(percent * 100).toFixed(0)}%`}
                       outerRadius={80}
                       fill="#8884d8"
                       dataKey="value"

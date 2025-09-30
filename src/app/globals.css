@@ -2,7 +2,7 @@
 
 /* Yamrajdham Temple Design System - Spiritual & Traditional Colors */
 
-:root {
+@theme {
   /* Clean Yamrajdham Temple Color Scheme - Based on #ffa968 */
   
   /* Primary Colors (Warm & Elegant) */
@@ -213,15 +213,13 @@
   border-color: #d4a574;
 }
 
-@layer base {
-  * {
-    border-color: var(--color-border);
-  }
+* {
+  border-color: var(--color-border);
+}
 
-  body {
-    background-color: var(--color-background);
-    color: var(--color-foreground);
-  }
+body {
+  background-color: var(--color-background);
+  color: var(--color-foreground);
 }
 
 /* Ensure accent colors work properly */
