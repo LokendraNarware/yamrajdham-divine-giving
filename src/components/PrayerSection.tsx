@@ -1,9 +1,10 @@
+"use client";
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Heart, Flame, Star, Users } from "lucide-react";
-import prayerShrineImage from "@/assets/prayer-shrine.jpg";
 import { useState } from "react";
 
 const PrayerSection = () => {

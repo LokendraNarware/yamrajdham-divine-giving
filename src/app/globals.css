@@ -1,140 +1,324 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
 
 /* Yamrajdham Temple Design System - Spiritual & Traditional Colors */
 
-@layer base {
-  :root {
-    /* Refined Yamrajdham Temple Color Scheme - Elegant & Sacred */
-    
-    /* Primary Colors (Softer & More Elegant) */
-    --background: 45 20% 98%; /* Cream #F8F6F0 */
-    --foreground: 0 0% 17%; /* Charcoal #2C2C2C */
+:root {
+  /* Clean Yamrajdham Temple Color Scheme - Based on #ffa968 */
+  
+  /* Primary Colors (Warm & Elegant) */
+  --color-primary: #ffa968; /* Primary Peach */
+  --color-primary-foreground: #ffffff;
+  --color-primary-glow: #ff8c42; /* Deep Coral */
+  
+  --color-secondary: #d4a574; /* Warm Gold */
+  --color-secondary-foreground: #ffffff;
+  --color-secondary-rich: #cd7f32; /* Warm Bronze */
+  
+  /* Accent Colors (Clean & Sophisticated) */
+  --color-accent: #8b7355; /* Warm Brown */
+  --color-accent-foreground: #ffffff;
+  
+  /* Neutral Base (Elegant & Clean) */
+  --color-background: #faf8f5; /* Cream */
+  --color-foreground: #2d2d2d; /* Charcoal */
+  
+  --color-muted: #f5f2ed; /* Slightly darker cream */
+  --color-muted-foreground: #5a5a5a; /* Darker grey for better contrast */
+  
+  --color-card: #ffffff; /* Pure White */
+  --color-card-foreground: #2d2d2d; /* Charcoal */
+  
+  --color-popover: #ffffff;
+  --color-popover-foreground: #2d2d2d;
+  
+  --color-border: #d4a574; /* Warm Gold */
+  --color-input: #faf8f5;
+  --color-ring: #ffa968;
+  
+  --color-destructive: #8b7355; /* Warm Brown */
+  --color-destructive-foreground: #ffffff;
+  
+  /* Temple-specific colors (Clean Scheme) */
+  --color-temple-peach: #ffa968; /* Primary Peach */
+  --color-temple-coral: #ff8c42; /* Deep Coral */
+  --color-temple-gold: #d4a574; /* Warm Gold */
+  --color-temple-bronze: #cd7f32; /* Warm Bronze */
+  --color-temple-brown: #8b7355; /* Warm Brown */
+  --color-temple-saffron: #ff8c42; /* Saffron (same as coral) */
+  --color-temple-sand: #faf8f5; /* Sand (same as cream) */
+  --color-temple-charcoal: #2d2d2d; /* Charcoal */
+  --color-temple-grey: #6b6b6b; /* Warm Grey */
+  --color-temple-cream: #faf8f5; /* Cream */
+  --color-temple-antique-gold: #d4a574; /* Warm Gold */
+  --color-temple-soft-peach: #ffd4b3; /* Soft Peach */
+  
+  --radius: 0.75rem;
+}
 
-    --card: 0 0% 100%; /* Pure White #FFFFFF */
-    --card-foreground: 0 0% 17%; /* Charcoal #2C2C2C */
+/* Custom gradients and shadows (Clean Scheme) */
+.gradient-divine {
+  background: linear-gradient(135deg, #ffa968, #ff8c42);
+}
 
-    --popover: 0 0% 100%; /* Pure White #FFFFFF */
-    --popover-foreground: 0 0% 17%; /* Charcoal #2C2C2C */
+.gradient-peaceful {
+  background: linear-gradient(180deg, #faf8f5, #ffffff);
+}
 
-    /* Warm Peach-Orange - Primary */
-    --primary: 30 100% 70%; /* #ffa968 */
-    --primary-foreground: 0 0% 100%; /* White */
-    --primary-glow: 30 100% 75%; /* #ffb380 */
+.gradient-gold {
+  background: linear-gradient(45deg, #d4a574, #cd7f32);
+}
 
-    /* Deep Amber - Secondary */
-    --secondary: 45 85% 40%; /* #B8860B */
-    --secondary-foreground: 0 0% 100%; /* White */
-    --secondary-rich: 45 90% 50%; /* #DAA520 */
+.gradient-coral {
+  background: linear-gradient(135deg, #ff8c42, #d4a574);
+}
 
-    /* Neutral Base */
-    --muted: 45 20% 98%; /* Cream #F8F6F0 */
-    --muted-foreground: 0 0% 35%; /* Warm Grey #5A5A5A */
+.gradient-brown {
+  background: linear-gradient(135deg, #8b7355, #d4a574);
+}
 
-    /* Rich Burgundy - Accent */
-    --accent: 340 70% 35%; /* #8B1538 */
-    --accent-foreground: 0 0% 100%; /* White */
+.shadow-temple {
+  box-shadow: 0 10px 30px -10px rgba(255, 169, 104, 0.25);
+}
 
-    --destructive: 340 70% 35%; /* Rich Burgundy #8B1538 */
-    --destructive-foreground: 0 0% 100%; /* White */
+.shadow-gold {
+  box-shadow: 0 5px 20px -5px rgba(212, 165, 116, 0.3);
+}
 
-    --border: 45 85% 40%; /* Antique Gold #B8860B */
-    --input: 45 20% 98%; /* Cream #F8F6F0 */
-    --ring: 30 100% 70%; /* Warm Peach-Orange #ffa968 */
+.shadow-divine {
+  box-shadow: 0 0 40px rgba(255, 169, 104, 0.2);
+}
 
-    --radius: 0.75rem;
+.shadow-coral {
+  box-shadow: 0 5px 20px -5px rgba(255, 140, 66, 0.25);
+}
 
-    /* Temple-specific colors (Refined) */
-    --temple-saffron: 30 100% 70%; /* #ffa968 */
-    --temple-gold: 45 85% 40%; /* #B8860B */
-    --temple-earth: 45 85% 40%; /* #B8860B */
-    --temple-sacred: 280 60% 40%; /* #6A1B9A */
-    --temple-crimson: 340 70% 35%; /* #8B1538 */
-    --temple-maroon: 280 60% 40%; /* #6A1B9A */
-    --temple-charcoal: 0 0% 17%; /* #2C2C2C */
-    --temple-grey: 0 0% 35%; /* #5A5A5A */
-    --temple-sand: 45 20% 98%; /* #F8F6F0 */
-    --temple-muted-gold: 45 85% 40%; /* #B8860B */
+.shadow-brown {
+  box-shadow: 0 5px 20px -5px rgba(139, 115, 85, 0.2);
+}
 
-    /* Gradients for spiritual feel */
-    --gradient-divine: linear-gradient(135deg, hsl(var(--temple-saffron)), hsl(var(--primary-glow)));
-    --gradient-peaceful: linear-gradient(180deg, hsl(var(--background)), hsl(var(--temple-sand)));
-    --gradient-gold: linear-gradient(45deg, hsl(var(--temple-gold)), hsl(var(--temple-saffron)));
-    --gradient-crimson: linear-gradient(135deg, hsl(var(--temple-crimson)), hsl(var(--secondary)));
-    
-    /* Shadows with warm glow */
-    --shadow-temple: 0 10px 30px -10px hsl(var(--temple-saffron) / 0.3);
-    --shadow-gold: 0 5px 20px -5px hsl(var(--temple-gold) / 0.4);
-    --shadow-divine: 0 0 40px hsl(var(--temple-saffron) / 0.2);
-    --shadow-crimson: 0 5px 20px -5px hsl(var(--temple-crimson) / 0.3);
+/* Temple-themed utility classes (New Scheme) */
+.bg-temple-peach {
+  background-color: #ffa968;
+}
 
-    /* Animations */
-    --transition-spiritual: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    --transition-gentle: all 0.3s ease-in-out;
+.bg-temple-coral {
+  background-color: #ff8c42;
+}
 
-    --sidebar-background: 0 0% 98%;
+.bg-temple-gold {
+  background-color: #d4a574;
+}
 
-    --sidebar-foreground: 240 5.3% 26.1%;
+.bg-temple-bronze {
+  background-color: #cd7f32;
+}
 
-    --sidebar-primary: 240 5.9% 10%;
+.bg-temple-brown {
+  background-color: #8b7355;
+}
 
-    --sidebar-primary-foreground: 0 0% 98%;
+.bg-temple-charcoal {
+  background-color: #2d2d2d;
+}
 
-    --sidebar-accent: 240 4.8% 95.9%;
+.bg-temple-grey {
+  background-color: #6b6b6b;
+}
 
-    --sidebar-accent-foreground: 240 5.9% 10%;
+.bg-temple-cream {
+  background-color: #faf8f5;
+}
 
-    --sidebar-border: 220 13% 91%;
+.bg-temple-antique-gold {
+  background-color: #d4a574;
+}
 
-    --sidebar-ring: 217.2 91.2% 59.8%;
-  }
+.bg-temple-soft-peach {
+  background-color: #ffd4b3;
+}
 
-  .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
+.bg-primary-glow {
+  background-color: #ff8c42;
+}
 
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
+.text-temple-peach {
+  color: #ffa968;
+}
 
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
+.text-temple-coral {
+  color: #ff8c42;
+}
 
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
+.text-temple-gold {
+  color: #d4a574;
+}
 
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
+.text-temple-bronze {
+  color: #cd7f32;
+}
 
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
+.text-temple-brown {
+  color: #8b7355;
+}
 
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
+.text-temple-charcoal {
+  color: #2d2d2d;
+}
 
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
+.text-temple-grey {
+  color: #6b6b6b;
+}
 
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
-  }
+.text-temple-cream {
+  color: #faf8f5;
+}
+
+.text-temple-antique-gold {
+  color: #d4a574;
+}
+
+.text-temple-soft-peach {
+  color: #ffd4b3;
+}
+
+.text-temple-saffron {
+  color: #ff8c42;
+}
+
+.text-temple-sand {
+  color: #faf8f5;
+}
+
+.border-temple-peach {
+  border-color: #ffa968;
+}
+
+.border-temple-coral {
+  border-color: #ff8c42;
+}
+
+.border-temple-gold {
+  border-color: #d4a574;
+}
+
+.border-temple-bronze {
+  border-color: #cd7f32;
+}
+
+.border-temple-brown {
+  border-color: #8b7355;
+}
+
+.border-temple-antique-gold {
+  border-color: #d4a574;
 }
 
 @layer base {
   * {
-    @apply border-border;
+    border-color: var(--color-border);
   }
 
   body {
-    @apply bg-background text-foreground;
+    background-color: var(--color-background);
+    color: var(--color-foreground);
   }
 }
+
+/* Ensure accent colors work properly */
+.text-primary {
+  color: var(--color-primary);
+}
+
+.text-primary-foreground {
+  color: var(--color-primary-foreground);
+}
+
+.text-muted-foreground {
+  color: var(--color-muted-foreground);
+}
+
+.bg-primary {
+  background-color: var(--color-primary);
+}
+
+.bg-primary-foreground {
+  background-color: var(--color-primary-foreground);
+}
+
+.bg-muted {
+  background-color: var(--color-muted);
+}
+
+.bg-accent {
+  background-color: var(--color-accent);
+}
+
+.bg-card {
+  background-color: var(--color-card);
+}
+
+.bg-background {
+  background-color: var(--color-background);
+}
+
+.bg-foreground {
+  background-color: var(--color-foreground);
+}
+
+.border-border {
+  border-color: var(--color-border);
+}
+
+.hover\:text-primary:hover {
+  color: var(--color-primary);
+}
+
+/* Button variant styles (New Scheme) */
+.bg-gradient-divine {
+  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-glow));
+  color: var(--color-primary-foreground);
+}
+
+/* Removed conflicting gradient hover styles - handled by button component */
+
+.bg-gradient-gold {
+  background: linear-gradient(45deg, var(--color-temple-gold), var(--color-temple-bronze));
+  color: var(--color-primary-foreground);
+}
+
+/* Removed conflicting gradient hover styles - handled by button component */
+
+.bg-gradient-coral {
+  background: linear-gradient(135deg, var(--color-temple-coral), var(--color-temple-gold));
+  color: var(--color-primary-foreground);
+}
+
+/* Removed conflicting gradient hover styles - handled by button component */
+
+.bg-gradient-brown {
+  background: linear-gradient(135deg, var(--color-temple-brown), var(--color-temple-gold));
+  color: var(--color-primary-foreground);
+}
+
+/* Removed conflicting gradient hover styles - handled by button component */
+
+.bg-temple-peach {
+  background-color: var(--color-temple-peach);
+  color: var(--color-primary-foreground);
+}
+
+/* Removed conflicting hover styles - handled by button component */
+
+.bg-temple-coral {
+  background-color: var(--color-temple-coral);
+  color: var(--color-primary-foreground);
+}
+
+/* Removed conflicting hover styles - handled by button component */
+
+.bg-temple-brown {
+  background-color: var(--color-temple-brown);
+  color: var(--color-primary-foreground);
+}
+
+/* Removed conflicting hover styles - handled by button component */

@@ -41,9 +41,9 @@ The credentials are already configured in the code. For production, create a `.e
 
 ```env
 # Cashfree Payment Gateway Configuration
-VITE_CASHFREE_APP_ID=your_production_app_id_here
-VITE_CASHFREE_SECRET_KEY=your_production_secret_key_here
-VITE_CASHFREE_ENVIRONMENT=production
+CASHFREE_APP_ID=your_production_app_id_here
+CASHFREE_SECRET_KEY=your_production_secret_key_here
+CASHFREE_ENVIRONMENT=production
 ```
 
 **Important Notes:**
@@ -90,7 +90,7 @@ Use Cashfree's test card numbers for testing:
 ### 4. Going Live (Production)
 
 1. Complete KYC verification in Cashfree dashboard
-2. Change `VITE_CASHFREE_ENVIRONMENT=production` in your `.env` file
+2. Change `CASHFREE_ENVIRONMENT=production` in your `.env` file
 3. Test with small amounts first
 4. Monitor transactions in the dashboard
 

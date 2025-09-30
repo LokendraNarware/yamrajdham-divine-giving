@@ -1,12 +1,47 @@
-import { useState, useEffect } from "react";
+"use client";
+
+import { useState } from "react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, CreditCard, Smartphone, Building, CheckCircle, XCircle } from "lucide-react";
-import { createPaymentSession, PaymentSessionData, getOrderDetails } from "@/services/cashfree";
+import { Loader2, CreditCard, Smartphone, Building } from "lucide-react";
+import { createPaymentSession, PaymentSessionData, generateCustomerId, generateOrderId } from "@/services/cashfree";
 import { CASHFREE_CONFIG } from "@/config/cashfree";
 import { useToast } from "@/hooks/use-toast";
+
+// Format phone number for Cashfree API
+const formatPhoneForCashfree = (phone: string): string => {
+  // Remove all non-digit characters except +
+  const cleaned = phone.replace(/[^\d+]/g, '');
+  
+  // If it starts with +91, keep it as is
+  if (cleaned.startsWith('+91')) {
+    return cleaned;
+  }
+  
+  // If it starts with 91, add +
+  if (cleaned.startsWith('91')) {
+    return '+' + cleaned;
+  }
+  
+  // If it's a 10-digit number, add +91
+  if (cleaned.length === 10) {
+    return '+91' + cleaned;
+  }
+  
+  // Return as is if it doesn't match expected patterns
+  return cleaned;
+};
+
+// Declare Cashfree SDK types
+declare global {
+  interface Window {
+    Cashfree: new (config: { mode: string }) => {
+      checkout: (options: { paymentSessionId: string; redirectTarget: string }) => Promise<void>;
+    };
+  }
+}
 
 interface PaymentModalProps {
   isOpen: boolean;
@@ -18,7 +53,7 @@ interface PaymentModalProps {
     donorPhone: string;
     orderId: string;
   };
-  onPaymentSuccess: (paymentData: any) => void;
+  onPaymentSuccess: (paymentData: { payment_id?: string; order_id?: string }) => void;
   onPaymentFailure: (error: string) => void;
 }
 
@@ -26,34 +61,39 @@ const PaymentModal = ({
   isOpen, 
   onClose, 
   donationData, 
-  onPaymentSuccess, 
+  onPaymentSuccess, // eslint-disable-line @typescript-eslint/no-unused-vars
   onPaymentFailure 
 }: PaymentModalProps) => {
   const [isLoading, setIsLoading] = useState(false);
-  const [paymentUrl, setPaymentUrl] = useState<string | null>(null);
-  const [paymentStatus, setPaymentStatus] = useState<'pending' | 'success' | 'failed'>('pending');
   const { toast } = useToast();
 
   const handlePayment = async () => {
     setIsLoading(true);
     try {
+      // Generate a new unique order ID for each payment attempt
+      const uniqueOrderId = generateOrderId('YAMRAJ');
+      
       const sessionData: PaymentSessionData = {
-        order_id: donationData.orderId,
+        order_id: uniqueOrderId,
         order_amount: donationData.amount,
         order_currency: 'INR',
         customer_details: {
-          customer_id: donationData.donorEmail,
+          customer_id: generateCustomerId(donationData.donorEmail),
           customer_name: donationData.donorName,
           customer_email: donationData.donorEmail,
-          customer_phone: donationData.donorPhone,
+          customer_phone: formatPhoneForCashfree(donationData.donorPhone),
         },
         order_meta: {
-          return_url: `${window.location.origin}/donate/success?order_id=${donationData.orderId}`,
+          return_url: `${window.location.origin}/donate/success?order_id=${uniqueOrderId}`,
           notify_url: `${window.location.origin}/api/webhook/cashfree`,
         },
       };
 
       console.log('Initiating payment with data:', sessionData);
+      console.log('Generated customer_id:', generateCustomerId(donationData.donorEmail));
+      console.log('Original phone:', donationData.donorPhone);
+      console.log('Formatted phone:', formatPhoneForCashfree(donationData.donorPhone));
+      console.log('PaymentModal version:', '2024-01-25-v4-popup');
       
       // Show loading message
       toast({
@@ -62,18 +102,25 @@ const PaymentModal = ({
       });
       
       const response = await createPaymentSession(sessionData);
-      setPaymentUrl(response.payment_url);
       
-      // Show success message before redirect
+      console.log('Payment session response:', response);
+      
+      if (!response.success) {
+        throw new Error(response.message || 'Failed to create payment session');
+      }
+      
+      const sessionId = response.data.payment_session_id;
+      console.log('Session ID:', sessionId);
+      console.log('CF Order ID:', response.data.cf_order_id);
+      
+      // Show success message before opening checkout
       toast({
-        title: "Redirecting to Payment",
-        description: "You will be redirected to Cashfree payment page.",
+        title: "Payment Session Created",
+        description: "Opening Cashfree payment checkout...",
       });
       
-      // Small delay to show the message, then redirect
-      setTimeout(() => {
-        window.location.href = response.payment_url;
-      }, 1000);
+      // Use Cashfree SDK checkout method as per Medium article
+      await initiatePayment(sessionId);
 
     } catch (error) {
       console.error('Payment error:', error);
@@ -85,6 +132,69 @@ const PaymentModal = ({
         variant: "destructive",
       });
       setIsLoading(false);
+    }
+  };
+
+  // Initialize Cashfree SDK as per Medium article
+  const initializeSDK = async () => {
+    return new Promise((resolve, reject) => {
+      // Check if SDK is already loaded
+      if (window.Cashfree) {
+        console.log('Cashfree SDK already loaded');
+        resolve(window.Cashfree);
+        return;
+      }
+
+      // Load Cashfree SDK from the correct URL
+      const script = document.createElement('script');
+      script.src = 'https://sdk.cashfree.com/js/v3/cashfree.js';
+      script.onload = () => {
+        console.log('Cashfree SDK loaded successfully');
+        console.log('Window.Cashfree:', window.Cashfree);
+        console.log('Type of window.Cashfree:', typeof window.Cashfree);
+        
+        try {
+          // window.Cashfree is a constructor function, so we need to instantiate it
+          const cashfreeInstance = new window.Cashfree({
+            mode: CASHFREE_CONFIG.ENVIRONMENT === 'production' ? 'PRODUCTION' : 'SANDBOX'
+          });
+          
+          console.log('Cashfree instance created:', cashfreeInstance);
+          console.log('Available methods on instance:', Object.keys(cashfreeInstance || {}));
+          
+          // Check if the instance has the checkout method
+          if (cashfreeInstance && typeof cashfreeInstance.checkout === 'function') {
+            console.log('Found checkout function on instance');
+            resolve(cashfreeInstance);
+          } else {
+            reject(new Error('Cashfree instance created but checkout function not available. Available: ' + Object.keys(cashfreeInstance || {})));
+          }
+        } catch (error) {
+          console.error('Error creating Cashfree instance:', error);
+          reject(new Error('Failed to create Cashfree instance: ' + error.message));
+        }
+      };
+      script.onerror = () => {
+        console.error('Failed to load Cashfree SDK');
+        reject(new Error('Failed to load Cashfree SDK'));
+      };
+      document.head.appendChild(script);
+    });
+  };
+
+  // Initiate payment as per Medium article
+  const initiatePayment = async (sessionId: string) => {
+    try {
+      const cashfree = await initializeSDK() as Window['Cashfree'];
+      const checkoutOptions = {
+        paymentSessionId: sessionId,
+        redirectTarget: "_self",  // Redirects to the target URL after payment
+      };
+      console.log("Starting checkout with options:", checkoutOptions);
+      cashfree.checkout(checkoutOptions);
+    } catch (error) {
+      console.error('Payment initiation error:', error);
+      throw error;
     }
   };
 
@@ -112,7 +222,7 @@ const PaymentModal = ({
         <DialogHeader>
           <DialogTitle className="text-center">Complete Your Donation</DialogTitle>
           <DialogDescription className="text-center">
-            Secure payment powered by Cashfree
+            Support the construction of Yamraj dham Temple
           </DialogDescription>
         </DialogHeader>
 
@@ -165,58 +275,28 @@ const PaymentModal = ({
             </CardContent>
           </Card>
 
-          {/* Payment Status */}
-          {paymentStatus === 'success' && (
-            <Card className="border-green-200 bg-green-50">
-              <CardContent className="pt-6">
-                <div className="flex items-center space-x-2 text-green-700">
-                  <CheckCircle className="w-5 h-5" />
-                  <span className="font-medium">Donation Successful!</span>
-                </div>
-                <p className="text-sm text-green-600 mt-1">
-                  Your donation has been processed successfully.
-                </p>
-              </CardContent>
-            </Card>
-          )}
-
-          {paymentStatus === 'failed' && (
-            <Card className="border-red-200 bg-red-50">
-              <CardContent className="pt-6">
-                <div className="flex items-center space-x-2 text-red-700">
-                  <XCircle className="w-5 h-5" />
-                  <span className="font-medium">Payment Failed</span>
-                </div>
-                <p className="text-sm text-red-600 mt-1">
-                  Please try again or contact support.
-                </p>
-              </CardContent>
-            </Card>
-          )}
 
           {/* Action Buttons */}
           <div className="space-y-3">
-            {paymentStatus === 'pending' && (
-              <Button 
-                onClick={handlePayment} 
-                disabled={isLoading}
-                variant="divine" 
-                size="lg" 
-                className="w-full"
-              >
-                {isLoading ? (
-                  <>
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                    Processing...
-                  </>
-                ) : (
-                  <>
-                    <CreditCard className="w-4 h-4" />
-                    Pay ₹{donationData.amount}
-                  </>
-                )}
-              </Button>
-            )}
+            <Button 
+              onClick={handlePayment} 
+              disabled={isLoading}
+              variant="default" 
+              size="lg" 
+              className="w-full"
+            >
+              {isLoading ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  Processing...
+                </>
+              ) : (
+                <>
+                  <CreditCard className="w-4 h-4" />
+                  Pay ₹{donationData.amount}
+                </>
+              )}
+            </Button>
 
             <Button 
               onClick={onClose} 
@@ -224,7 +304,7 @@ const PaymentModal = ({
               size="lg" 
               className="w-full"
             >
-              {paymentStatus === 'success' ? 'Close' : 'Cancel'}
+              Cancel
             </Button>
           </div>
 
@@ -233,11 +313,6 @@ const PaymentModal = ({
             <Badge variant="secondary" className="text-xs">
               Secure Payment • SSL Encrypted
             </Badge>
-            {CASHFREE_CONFIG.DEMO_MODE && (
-              <Badge variant="outline" className="text-xs text-yellow-600 border-yellow-300">
-                Demo Mode • Testing Only
-              </Badge>
-            )}
           </div>
         </div>
       </DialogContent>

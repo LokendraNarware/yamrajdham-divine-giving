@@ -1,73 +1,82 @@
+"use client";
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Heart, Building, Flower, BookOpen, Users, Crown } from "lucide-react";
 import DonationCard from "./DonationCard";
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useRouter } from "next/navigation";
 
 const DonationSection = () => {
   const [customAmount, setCustomAmount] = useState("");
-  const [selectedAmount, setSelectedAmount] = useState("1001");
-  const navigate = useNavigate();
+  const [selectedAmount, setSelectedAmount] = useState("1101");
+  const router = useRouter();
 
   const handleQuickDonate = () => {
     const amount = customAmount || selectedAmount;
-    navigate(`/donate?amount=${amount}`);
+    router.push(`/donate?amount=${amount}`);
   };
 
   const donationTypes = [
     {
-      title: "Shree Krishna Seva",
-      description: "Support daily worship and offerings",
-      amount: "501",
-      icon: <Flower className="w-6 h-6 text-primary" />
+      title: "₹101 – ईंट दान (Brick Seva)",
+      description: "Offer sacred bricks that will form the walls of Yamraj dham Temple.",
+      amount: "101",
+      icon: <Building className="w-6 h-6 text-primary" />
     },
     {
-      title: "Temple Construction",
-      description: "Help build the main temple structure",
-      amount: "1001",
+      title: "₹501 – पत्थर दान (Stone Seva)",
+      description: "Contribute carved stones for the temple's base and pathways.",
+      amount: "501",
+      icon: <Building className="w-6 h-6 text-primary" />
+    },
+    {
+      title: "₹1101 – नींव दान (Foundation Seva – Most Popular)",
+      description: "Help strengthen the foundation on which the divine temple rises.",
+      amount: "1101",
       icon: <Building className="w-6 h-6 text-primary" />,
       isPopular: true
     },
     {
-      title: "Dharma Shala",
-      description: "Contribute to devotee accommodation",
+      title: "₹2501 – स्तंभ दान (Pillar Seva)",
+      description: "Support the raising of strong temple pillars, symbols of dharma & stability.",
       amount: "2501",
-      icon: <Users className="w-6 h-6 text-primary" />
+      icon: <Building className="w-6 h-6 text-primary" />
     },
     {
-      title: "Library & Education",
-      description: "Support spiritual learning center",
-      amount: "5001",
-      icon: <BookOpen className="w-6 h-6 text-primary" />
+      title: "₹5101 – छत एवं द्वार (Roof & Door Seva)",
+      description: "Contribute towards beautifully carved doors and protective temple roofing.",
+      amount: "5101",
+      icon: <Building className="w-6 h-6 text-primary" />
     },
     {
-      title: "Golden Kalash",
-      description: "Sponsor temple dome decoration",
+      title: "₹11001 – स्वर्ण कलश दान (Golden Kalash Sponsorship)",
+      description: "Sponsor the sacred Golden Kalash adorning the temple's dome.",
       amount: "11001",
       icon: <Crown className="w-6 h-6 text-primary" />
     },
     {
-      title: "Maha Donation",
-      description: "Major contribution for overall development",
+      title: "₹51001 – विशेष निर्माण दान (Maha Construction Seva)",
+      description: "A grand offering for domes, sanctum, and completion of the temple.",
       amount: "51001",
       icon: <Heart className="w-6 h-6 text-primary" />
     }
   ];
 
-  const quickAmounts = ["501", "1001", "2501", "5001", "11001"];
+  const quickAmounts = ["101", "501", "1101", "2501", "5101"];
 
   return (
-    <section id="donate" className="py-16 bg-background">
-      <div className="container px-4">
+    <div className="container mx-auto px-4">
         <div className="text-center mb-12">
+          <div className="flex items-center justify-center gap-2 mb-4">
+            <span className="text-temple-gold font-medium">Donate & Support</span>
+          </div>
           <h2 className="text-3xl md:text-4xl font-bold mb-4">
-            Support Temple Construction
+            Every rupee builds a brick of devotion.
           </h2>
           <p className="text-muted-foreground max-w-2xl mx-auto">
-            Your generous donation will help us build a beautiful temple that will serve as a 
-            center of worship and spiritual growth for generations to come.
+            Quick Donation Options:
           </p>
         </div>
 
@@ -114,10 +123,10 @@ const DonationSection = () => {
                   />
                 </div>
 
-                <Button variant="sacred" size="lg" className="w-full" onClick={handleQuickDonate}>
-                  <Heart className="w-4 h-4" />
-                  Donate ₹{customAmount || selectedAmount}
-                </Button>
+        <Button variant="brown" size="lg" className="w-full" onClick={handleQuickDonate}>
+          <Heart className="w-4 h-4" />
+          Donate Today – Be Part of the Divine Journey
+        </Button>
 
                 <div className="text-xs text-muted-foreground text-center">
                   Secure payment • Transparent fund usage
@@ -159,7 +168,6 @@ const DonationSection = () => {
           </Card>
         </div>
       </div>
-    </section>
   );
 };
 

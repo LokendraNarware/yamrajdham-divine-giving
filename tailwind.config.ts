@@ -1,126 +1,72 @@
 import type { Config } from "tailwindcss";
 
 export default {
-	darkMode: ["class"],
-	content: [
-		"./pages/**/*.{ts,tsx}",
-		"./components/**/*.{ts,tsx}",
-		"./app/**/*.{ts,tsx}",
-		"./src/**/*.{ts,tsx}",
-	],
-	prefix: "",
-	theme: {
-		container: {
-			center: true,
-			padding: '2rem',
-			screens: {
-				'2xl': '1400px'
-			}
-		},
-		extend: {
-			colors: {
-				border: 'hsl(var(--border))',
-				input: 'hsl(var(--input))',
-				ring: 'hsl(var(--ring))',
-				background: 'hsl(var(--background))',
-				foreground: 'hsl(var(--foreground))',
-				primary: {
-					DEFAULT: 'hsl(var(--primary))',
-					foreground: 'hsl(var(--primary-foreground))',
-					glow: 'hsl(var(--primary-glow))'
-				},
-				secondary: {
-					DEFAULT: 'hsl(var(--secondary))',
-					foreground: 'hsl(var(--secondary-foreground))',
-					rich: 'hsl(var(--secondary-rich))'
-				},
-				destructive: {
-					DEFAULT: 'hsl(var(--destructive))',
-					foreground: 'hsl(var(--destructive-foreground))'
-				},
-				muted: {
-					DEFAULT: 'hsl(var(--muted))',
-					foreground: 'hsl(var(--muted-foreground))'
-				},
-				accent: {
-					DEFAULT: 'hsl(var(--accent))',
-					foreground: 'hsl(var(--accent-foreground))'
-				},
-				popover: {
-					DEFAULT: 'hsl(var(--popover))',
-					foreground: 'hsl(var(--popover-foreground))'
-				},
-				card: {
-					DEFAULT: 'hsl(var(--card))',
-					foreground: 'hsl(var(--card-foreground))'
-				},
-				temple: {
-					saffron: 'hsl(var(--temple-saffron))',
-					gold: 'hsl(var(--temple-gold))',
-					earth: 'hsl(var(--temple-earth))',
-					sacred: 'hsl(var(--temple-sacred))',
-					crimson: 'hsl(var(--temple-crimson))',
-					maroon: 'hsl(var(--temple-maroon))',
-					charcoal: 'hsl(var(--temple-charcoal))',
-					grey: 'hsl(var(--temple-grey))',
-					sand: 'hsl(var(--temple-sand))',
-					mutedGold: 'hsl(var(--temple-muted-gold))'
-				},
-				sidebar: {
-					DEFAULT: 'hsl(var(--sidebar-background))',
-					foreground: 'hsl(var(--sidebar-foreground))',
-					primary: 'hsl(var(--sidebar-primary))',
-					'primary-foreground': 'hsl(var(--sidebar-primary-foreground))',
-					accent: 'hsl(var(--sidebar-accent))',
-					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
-					border: 'hsl(var(--sidebar-border))',
-					ring: 'hsl(var(--sidebar-ring))'
-				}
-			},
-			backgroundImage: {
-				'gradient-divine': 'var(--gradient-divine)',
-				'gradient-peaceful': 'var(--gradient-peaceful)',
-				'gradient-gold': 'var(--gradient-gold)',
-				'gradient-crimson': 'var(--gradient-crimson)'
-			},
-			boxShadow: {
-				'temple': 'var(--shadow-temple)',
-				'gold': 'var(--shadow-gold)',
-				'divine': 'var(--shadow-divine)',
-				'crimson': 'var(--shadow-crimson)'
-			},
-			transitionTimingFunction: {
-				'spiritual': 'var(--transition-spiritual)',
-				'gentle': 'var(--transition-gentle)'
-			},
-			borderRadius: {
-				lg: 'var(--radius)',
-				md: 'calc(var(--radius) - 2px)',
-				sm: 'calc(var(--radius) - 4px)'
-			},
-			keyframes: {
-				'accordion-down': {
-					from: {
-						height: '0'
-					},
-					to: {
-						height: 'var(--radix-accordion-content-height)'
-					}
-				},
-				'accordion-up': {
-					from: {
-						height: 'var(--radix-accordion-content-height)'
-					},
-					to: {
-						height: '0'
-					}
-				}
-			},
-			animation: {
-				'accordion-down': 'accordion-down 0.2s ease-out',
-				'accordion-up': 'accordion-up 0.2s ease-out'
-			}
-		}
-	},
-	plugins: [require("tailwindcss-animate")],
+  content: [
+    "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
+    "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
+    "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
+  ],
+  theme: {
+    extend: {
+      colors: {
+        primary: {
+          DEFAULT: 'var(--color-primary)',
+          foreground: 'var(--color-primary-foreground)',
+          glow: 'var(--color-primary-glow)'
+        },
+        secondary: {
+          DEFAULT: 'var(--color-secondary)',
+          foreground: 'var(--color-secondary-foreground)',
+          rich: 'var(--color-secondary-rich)'
+        },
+        accent: {
+          DEFAULT: 'var(--color-accent)',
+          foreground: 'var(--color-accent-foreground)'
+        },
+        muted: {
+          DEFAULT: 'var(--color-muted)',
+          foreground: 'var(--color-muted-foreground)'
+        },
+        background: 'var(--color-background)',
+        foreground: 'var(--color-foreground)',
+        border: 'var(--color-border)',
+        input: 'var(--color-input)',
+        ring: 'var(--color-ring)',
+        card: {
+          DEFAULT: 'var(--color-card)',
+          foreground: 'var(--color-card-foreground)'
+        },
+        destructive: {
+          DEFAULT: 'var(--color-destructive)',
+          foreground: 'var(--color-destructive-foreground)'
+        },
+        temple: {
+          peach: 'var(--color-temple-peach)',
+          coral: 'var(--color-temple-coral)',
+          gold: 'var(--color-temple-gold)',
+          bronze: 'var(--color-temple-bronze)',
+          brown: 'var(--color-temple-brown)',
+          charcoal: 'var(--color-temple-charcoal)',
+          grey: 'var(--color-temple-grey)',
+          cream: 'var(--color-temple-cream)',
+          antiqueGold: 'var(--color-temple-antique-gold)',
+          softPeach: 'var(--color-temple-soft-peach)'
+        }
+      },
+      backgroundImage: {
+        'gradient-divine': 'linear-gradient(135deg, var(--color-primary), var(--color-primary-glow))',
+        'gradient-peaceful': 'linear-gradient(180deg, var(--color-background), var(--color-card))',
+        'gradient-gold': 'linear-gradient(45deg, var(--color-temple-gold), var(--color-temple-bronze))',
+        'gradient-coral': 'linear-gradient(135deg, var(--color-temple-coral), var(--color-temple-gold))',
+        'gradient-brown': 'linear-gradient(135deg, var(--color-temple-brown), var(--color-temple-gold))'
+      },
+      boxShadow: {
+        'temple': '0 10px 30px -10px rgba(255, 169, 104, 0.25)',
+        'gold': '0 5px 20px -5px rgba(212, 165, 116, 0.3)',
+        'divine': '0 0 40px rgba(255, 169, 104, 0.2)',
+        'coral': '0 5px 20px -5px rgba(255, 140, 66, 0.25)',
+        'brown': '0 5px 20px -5px rgba(139, 115, 85, 0.2)'
+      }
+    }
+  }
 } satisfies Config;

@@ -78,9 +78,9 @@ To go live with real Cashfree integration:
 
 2. **Update Environment Variables:**
    ```env
-   VITE_CASHFREE_APP_ID=your_actual_app_id
-   VITE_CASHFREE_SECRET_KEY=your_actual_secret_key
-   VITE_CASHFREE_ENVIRONMENT=sandbox
+   CASHFREE_APP_ID=your_actual_app_id
+   CASHFREE_SECRET_KEY=your_actual_secret_key
+   CASHFREE_ENVIRONMENT=sandbox
    ```
 
 3. **Test with Real Payments:**

@@ -1,97 +1,147 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createPaymentSession, PaymentSessionRequest } from '@/lib/cashfree-sdk';
-import { z } from 'zod';
+import { CASHFREE_CONFIG } from '@/config/cashfree';
+import { PaymentSessionDataSchema } from '@/services/cashfree';
+import { OrdersApi } from 'cashfree-pg-sdk-nodejs';
 
-// Validation schema for payment session request
-const PaymentSessionSchema = z.object({
-  order_id: z.string().min(1, 'Order ID is required'),
-  order_amount: z.number().positive('Order amount must be positive'),
-  order_currency: z.string().default('INR'),
-  customer_details: z.object({
-    customer_id: z.string().min(1, 'Customer ID is required'),
-    customer_name: z.string().min(1, 'Customer name is required'),
-    customer_email: z.string().email('Valid email is required'),
-    customer_phone: z.string().min(10, 'Valid phone number is required'),
-  }),
-  order_meta: z.object({
-    return_url: z.string().url().optional(),
-    notify_url: z.string().url().optional(),
-    payment_methods: z.string().optional(),
-  }).optional(),
-});
+// Format phone number for Cashfree API
+const formatPhoneForCashfree = (phone: string): string => {
+  // Remove all non-digit characters except +
+  const cleaned = phone.replace(/[^\d+]/g, '');
+  
+  // If it starts with +91, keep it as is
+  if (cleaned.startsWith('+91')) {
+    return cleaned;
+  }
+  
+  // If it starts with 91, add +
+  if (cleaned.startsWith('91')) {
+    return '+' + cleaned;
+  }
+  
+  // If it's a 10-digit number, add +91
+  if (cleaned.length === 10) {
+    return '+91' + cleaned;
+  }
+  
+  // Return as is if it doesn't match expected patterns
+  return cleaned;
+};
 
 export async function POST(request: NextRequest) {
   try {
-    // Parse and validate request body
     const body = await request.json();
     
-    const validationResult = PaymentSessionSchema.safeParse(body);
-    if (!validationResult.success) {
-      return NextResponse.json(
-        { 
-          error: 'Validation failed', 
-          details: validationResult.error.errors 
-        },
-        { status: 400 }
-      );
-    }
-
-    const sessionData: PaymentSessionRequest = validationResult.data;
-
-    // Add default URLs if not provided
-    if (!sessionData.order_meta) {
-      sessionData.order_meta = {};
-    }
+    // Validate the request data
+    const validatedData = PaymentSessionDataSchema.parse(body);
     
-    if (!sessionData.order_meta.return_url) {
-      sessionData.order_meta.return_url = `${process.env.NEXT_PUBLIC_APP_URL}/donate/success?order_id=${sessionData.order_id}`;
-    }
-    
-    if (!sessionData.order_meta.notify_url) {
-      sessionData.order_meta.notify_url = `${process.env.NEXT_PUBLIC_APP_URL}/api/webhook/cashfree`;
-    }
-
-    console.log('Creating payment session with Cashfree SDK:', {
-      orderId: sessionData.order_id,
-      amount: sessionData.order_amount,
-      currency: sessionData.order_currency
+    console.log('Creating payment session:', {
+      orderId: validatedData.order_id,
+      amount: validatedData.order_amount,
+      environment: CASHFREE_CONFIG.ENVIRONMENT
     });
 
-    // Create payment session using SDK
-    const response = await createPaymentSession(sessionData);
+    // Format phone number for Cashfree API
+    const originalPhone = validatedData.customer_details.customer_phone;
+    const formattedPhone = formatPhoneForCashfree(originalPhone);
+    
+    console.log('Phone formatting:', {
+      original: originalPhone,
+      formatted: formattedPhone,
+    });
+    
+    const formattedCustomerDetails = {
+      ...validatedData.customer_details,
+      customer_phone: formattedPhone,
+    };
 
-    console.log('Payment session created successfully:', {
-      orderId: response.order_id,
-      sessionId: response.payment_session_id
+    // Configure order request as per Medium article
+    const orderRequest = {
+      order_amount: validatedData.order_amount,
+      order_currency: validatedData.order_currency,
+      order_id: validatedData.order_id,
+      customer_details: formattedCustomerDetails,
+      order_meta: validatedData.order_meta,
+    };
+
+    console.log('Creating order with Cashfree SDK:', JSON.stringify(orderRequest, null, 2));
+
+    // Make request to Cashfree Create Order API directly (fallback approach)
+    const response = await fetch(`${CASHFREE_CONFIG.BASE_URL}/pg/orders`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'x-api-version': CASHFREE_CONFIG.API_VERSION,
+        'x-client-id': CASHFREE_CONFIG.APP_ID,
+        'x-client-secret': CASHFREE_CONFIG.SECRET_KEY,
+      },
+      body: JSON.stringify(orderRequest),
     });
 
-    return NextResponse.json(response);
-
-  } catch (error) {
-    console.error('Error creating payment session:', error);
-    
-    // Return appropriate error response
-    if (error instanceof Error) {
-      if (error.message.includes('ORDER_ALREADY_EXISTS')) {
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error('Cashfree API Error:', errorData);
+      
+      // Handle specific error cases
+      if (response.status === 409) {
         return NextResponse.json(
           { error: 'Order ID already exists. Please use a different order ID.' },
           { status: 409 }
         );
-      } else if (error.message.includes('INVALID_REQUEST')) {
+      } else if (response.status === 400) {
         return NextResponse.json(
-          { error: 'Invalid payment request. Please check your data.' },
+          { error: errorData.message || 'Invalid request data', details: errorData.details },
           { status: 400 }
         );
-      } else if (error.message.includes('AUTHENTICATION_FAILED')) {
+      } else if (response.status === 401) {
         return NextResponse.json(
           { error: 'Authentication failed. Please check your credentials.' },
           { status: 401 }
         );
       }
+      
+      return NextResponse.json(
+        { error: errorData.message || `HTTP ${response.status}: Failed to create payment session` },
+        { status: response.status }
+      );
     }
 
+    const data = await response.json();
+    
+    console.log('Raw Cashfree API response:', JSON.stringify(data, null, 2));
+    console.log('Payment session created successfully:', {
+      orderId: data.order_id,
+      sessionId: data.payment_session_id,
+      paymentUrl: data.payment_url
+    });
+
+    return NextResponse.json({
+      success: true,
+      message: "Order created successfully!",
+      data: {
+        payment_session_id: data.payment_session_id,
+        order_id: data.order_id,
+        payment_url: data.payment_url,
+        cf_order_id: data.cf_order_id,
+      }
+    });
+
+  } catch (error) {
+    console.error('Error creating payment session:', error);
+    
+    if (error instanceof Error && error.name === 'ZodError') {
+      return NextResponse.json(
+        { error: 'Validation error', details: JSON.parse(error.message) },
+        { status: 400 }
+      );
+    }
+    
     return NextResponse.json(
-      { error: 'Failed to create payment session' },
+      { 
+        success: false,
+        message: error?.response?.data?.message || "Error processing the request.",
+        error: error instanceof Error ? error.message : 'Unknown error'
+      },
       { status: 500 }
     );
   }

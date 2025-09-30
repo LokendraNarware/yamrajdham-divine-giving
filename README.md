@@ -1,73 +1,35 @@
-# Welcome to your Lovable project
+# Yamrajdham Divine Giving
 
-## Project info
+A modern donation platform for the Yamrajdham Temple, built with Next.js and Supabase.
 
-**URL**: https://lovable.dev/projects/cc98bfd9-445e-4f7f-b321-22da25d8f4f5
+## 📚 Documentation
 
-## How can I edit this code?
+All project documentation has been moved to the [`docs/`](./docs/) directory for better organization.
 
-There are several ways of editing your application.
+### Key Documentation Files
 
-**Use Lovable**
+- **[README.md](./docs/README.md)** - Complete project overview and setup guide
+- **[IMPLEMENTATION_COMPLETE.md](./docs/IMPLEMENTATION_COMPLETE.md)** - Implementation status and features
+- **[DATABASE_SCHEMA.md](./docs/DATABASE_SCHEMA.md)** - Database structure and relationships
+- **[SUPABASE_SETUP.md](./docs/SUPABASE_SETUP.md)** - Supabase configuration guide
+- **[CASHFREE_SETUP.md](./docs/CASHFREE_SETUP.md)** - Payment gateway setup
+- **[SEO_IMPLEMENTATION_GUIDE.md](./docs/SEO_IMPLEMENTATION_GUIDE.md)** - SEO optimization guide
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/cc98bfd9-445e-4f7f-b321-22da25d8f4f5) and start prompting.
+## 🚀 Quick Start
 
-Changes made via Lovable will be committed automatically to this repo.
+1. Clone the repository
+2. Install dependencies: `npm install`
+3. Set up environment variables (see `env-template.txt`)
+4. Run the development server: `npm run dev`
 
-**Use your preferred IDE**
+For detailed setup instructions, see the [complete README](./docs/README.md) in the docs folder.
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+## 🏗️ Project Structure
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
 ```
-
-**Edit a file directly in GitHub**
-
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
-
-**Use GitHub Codespaces**
-
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
-
-## What technologies are used for this project?
-
-This project is built with:
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/cc98bfd9-445e-4f7f-b321-22da25d8f4f5) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+├── docs/           # All project documentation
+├── src/            # Source code
+├── public/         # Static assets
+├── supabase/       # Database migrations
+└── migrations/     # Additional database files
+```

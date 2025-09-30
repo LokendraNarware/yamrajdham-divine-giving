@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { CASHFREE_CONFIG } from '@/config/cashfree';
 
 // Validation schemas for type safety
 const CustomerDetailsSchema = z.object({
@@ -23,9 +24,14 @@ export const PaymentSessionDataSchema = z.object({
 });
 
 export const PaymentResponseSchema = z.object({
-  payment_session_id: z.string(),
-  order_id: z.string(),
-  payment_url: z.string(),
+  success: z.boolean(),
+  message: z.string(),
+  data: z.object({
+    payment_session_id: z.string(),
+    order_id: z.string(),
+    payment_url: z.string().optional(),
+    cf_order_id: z.string().optional(),
+  }),
 });
 
 export const OrderDetailsSchema = z.object({
@@ -48,7 +54,7 @@ export type OrderDetails = z.infer<typeof OrderDetailsSchema>;
 export type CustomerDetails = z.infer<typeof CustomerDetailsSchema>;
 
 /**
- * Create payment session using Next.js API route with SDK
+ * Create payment session using Cashfree Create Order API
  * @param sessionData - Payment session data
  * @returns Promise<PaymentResponse>
  */
@@ -57,7 +63,7 @@ export const createPaymentSession = async (sessionData: PaymentSessionData): Pro
     // Validate input data
     const validatedData = PaymentSessionDataSchema.parse(sessionData);
     
-    console.log('Creating payment session via Next.js API with SDK:', {
+    console.log('Creating payment session via Cashfree API:', {
       orderId: validatedData.order_id,
       amount: validatedData.order_amount,
       currency: validatedData.order_currency
@@ -95,8 +101,8 @@ export const createPaymentSession = async (sessionData: PaymentSessionData): Pro
     const validatedResponse = PaymentResponseSchema.parse(data);
     
     console.log('Payment session created successfully:', {
-      orderId: validatedResponse.order_id,
-      sessionId: validatedResponse.payment_session_id
+      orderId: validatedResponse.data.order_id,
+      sessionId: validatedResponse.data.payment_session_id
     });
     
     return validatedResponse;
@@ -104,15 +110,17 @@ export const createPaymentSession = async (sessionData: PaymentSessionData): Pro
     console.error('Error creating payment session:', error);
     
     if (error instanceof z.ZodError) {
-      throw new Error(`Validation error: ${error.errors.map(e => e.message).join(', ')}`);
+      const errorMessages = error.issues?.map((e: any) => e.message).join(', ') || 'Unknown validation error';
+      throw new Error(`Validation error: ${errorMessages}`);
     }
     
     throw new Error(`Failed to create payment session: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
 };
 
+
 /**
- * Verify payment status using Next.js API route with SDK
+ * Verify payment status using Cashfree API
  * @param orderId - Order ID to verify
  * @returns Promise<OrderDetails>
  */
@@ -157,66 +165,11 @@ export const verifyPayment = async (orderId: string): Promise<OrderDetails> => {
     console.error('Error verifying payment:', error);
     
     if (error instanceof z.ZodError) {
-      throw new Error(`Response validation error: ${error.errors.map(e => e.message).join(', ')}`);
+      const errorMessages = error.issues?.map((e: any) => e.message).join(', ') || 'Unknown validation error';
+      throw new Error(`Response validation error: ${errorMessages}`);
     }
     
     throw new Error(`Failed to verify payment: ${error instanceof Error ? error.message : 'Unknown error'}`);
-  }
-};
-
-/**
- * Get order details using Next.js API route with SDK
- * @param orderId - Order ID to fetch details for
- * @returns Promise<OrderDetails>
- */
-export const getOrderDetails = async (orderId: string): Promise<OrderDetails> => {
-  try {
-    if (!orderId || orderId.trim() === '') {
-      throw new Error('Order ID is required');
-    }
-    
-    console.log('Fetching order details for:', orderId);
-    
-    const response = await fetch('/api/payment/verify', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ orderId }),
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json();
-      console.error('API Error:', errorData);
-      
-      if (response.status === 404) {
-        throw new Error('Order not found. Please check the order ID.');
-      } else if (response.status === 401) {
-        throw new Error('Authentication failed. Please check your credentials.');
-      }
-      
-      throw new Error(errorData.error || `HTTP ${response.status}: Failed to fetch order details`);
-    }
-
-    const data = await response.json();
-    
-    // Validate response data
-    const validatedData = OrderDetailsSchema.parse(data);
-    
-    console.log('Order details fetched successfully:', {
-      orderId: validatedData.order_id,
-      status: validatedData.order_status
-    });
-    
-    return validatedData;
-  } catch (error) {
-    console.error('Error fetching order details:', error);
-    
-    if (error instanceof z.ZodError) {
-      throw new Error(`Response validation error: ${error.errors.map(e => e.message).join(', ')}`);
-    }
-    
-    throw new Error(`Failed to fetch order details: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
 };
 
@@ -229,6 +182,18 @@ export const generateOrderId = (prefix: string = 'order'): string => {
   const timestamp = Date.now();
   const random = Math.random().toString(36).substr(2, 9);
   return `${prefix}_${timestamp}_${random}`;
+};
+
+/**
+ * Utility function to generate valid customer ID from email
+ * @param email - Customer email address
+ * @returns string - Valid customer ID for Cashfree
+ */
+export const generateCustomerId = (email: string): string => {
+  // Remove special characters and replace with underscores
+  const cleanEmail = email.replace(/[^a-zA-Z0-9]/g, '_');
+  const timestamp = Date.now();
+  return `customer_${cleanEmail}_${timestamp}`;
 };
 
 /**

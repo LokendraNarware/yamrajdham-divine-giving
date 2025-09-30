@@ -616,11 +616,11 @@ export default function DonationFormPage() {
 - **Downtime**: Parallel development prevents this
 - **Data Loss**: No data migration needed (Supabase)
 - **Functionality Loss**: Thorough testing prevents this
-- **Performance Issues**: Next.js is faster than Vite
+- **Performance Issues**: Next.js is faster than the previous build system
 
 ### **Mitigation:**
 - **Incremental Migration**: Test each component
-- **Rollback Plan**: Keep Vite version until Next.js is ready
+- **Rollback Plan**: Keep previous version until Next.js is ready
 - **Thorough Testing**: Test all functionality
 - **Performance Monitoring**: Monitor metrics
 

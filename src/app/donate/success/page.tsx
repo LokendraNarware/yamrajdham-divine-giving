@@ -1,22 +1,55 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { useSearchParams, useRouter } from 'next/navigation';
-import Link from 'next/link';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { CheckCircle, Download, Mail, Heart } from 'lucide-react';
-import { getOrderDetails, formatAmount } from '@/services/cashfree';
-import { useToast } from '@/hooks/use-toast';
+import { useEffect, useState } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { CheckCircle, Download, Mail, Heart } from "lucide-react";
+import { verifyPayment } from "@/services/cashfree";
+import { useToast } from "@/hooks/use-toast";
+import DonationReceipt from "@/components/DonationReceipt";
+import { generateReceiptPDF } from "@/lib/receipt-utils";
 
 export default function PaymentSuccessPage() {
-  const [searchParams] = useSearchParams();
+  const searchParams = useSearchParams();
   const router = useRouter();
   const { toast } = useToast();
-  const [paymentDetails, setPaymentDetails] = useState<any>(null);
+  const [paymentDetails, setPaymentDetails] = useState<{
+    order_id: string;
+    order_amount: number;
+    order_status: string;
+    payment_status?: string;
+    payment_method?: string;
+    payment_time?: string;
+  } | null>(null);
+  const [donationData, setDonationData] = useState<{
+    id: string;
+    amount: number;
+    donationType: string;
+    paymentStatus: string;
+    paymentId: string;
+    paymentGateway: string;
+    receiptNumber: string;
+    isAnonymous: boolean;
+    dedicationMessage: string;
+    preacherName: string;
+    createdAt: string;
+    updatedAt: string;
+    donor: {
+      name: string;
+      email: string;
+      mobile: string;
+      address: string;
+      city: string;
+      state: string;
+      pinCode: string;
+      panNo: string;
+    } | null;
+  } | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [receiptRef, setReceiptRef] = useState<HTMLDivElement | null>(null);
   
-  const orderId = searchParams.get('order_id');
+  const orderId = searchParams.get("order_id");
 
   useEffect(() => {
     const fetchPaymentDetails = async () => {
@@ -25,10 +58,23 @@ export default function PaymentSuccessPage() {
           // Add a small delay to ensure payment is processed
           await new Promise(resolve => setTimeout(resolve, 2000));
           
-          const details = await getOrderDetails(orderId);
+          const details = await verifyPayment(orderId);
           setPaymentDetails(details);
           
-          // Show success message if payment was successful
+          // Fetch donation data from database
+          try {
+            const donationResponse = await fetch(`/api/donations/${orderId}`);
+            if (donationResponse.ok) {
+              const donation = await donationResponse.json();
+              setDonationData(donation);
+            } else {
+              console.error('Failed to fetch donation data');
+            }
+          } catch (error) {
+            console.error('Error fetching donation data:', error);
+          }
+          
+          // Update donation status in database if payment was successful
           if (details.order_status === 'PAID' || details.payment_status === 'SUCCESS') {
             toast({
               title: "Donation Successful!",
@@ -65,14 +111,42 @@ export default function PaymentSuccessPage() {
     fetchPaymentDetails();
   }, [orderId, toast]);
 
-  const handleDownloadReceipt = () => {
-    toast({
-      title: "Donation Receipt Download",
-      description: "Donation receipt will be sent to your email address.",
-    });
+  const handleDownloadReceipt = async () => {
+    if (!receiptRef || !paymentDetails || !donationData) {
+      toast({
+        title: "Error",
+        description: "Receipt data not available",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      await generateReceiptPDF(receiptRef, {
+        donationId: paymentDetails.order_id,
+        donorName: donationData.donor?.name || "Devotee",
+        amount: paymentDetails.order_amount,
+        date: paymentDetails.payment_time || donationData.createdAt,
+        purpose: donationData.donationType === 'general' ? 'Temple Construction' : donationData.donationType,
+        paymentMethod: paymentDetails.payment_method || "Online Payment"
+      });
+
+      toast({
+        title: "Donation Receipt Downloaded",
+        description: "Your donation receipt has been downloaded successfully.",
+      });
+    } catch (error) {
+      console.error('Error downloading receipt:', error);
+      toast({
+        title: "Error",
+        description: "Failed to download receipt. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleEmailReceipt = () => {
+    // In a real implementation, you would send receipt via email
     toast({
       title: "Donation Receipt Sent",
       description: "Donation receipt has been sent to your email address.",
@@ -91,26 +165,7 @@ export default function PaymentSuccessPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="container flex h-14 items-center">
-          <div className="mr-4 hidden md:flex">
-            <Link href="/" className="mr-6 flex items-center space-x-2">
-              <span className="hidden font-bold sm:inline-block text-primary">
-                Yamrajdham Temple
-              </span>
-            </Link>
-          </div>
-          <div className="flex flex-1 items-center justify-between space-x-2 md:justify-end">
-            <div className="w-full flex-1 md:w-auto md:flex-none">
-              <Button asChild variant="outline">
-                <Link href="/">Back to Home</Link>
-              </Button>
-            </div>
-          </div>
-        </div>
-      </header>
+    <div className="w-full">
 
       <main className="container py-8 px-4">
         <div className="max-w-2xl mx-auto">
@@ -147,7 +202,7 @@ export default function PaymentSuccessPage() {
                   <div>
                     <label className="text-sm font-medium text-muted-foreground">Amount</label>
                     <p className="font-semibold text-lg text-primary">
-                      {formatAmount(paymentDetails.order_amount)}
+                      ₹{paymentDetails.order_amount}
                     </p>
                   </div>
                   <div>
@@ -205,11 +260,84 @@ export default function PaymentSuccessPage() {
             </CardContent>
           </Card>
 
+          {/* Donation Receipt Preview */}
+          {paymentDetails && (
+            <Card className="mb-6">
+              <CardHeader>
+                <CardTitle>Receipt Preview</CardTitle>
+                <CardDescription>
+                  Preview of your donation receipt
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div ref={setReceiptRef}>
+                  <DonationReceipt
+                    donationId={paymentDetails.order_id}
+                    donorName={donationData?.donor?.name || "Devotee"}
+                    amount={paymentDetails.order_amount}
+                    date={paymentDetails.payment_time || donationData?.createdAt || new Date().toISOString()}
+                    purpose={donationData?.donationType === 'general' ? 'Temple Construction' : donationData?.donationType || 'Temple Construction'}
+                    paymentMethod={paymentDetails.payment_method || "Online Payment"}
+                  />
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Next Steps */}
+          <Card>
+            <CardHeader>
+              <CardTitle>What&apos;s Next?</CardTitle>
+              <CardDescription>
+                Your contribution will help us build the temple
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div className="flex items-start space-x-3">
+                  <div className="w-6 h-6 bg-primary rounded-full flex items-center justify-center text-white text-sm font-bold">
+                    1
+                  </div>
+                  <div>
+                    <h4 className="font-semibold">Donation Receipt Processing</h4>
+                    <p className="text-sm text-muted-foreground">
+                      Your official donation receipt will be processed and sent to your email within 24 hours.
+                    </p>
+                  </div>
+                </div>
+                
+                <div className="flex items-start space-x-3">
+                  <div className="w-6 h-6 bg-primary rounded-full flex items-center justify-center text-white text-sm font-bold">
+                    2
+                  </div>
+                  <div>
+                    <h4 className="font-semibold">Progress Updates</h4>
+                    <p className="text-sm text-muted-foreground">
+                      You&apos;ll receive regular updates about the temple construction progress.
+                    </p>
+                  </div>
+                </div>
+                
+                <div className="flex items-start space-x-3">
+                  <div className="w-6 h-6 bg-primary rounded-full flex items-center justify-center text-white text-sm font-bold">
+                    3
+                  </div>
+                  <div>
+                    <h4 className="font-semibold">Invitation to Inauguration</h4>
+                    <p className="text-sm text-muted-foreground">
+                      You&apos;ll be invited to the temple inauguration ceremony.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
           {/* Action Buttons */}
-          <div className="flex gap-4">
+          <div className="flex gap-4 mt-6">
             <Button 
               onClick={() => router.push("/")} 
-              variant="default" 
+              variant="divine" 
               size="lg" 
               className="flex-1"
             >

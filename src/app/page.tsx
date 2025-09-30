@@ -1,128 +1,85 @@
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import Link from 'next/link';
+import HeroSection from "@/components/HeroSection";
+import DonationSection from "@/components/DonationSection";
+import ProgressTracker from "@/components/ProgressTracker";
+import PrayerSection from "@/components/PrayerSection";
+import SpiritualLeaderSection from "@/components/SpiritualLeaderSection";
+import YamrajDhamSection from "@/components/YamrajDhamSection";
+import MissionVisionSection from "@/components/MissionVisionSection";
+import CommunitySection from "@/components/CommunitySection";
+import { Card, CardContent } from "@/components/ui/card";
+import { Heart, Phone, Mail, MapPin } from "lucide-react";
 
-export default function HomePage() {
+export default function Home() {
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="container flex h-14 items-center">
-          <div className="mr-4 hidden md:flex">
-            <Link href="/" className="mr-6 flex items-center space-x-2">
-              <span className="hidden font-bold sm:inline-block text-primary">
-                Yamraj dham Temple
-              </span>
-            </Link>
-          </div>
-          <div className="flex flex-1 items-center justify-between space-x-2 md:justify-end">
-            <div className="w-full flex-1 md:w-auto md:flex-none">
-              <Button asChild>
-                <Link href="/donate">Donate Now</Link>
-              </Button>
-            </div>
-          </div>
-        </div>
-      </header>
-
-      {/* Hero Section */}
-      <main className="container py-8 px-4">
-        <div className="max-w-4xl mx-auto text-center space-y-8">
-          <div className="space-y-4">
-            <h1 className="text-4xl font-bold tracking-tight text-foreground sm:text-6xl">
-              Welcome to{' '}
-              <span className="text-primary">Yamraj dham Temple</span>{' '}
-              Divine Giving
-            </h1>
-            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Support the construction of our sacred temple and be part of this divine journey.
-            </p>
-          </div>
-
-          {/* Status Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-12">
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-primary">Next.js Setup</CardTitle>
-                <CardDescription>Modern React framework with App Router</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-muted-foreground">
-                  Server-side rendering, API routes, and optimized performance
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-primary">Cashfree Integration</CardTitle>
-                <CardDescription>Secure payment processing</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-muted-foreground">
-                  Real backend API routes - no more CORS issues!
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-primary">Temple Theme</CardTitle>
-                <CardDescription>Sacred saffron and gold design</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-muted-foreground">
-                  Beautiful UI with shadcn/ui components
-                </p>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Action Buttons */}
-          <div className="flex gap-4 justify-center mt-8">
-            <Button asChild size="lg">
-              <Link href="/donate">Make a Donation</Link>
-            </Button>
-            <Button variant="outline" size="lg">
-              Learn More
-            </Button>
-          </div>
-
-          {/* Migration Status */}
-          <Card className="mt-12 border-green-200 bg-green-50">
-            <CardHeader>
-              <CardTitle className="text-green-800">Migration Progress</CardTitle>
-              <CardDescription className="text-green-700">
-                Next.js setup is complete and ready for component migration
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-2 text-sm text-green-700">
-                <div className="flex items-center space-x-2">
-                  <span className="w-2 h-2 bg-green-500 rounded-full"></span>
-                  <span>Next.js project created</span>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <span className="w-2 h-2 bg-green-500 rounded-full"></span>
-                  <span>Dependencies installed</span>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <span className="w-2 h-2 bg-green-500 rounded-full"></span>
-                  <span>Temple theme configured</span>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <span className="w-2 h-2 bg-green-500 rounded-full"></span>
-                  <span>Cashfree API routes created</span>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <span className="w-2 h-2 bg-green-500 rounded-full"></span>
-                  <span>Environment variables set</span>
+    <div className="w-full">
+        <section id="home">
+          <HeroSection />
+        </section>
+        
+        {/* Spiritual Leader Section */}
+        <section id="about">
+          <SpiritualLeaderSection />
+        </section>
+        
+        {/* Yamraj Dham Section */}
+        <YamrajDhamSection />
+        
+        {/* Mission & Vision Section */}
+        <MissionVisionSection />
+        
+        <section id="donate" className="py-16">
+          <DonationSection />
+        </section>
+        
+        <section id="progress" className="py-16 bg-muted/30">
+          <ProgressTracker />
+        </section>
+        
+        {/* Community Section */}
+        <CommunitySection />
+        
+        <section id="prayers" className="py-16">
+          <PrayerSection />
+        </section>
+        
+        {/* Closing Call to Action */}
+        <section className="py-16 bg-gradient-brown text-white">
+          <div className="container mx-auto px-4">
+            <div className="max-w-4xl mx-auto text-center">
+              <h2 className="text-3xl md:text-4xl font-bold mb-6">
+                🙏 Be a part of history. Be a part of dharma.
+              </h2>
+              <p className="text-lg leading-relaxed mb-8">
+                Your support ensures that the Yamrajdham Temple, under the guidance of <strong>DHARAM DHAM TRUST</strong>, becomes a beacon of faith, justice, and peace for generations to come.
+              </p>
+              
+              <div className="bg-white/10 rounded-lg p-6 mb-8">
+                <h3 className="text-xl font-bold mb-4">📑 Trust Information</h3>
+                <div className="grid md:grid-cols-2 gap-4 text-sm">
+                  <div>
+                    <strong>Trust Name:</strong> DHARAM DHAM TRUST<br/>
+                    <strong>Email:</strong> dharamdhamtrust@gmail.com<br/>
+                    <strong>Phone:</strong> +91-84273-83381
+                  </div>
+                  <div>
+                    <strong>Location:</strong> Taranagar Churu, Rajasthan<br/>
+                    <strong>Registration:</strong> [Trust Registration No.]<br/>
+                    <strong>Website:</strong> https://dharamdhamtrust.org
+                  </div>
                 </div>
               </div>
-            </CardContent>
-          </Card>
-        </div>
-      </main>
+              
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <button className="bg-white text-temple-gold hover:bg-temple-cream px-8 py-3 rounded-full font-semibold transition-colors">
+                Donate Now
+              </button>
+              <button className="border-2 border-white text-white hover:bg-white hover:text-temple-gold px-8 py-3 rounded-full font-semibold transition-colors">
+                Contact Us
+              </button>
+              </div>
+            </div>
+          </div>
+        </section>
     </div>
   );
 }
