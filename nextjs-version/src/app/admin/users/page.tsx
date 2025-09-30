@@ -36,6 +36,7 @@ interface User {
   pin_code?: string;
   country?: string;
   pan_no?: string;
+  status?: 'active' | 'inactive' | 'suspended' | 'pending';
   created_at: string;
   updated_at: string;
   donation_count?: number;
@@ -45,6 +46,7 @@ interface User {
 interface UserWithStats extends User {
   donation_count: number;
   total_donated: number;
+  is_admin?: boolean;
 }
 
 export default function UsersPage() {
@@ -99,6 +101,17 @@ export default function UsersPage() {
         console.error('Error fetching users without donations:', usersWithoutDonationsError);
       }
 
+      // Fetch admin users to check roles
+      const { data: adminData, error: adminError } = await supabase
+        .from('admin')
+        .select('email, role');
+
+      if (adminError) {
+        console.error('Error fetching admin data:', adminError);
+      }
+
+      const adminEmails = new Set(adminData?.map(admin => admin.email) || []);
+
       // Process users with completed donations only
       const usersWithStats: UserWithStats[] = usersData?.map(user => {
         const donations = user.user_donations || [];
@@ -110,6 +123,7 @@ export default function UsersPage() {
           ...user,
           donation_count: donationCount,
           total_donated: totalDonated,
+          is_admin: adminEmails.has(user.email),
         };
       }) || [];
 
@@ -118,6 +132,7 @@ export default function UsersPage() {
         ...user,
         donation_count: 0,
         total_donated: 0,
+        is_admin: adminEmails.has(user.email),
       })) || [];
 
       // Combine all users
@@ -142,14 +157,21 @@ export default function UsersPage() {
   );
 
   const getStatusBadge = (user: UserWithStats) => {
-    // For now, all users are considered active
-    // You can add a status field to the users table if needed
-    return <Badge className="bg-green-100 text-green-800">Active</Badge>;
+    const status = user.status || 'active';
+    const statusConfig = {
+      active: { className: "bg-green-100 text-green-800", label: "Active" },
+      inactive: { className: "bg-gray-100 text-gray-800", label: "Inactive" },
+      suspended: { className: "bg-red-100 text-red-800", label: "Suspended" },
+      pending: { className: "bg-yellow-100 text-yellow-800", label: "Pending" },
+    };
+    
+    const config = statusConfig[status] || statusConfig.active;
+    return <Badge className={config.className}>{config.label}</Badge>;
   };
 
   const getRoleBadge = (user: UserWithStats) => {
-    // Check if user is admin
-    return user.email.includes('admin') || user.email.includes('yamrajdham.org') ? 
+    // Use the is_admin field from database query
+    return user.is_admin ? 
       <Badge className="bg-purple-100 text-purple-800">Admin</Badge> :
       <Badge className="bg-blue-100 text-blue-800">User</Badge>;
   };
@@ -239,8 +261,8 @@ export default function UsersPage() {
             <UserCheck className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{users.length}</div>
-            <p className="text-xs text-muted-foreground">All users active</p>
+            <div className="text-2xl font-bold">{users.filter(u => (u.status || 'active') === 'active').length}</div>
+            <p className="text-xs text-muted-foreground">Users with active status</p>
           </CardContent>
         </Card>
         <Card>
@@ -259,7 +281,7 @@ export default function UsersPage() {
             <UserCheck className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{users.filter(u => u.email.includes('admin') || u.email.includes('yamrajdham.org')).length}</div>
+            <div className="text-2xl font-bold">{users.filter(u => u.is_admin).length}</div>
             <p className="text-xs text-muted-foreground">Administrators</p>
           </CardContent>
         </Card>

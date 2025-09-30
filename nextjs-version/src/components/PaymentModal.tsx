@@ -313,11 +313,6 @@ const PaymentModal = ({
             <Badge variant="secondary" className="text-xs">
               Secure Payment • SSL Encrypted
             </Badge>
-            {CASHFREE_CONFIG.DEMO_MODE && (
-              <Badge variant="outline" className="text-xs text-yellow-600 border-yellow-300">
-                Demo Mode • Testing Only
-              </Badge>
-            )}
           </div>
         </div>
       </DialogContent>

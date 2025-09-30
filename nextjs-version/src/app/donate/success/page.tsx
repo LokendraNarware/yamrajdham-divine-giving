@@ -50,7 +50,6 @@ export default function PaymentSuccessPage() {
   const [receiptRef, setReceiptRef] = useState<HTMLDivElement | null>(null);
   
   const orderId = searchParams.get("order_id");
-  const isDemo = searchParams.get("demo") === "true";
 
   useEffect(() => {
     const fetchPaymentDetails = async () => {
@@ -77,29 +76,6 @@ export default function PaymentSuccessPage() {
           
           // Update donation status in database if payment was successful
           if (details.order_status === 'PAID' || details.payment_status === 'SUCCESS') {
-            try {
-              // Update donation status to completed
-              const updateResponse = await fetch('/api/payment/update-status', {
-                method: 'POST',
-                headers: {
-                  'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                  donationId: orderId,
-                  status: 'completed',
-                  paymentId: details.payment_id
-                }),
-              });
-
-              if (updateResponse.ok) {
-                console.log('Donation status updated to completed');
-              } else {
-                console.error('Failed to update donation status');
-              }
-            } catch (error) {
-              console.error('Error updating donation status:', error);
-            }
-
             toast({
               title: "Donation Successful!",
               description: "Thank you for your generous donation.",
@@ -177,44 +153,6 @@ export default function PaymentSuccessPage() {
     });
   };
 
-  const handleManualStatusUpdate = async () => {
-    if (!orderId) return;
-    
-    try {
-      const updateResponse = await fetch('/api/payment/update-status', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          donationId: orderId,
-          status: 'completed',
-          paymentId: paymentDetails?.payment_id
-        }),
-      });
-
-      if (updateResponse.ok) {
-        toast({
-          title: "Status Updated!",
-          description: "Donation status has been updated to completed.",
-        });
-      } else {
-        toast({
-          title: "Update Failed",
-          description: "Failed to update donation status.",
-          variant: "destructive",
-        });
-      }
-    } catch (error) {
-      console.error('Error updating status:', error);
-      toast({
-        title: "Error",
-        description: "Failed to update donation status.",
-        variant: "destructive",
-      });
-    }
-  };
-
   if (isLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
@@ -242,13 +180,6 @@ export default function PaymentSuccessPage() {
                 <p className="text-green-700">
                   Thank you for your generous donation to Yamrajdham Temple.
                 </p>
-                {isDemo && (
-                  <div className="mt-4 p-3 bg-yellow-100 border border-yellow-300 rounded-lg">
-                    <p className="text-yellow-800 text-sm">
-                      <strong>Demo Mode:</strong> This is a simulated payment for testing purposes.
-                    </p>
-                  </div>
-                )}
               </div>
             </CardContent>
           </Card>
@@ -325,18 +256,6 @@ export default function PaymentSuccessPage() {
                     Email Donation Receipt
                   </Button>
                 </div>
-                
-                {/* Manual Status Update Button for Testing */}
-                {paymentDetails && (paymentDetails.order_status === 'PAID' || paymentDetails.payment_status === 'SUCCESS') && (
-                  <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
-                    <p className="text-sm text-yellow-800 mb-2">
-                      <strong>Testing:</strong> If the donation status is still showing as pending in your dashboard, click the button below to manually update it.
-                    </p>
-                    <Button onClick={handleManualStatusUpdate} variant="outline" size="sm">
-                      Update Status to Completed
-                    </Button>
-                  </div>
-                )}
               </div>
             </CardContent>
           </Card>

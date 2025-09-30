@@ -7,6 +7,7 @@ import { BarChart3, TrendingUp, DollarSign, Users, Calendar, Download } from "lu
 import AdminLayout from "@/components/admin/AdminLayout";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 
 interface AnalyticsData {
   totalRevenue: number;
@@ -19,6 +20,16 @@ interface AnalyticsData {
     donor_name: string;
     created_at: string;
   }>;
+  monthlyTrends: Array<{
+    month: string;
+    donations: number;
+    revenue: number;
+  }>;
+  donationSources: Array<{
+    name: string;
+    value: number;
+    color: string;
+  }>;
 }
 
 export default function AnalyticsPage() {
@@ -28,6 +39,8 @@ export default function AnalyticsPage() {
     activeDonors: 0,
     averageDonation: 0,
     recentDonations: [],
+    monthlyTrends: [],
+    donationSources: [],
   });
   const [loading, setLoading] = useState(true);
   const { user } = useAuth();
@@ -42,18 +55,18 @@ export default function AnalyticsPage() {
     try {
       setLoading(true);
 
-      // Fetch completed donations with user data
+      // Fetch ALL completed donations for comprehensive analytics
       const { data: donationsData, error: donationsError } = await supabase
         .from('user_donations')
         .select(`
           id,
           amount,
           created_at,
+          donation_type,
           user:users(name)
         `)
         .eq('payment_status', 'completed')
-        .order('created_at', { ascending: false })
-        .limit(10);
+        .order('created_at', { ascending: false });
 
       if (donationsError) {
         console.error('Error fetching donations:', donationsError);
@@ -66,17 +79,25 @@ export default function AnalyticsPage() {
       const uniqueDonors = new Set(donations.map(d => d.user?.name)).size;
       const averageDonation = totalDonations > 0 ? totalRevenue / totalDonations : 0;
 
+      // Generate monthly trends data (last 6 months)
+      const monthlyTrends = generateMonthlyTrends(donations);
+      
+      // Generate donation sources data
+      const donationSources = generateDonationSources(donations);
+
       setAnalyticsData({
         totalRevenue,
         totalDonations,
         activeDonors: uniqueDonors,
         averageDonation,
-        recentDonations: donations.map(d => ({
+        recentDonations: donations.slice(0, 10).map(d => ({
           id: d.id,
           amount: d.amount,
           donor_name: d.user?.name || 'Anonymous',
           created_at: d.created_at,
         })),
+        monthlyTrends,
+        donationSources,
       });
 
       setLoading(false);
@@ -84,6 +105,48 @@ export default function AnalyticsPage() {
       console.error('Error fetching analytics data:', error);
       setLoading(false);
     }
+  };
+
+  const generateMonthlyTrends = (donations: any[]) => {
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const currentDate = new Date();
+    const trends = [];
+
+    // Generate last 6 months
+    for (let i = 5; i >= 0; i--) {
+      const date = new Date(currentDate.getFullYear(), currentDate.getMonth() - i, 1);
+      const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+      
+      const monthDonations = donations.filter(d => {
+        const donationDate = new Date(d.created_at);
+        return donationDate.getFullYear() === date.getFullYear() && 
+               donationDate.getMonth() === date.getMonth();
+      });
+
+      trends.push({
+        month: months[date.getMonth()],
+        donations: monthDonations.length,
+        revenue: monthDonations.reduce((sum, d) => sum + d.amount, 0),
+      });
+    }
+
+    return trends;
+  };
+
+  const generateDonationSources = (donations: any[]) => {
+    const sources = donations.reduce((acc, donation) => {
+      const type = donation.donation_type || 'general';
+      acc[type] = (acc[type] || 0) + donation.amount;
+      return acc;
+    }, {});
+
+    const colors = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8', '#82CA9D'];
+    
+    return Object.entries(sources).map(([name, value], index) => ({
+      name: name.charAt(0).toUpperCase() + name.slice(1),
+      value: value as number,
+      color: colors[index % colors.length],
+    }));
   };
 
   const formatCurrency = (amount: number) => {
@@ -186,30 +249,88 @@ export default function AnalyticsPage() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card>
           <CardHeader>
-            <CardTitle>Donation Trends</CardTitle>
+            <CardTitle>Donation Trends (Last 6 Months)</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="h-[300px] flex items-center justify-center border-2 border-dashed border-gray-200 rounded-lg">
-              <div className="text-center">
-                <BarChart3 className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                <p className="text-gray-500">Chart visualization will be implemented here</p>
-                <p className="text-sm text-gray-400">Monthly donation trends over time</p>
-              </div>
+            <div className="h-[300px]">
+              {loading ? (
+                <div className="h-full flex items-center justify-center">
+                  <div className="text-center">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+                    <p className="text-gray-500">Loading chart data...</p>
+                  </div>
+                </div>
+              ) : analyticsData.monthlyTrends.length > 0 ? (
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={analyticsData.monthlyTrends}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="month" />
+                    <YAxis />
+                    <Tooltip 
+                      formatter={(value, name) => [
+                        name === 'donations' ? `${value} donations` : `₹${value}`,
+                        name === 'donations' ? 'Donations' : 'Revenue'
+                      ]}
+                    />
+                    <Bar dataKey="donations" fill="#8884d8" name="Donations" />
+                    <Bar dataKey="revenue" fill="#82ca9d" name="Revenue" />
+                  </BarChart>
+                </ResponsiveContainer>
+              ) : (
+                <div className="h-full flex items-center justify-center">
+                  <div className="text-center">
+                    <BarChart3 className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                    <p className="text-gray-500">No donation data available</p>
+                    <p className="text-sm text-gray-400">Monthly trends will appear here</p>
+                  </div>
+                </div>
+              )}
             </div>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader>
-            <CardTitle>Donation Sources</CardTitle>
+            <CardTitle>Donation Sources Breakdown</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="h-[300px] flex items-center justify-center border-2 border-dashed border-gray-200 rounded-lg">
-              <div className="text-center">
-                <BarChart3 className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                <p className="text-gray-500">Pie chart will be implemented here</p>
-                <p className="text-sm text-gray-400">Donation sources breakdown</p>
-              </div>
+            <div className="h-[300px]">
+              {loading ? (
+                <div className="h-full flex items-center justify-center">
+                  <div className="text-center">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+                    <p className="text-gray-500">Loading chart data...</p>
+                  </div>
+                </div>
+              ) : analyticsData.donationSources.length > 0 ? (
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={analyticsData.donationSources}
+                      cx="50%"
+                      cy="50%"
+                      labelLine={false}
+                      label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                      outerRadius={80}
+                      fill="#8884d8"
+                      dataKey="value"
+                    >
+                      {analyticsData.donationSources.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.color} />
+                      ))}
+                    </Pie>
+                    <Tooltip formatter={(value) => [`₹${value}`, 'Amount']} />
+                  </PieChart>
+                </ResponsiveContainer>
+              ) : (
+                <div className="h-full flex items-center justify-center">
+                  <div className="text-center">
+                    <BarChart3 className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                    <p className="text-gray-500">No donation data available</p>
+                    <p className="text-sm text-gray-400">Source breakdown will appear here</p>
+                  </div>
+                </div>
+              )}
             </div>
           </CardContent>
         </Card>

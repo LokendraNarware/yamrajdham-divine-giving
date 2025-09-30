@@ -54,18 +54,18 @@ export default {
         }
       },
       backgroundImage: {
-        'gradient-divine': 'var(--gradient-divine)',
-        'gradient-peaceful': 'var(--gradient-peaceful)',
-        'gradient-gold': 'var(--gradient-gold)',
-        'gradient-coral': 'var(--gradient-coral)',
-        'gradient-brown': 'var(--gradient-brown)'
+        'gradient-divine': 'linear-gradient(135deg, var(--color-primary), var(--color-primary-glow))',
+        'gradient-peaceful': 'linear-gradient(180deg, var(--color-background), var(--color-card))',
+        'gradient-gold': 'linear-gradient(45deg, var(--color-temple-gold), var(--color-temple-bronze))',
+        'gradient-coral': 'linear-gradient(135deg, var(--color-temple-coral), var(--color-temple-gold))',
+        'gradient-brown': 'linear-gradient(135deg, var(--color-temple-brown), var(--color-temple-gold))'
       },
       boxShadow: {
-        'temple': 'var(--shadow-temple)',
-        'gold': 'var(--shadow-gold)',
-        'divine': 'var(--shadow-divine)',
-        'coral': 'var(--shadow-coral)',
-        'brown': 'var(--shadow-brown)'
+        'temple': '0 10px 30px -10px rgba(255, 169, 104, 0.25)',
+        'gold': '0 5px 20px -5px rgba(212, 165, 116, 0.3)',
+        'divine': '0 0 40px rgba(255, 169, 104, 0.2)',
+        'coral': '0 5px 20px -5px rgba(255, 140, 66, 0.25)',
+        'brown': '0 5px 20px -5px rgba(139, 115, 85, 0.2)'
       }
     }
   }

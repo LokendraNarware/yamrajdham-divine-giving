@@ -118,45 +118,6 @@ export const createPaymentSession = async (sessionData: PaymentSessionData): Pro
   }
 };
 
-/**
- * Process payment using Cashfree Order Pay API
- * @param sessionId - Payment session ID
- * @param paymentMethod - Payment method details
- * @returns Promise<any>
- */
-export const processPayment = async (sessionId: string, paymentMethod: any): Promise<any> => {
-  try {
-    console.log('Processing payment via Cashfree Order Pay API:', {
-      sessionId,
-      paymentMethod
-    });
-
-    const response = await fetch('/api/payment/process', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        payment_session_id: sessionId,
-        payment_method: paymentMethod
-      }),
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json();
-      console.error('Payment processing error:', errorData);
-      throw new Error(errorData.error || `HTTP ${response.status}: Failed to process payment`);
-    }
-
-    const data = await response.json();
-    console.log('Payment processed successfully:', data);
-    
-    return data;
-  } catch (error) {
-    console.error('Error processing payment:', error);
-    throw new Error(`Failed to process payment: ${error instanceof Error ? error.message : 'Unknown error'}`);
-  }
-};
 
 /**
  * Verify payment status using Cashfree API

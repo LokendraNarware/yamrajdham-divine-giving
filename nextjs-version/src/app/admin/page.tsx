@@ -16,6 +16,8 @@ interface DashboardStats {
   pendingDonations: number;
   failedDonations: number;
   refundedDonations: number;
+  systemStatus: 'healthy' | 'warning' | 'error';
+  systemMessage: string;
 }
 
 export default function AdminDashboard() {
@@ -27,6 +29,8 @@ export default function AdminDashboard() {
     pendingDonations: 0,
     failedDonations: 0,
     refundedDonations: 0,
+    systemStatus: 'healthy',
+    systemMessage: 'All systems operational',
   });
   const [loading, setLoading] = useState(true);
   const { user } = useAuth();
@@ -36,6 +40,44 @@ export default function AdminDashboard() {
       fetchDashboardStats();
     }
   }, [user]);
+
+  const checkSystemHealth = async () => {
+    try {
+      // Test database connection
+      const { error: dbError } = await supabase
+        .from('users')
+        .select('id')
+        .limit(1);
+
+      // Test payment gateway (basic check)
+      const paymentGatewayHealthy = process.env.NEXT_PUBLIC_CASHFREE_APP_ID && 
+                                   process.env.NEXT_PUBLIC_CASHFREE_SECRET_KEY;
+
+      if (dbError) {
+        return {
+          status: 'error' as const,
+          message: 'Database connection failed'
+        };
+      }
+
+      if (!paymentGatewayHealthy) {
+        return {
+          status: 'warning' as const,
+          message: 'Payment gateway not configured'
+        };
+      }
+
+      return {
+        status: 'healthy' as const,
+        message: 'All systems operational'
+      };
+    } catch (error) {
+      return {
+        status: 'error' as const,
+        message: 'System health check failed'
+      };
+    }
+  };
 
   const fetchDashboardStats = async () => {
     try {
@@ -69,6 +111,9 @@ export default function AdminDashboard() {
         console.error('Error fetching users:', usersError);
       }
 
+      // Check system health
+      const systemHealth = await checkSystemHealth();
+
       // Calculate stats - ONLY use completed donations for totals
       const completedDonations = completedDonationsData || [];
       const allDonations = allDonationsData || [];
@@ -89,11 +134,18 @@ export default function AdminDashboard() {
         pendingDonations,
         failedDonations,
         refundedDonations,
+        systemStatus: systemHealth.status,
+        systemMessage: systemHealth.message,
       });
 
       setLoading(false);
     } catch (error) {
       console.error('Error fetching dashboard stats:', error);
+      setStats(prev => ({
+        ...prev,
+        systemStatus: 'error',
+        systemMessage: 'Failed to load dashboard data'
+      }));
       setLoading(false);
     }
   };
@@ -161,8 +213,20 @@ export default function AdminDashboard() {
               <CardTitle className="text-sm font-medium text-gray-600">System Status</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-green-600">Active</div>
-              <p className="text-xs text-gray-500">All systems operational</p>
+              <div className={`text-2xl font-bold ${
+                stats.systemStatus === 'healthy' ? 'text-green-600' :
+                stats.systemStatus === 'warning' ? 'text-yellow-600' :
+                'text-red-600'
+              }`}>
+                {loading ? '...' : (
+                  stats.systemStatus === 'healthy' ? 'Healthy' :
+                  stats.systemStatus === 'warning' ? 'Warning' :
+                  'Error'
+                )}
+              </div>
+              <p className="text-xs text-gray-500">
+                {loading ? 'Checking...' : stats.systemMessage}
+              </p>
             </CardContent>
           </Card>
         </div>
@@ -273,10 +337,13 @@ export default function AdminDashboard() {
               </p>
               <div className="mt-4 p-4 bg-green-50 rounded-lg">
                 <p className="text-sm text-green-800">
-                  <strong>Admin User:</strong> admin@yamrajdham.org
+                  <strong>Admin User:</strong> {user?.email || 'Loading...'}
                 </p>
                 <p className="text-sm text-green-800">
-                  <strong>Access Level:</strong> Administrator
+                  <strong>Access Level:</strong> {user?.email?.includes('admin') || user?.email?.includes('yamrajdham.org') ? 'Administrator' : 'User'}
+                </p>
+                <p className="text-sm text-green-800">
+                  <strong>Login Time:</strong> {new Date().toLocaleString('en-IN')}
                 </p>
               </div>
             </CardContent>
