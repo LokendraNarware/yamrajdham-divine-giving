@@ -49,7 +49,7 @@ async function handlePaymentSuccess(data: any) {
   const order = data.order;
   const payment = data.payment;
   
-  console.log('Payment successful:', {
+  console.log('Donation successful:', {
     orderId: order.order_id,
     amount: order.order_amount,
     paymentId: payment.payment_id,

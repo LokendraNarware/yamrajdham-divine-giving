@@ -171,7 +171,7 @@ const PaymentModal = ({
               <CardContent className="pt-6">
                 <div className="flex items-center space-x-2 text-green-700">
                   <CheckCircle className="w-5 h-5" />
-                  <span className="font-medium">Payment Successful!</span>
+                  <span className="font-medium">Donation Successful!</span>
                 </div>
                 <p className="text-sm text-green-600 mt-1">
                   Your donation has been processed successfully.

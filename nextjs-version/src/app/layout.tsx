@@ -16,8 +16,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Yamraj dham Temple - Divine Giving",
-  description: "Support the construction of Yamraj dham Temple through your generous donations. Join us in building a sacred space for spiritual growth and community worship.",
+  title: "Yamrajdham Temple - Divine Giving",
+  description: "Support the construction of Yamrajdham Temple through your generous donations. Join us in building a sacred space for spiritual growth and community worship.",
 };
 
 export default function RootLayout({

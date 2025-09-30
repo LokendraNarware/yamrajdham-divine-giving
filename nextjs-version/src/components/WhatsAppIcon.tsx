@@ -7,7 +7,7 @@ export default function WhatsAppIcon() {
   const [isHovered, setIsHovered] = useState(false);
   
   const phoneNumber = "08427383381";
-  const whatsappMessage = "Hello! I would like to know more about Yamraj Dham Temple.";
+  const whatsappMessage = "Hello! I would like to know more about Yamrajdham Temple.";
   const whatsappUrl = `https://wa.me/91${phoneNumber}?text=${encodeURIComponent(whatsappMessage)}`;
 
   return (

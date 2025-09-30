@@ -1,13 +1,13 @@
-# Yamraj dham Temple Divine Giving - Database Schema
+# Yamrajdham Temple Divine Giving - Database Schema
 
-This document describes the comprehensive database schema for the Yamraj dham Temple Divine Giving platform, designed to support temple donations, prayer requests, and construction progress tracking.
+This document describes the comprehensive database schema for the Yamrajdham Temple Divine Giving platform, designed to support temple donations, prayer requests, and construction progress tracking.
 
 ## Overview
 
 The database schema is built on PostgreSQL with Supabase and includes the following key features:
 - **Donor Management**: Complete donor information with tax compliance
 - **Donation Processing**: Multiple donation categories and payment tracking
-- **Prayer Requests**: Different types of prayer services
+- **Prayer Requests**: Different types of prayer seva
 - **Construction Progress**: Milestone tracking and progress visualization
 - **Project Configuration**: Dynamic settings and configuration management
 
@@ -91,7 +91,7 @@ donations (
 
 **Status Types:**
 - `pending`: Payment initiated but not completed
-- `completed`: Payment successful and donation recorded
+- `completed`: Donation successful and recorded
 - `failed`: Payment failed
 - `refunded`: Donation refunded
 
@@ -385,14 +385,14 @@ CREATE INDEX idx_milestones_sort_order ON construction_milestones(sort_order);
 ### Tax Compliance
 - 80G certificate support
 - PAN number validation
-- Receipt generation
+- Receipt generation for donations
 - Donation reporting
 
 ### Communication
 - Email notifications for donations
 - Prayer request confirmations
 - Progress update notifications
-- Receipt delivery
+- Receipt delivery for donations
 
 ## Usage Examples
 
@@ -430,4 +430,4 @@ const milestoneUpdate: ConstructionMilestoneUpdate = {
 };
 ```
 
-This comprehensive schema provides a robust foundation for the Yamraj dham Temple Divine Giving platform, supporting all current features while maintaining flexibility for future enhancements.
+This comprehensive schema provides a robust foundation for the Yamrajdham Temple Divine Giving platform, supporting all current features while maintaining flexibility for future enhancements.

@@ -35,9 +35,27 @@ export default function MissionVisionSection() {
                   </div>
                   
                   <div className="bg-white/10 rounded-2xl p-6 backdrop-blur-sm">
-                    <p className="text-xl leading-relaxed font-medium">
-                      Mission – To create a divine space where faith meets service, inspiring inner transformation through dharma, devotion, and community.
+                    <p className="text-lg leading-relaxed font-medium mb-4">
+                      🕉️ Mission – To create a divine space where faith meets service, inspiring inner transformation through dharma, devotion, and community.
                     </p>
+                    <div className="space-y-3">
+                      <div className="flex items-start gap-3">
+                        <span className="text-temple-peach">🛕</span>
+                        <span className="text-lg">Construct the grand Yamrajdham Temple as a beacon of Sanatan Dharma</span>
+                      </div>
+                      <div className="flex items-start gap-3">
+                        <span className="text-temple-peach">📚</span>
+                        <span className="text-lg">Spread spiritual awareness and cultural values</span>
+                      </div>
+                      <div className="flex items-start gap-3">
+                        <span className="text-temple-peach">🏠</span>
+                        <span className="text-lg">Provide facilities like Dharamshala, library, and education center</span>
+                      </div>
+                      <div className="flex items-start gap-3">
+                        <span className="text-temple-peach">🙏</span>
+                        <span className="text-lg">Promote seva, meditation, and spiritual learning</span>
+                      </div>
+                    </div>
                   </div>
                 </CardContent>
               </Card>
@@ -97,23 +115,24 @@ export default function MissionVisionSection() {
                   
                   <div className="space-y-6">
                     <div className="bg-white/10 rounded-2xl p-6 backdrop-blur-sm">
-                      <p className="text-lg font-semibold mb-4">Vision –</p>
+                      <p className="text-lg font-semibold mb-4">🌟 Vision –</p>
+                      <p className="text-lg mb-4">We envision Dharam Dham Paavan Nagari as a divine city of faith—where devotees experience inner peace, learn spiritual wisdom, and contribute to building a stronger society rooted in dharma.</p>
                       <ul className="space-y-4">
                         <li className="flex items-start gap-4">
-                          <div className="w-3 h-3 bg-white rounded-full mt-2 flex-shrink-0"></div>
-                          <span className="text-lg">Expand spiritual awareness & Maa's darshan</span>
+                          <span className="text-temple-peach text-xl">🕊️</span>
+                          <span className="text-lg">A sacred space where devotees find tranquility and spiritual fulfillment</span>
                         </li>
                         <li className="flex items-start gap-4">
-                          <div className="w-3 h-3 bg-white rounded-full mt-2 flex-shrink-0"></div>
-                          <span className="text-lg">Serve children, women & the elderly through seva programs</span>
+                          <span className="text-temple-peach text-xl">📖</span>
+                          <span className="text-lg">Learning centers dedicated to preserving and sharing ancient knowledge</span>
                         </li>
                         <li className="flex items-start gap-4">
-                          <div className="w-3 h-3 bg-white rounded-full mt-2 flex-shrink-0"></div>
-                          <span className="text-lg">Promote purity, positivity, and satvik living</span>
+                          <span className="text-temple-peach text-xl">🤝</span>
+                          <span className="text-lg">Fostering a society rooted in dharma, compassion, and service</span>
                         </li>
                         <li className="flex items-start gap-4">
-                          <div className="w-3 h-3 bg-white rounded-full mt-2 flex-shrink-0"></div>
-                          <span className="text-lg">Build Yamraj dham Temple as a center of worship, justice & spiritual growth</span>
+                          <span className="text-temple-peach text-xl">🛕</span>
+                          <span className="text-lg">Build Yamrajdham Temple as a center of worship, justice & spiritual growth</span>
                         </li>
                       </ul>
                     </div>

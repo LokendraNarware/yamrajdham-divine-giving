@@ -1,4 +1,4 @@
-import { Facebook, Instagram, Youtube, Phone, Mail, MapPin, ExternalLink } from "lucide-react";
+import { Facebook, Instagram, Youtube, Phone, Mail, MapPin, ExternalLink, Twitter } from "lucide-react";
 import Link from "next/link";
 
 export default function Footer() {
@@ -10,7 +10,7 @@ export default function Footer() {
           <div className="text-center">
             <h2 className="text-xl md:text-2xl font-bold text-temple-saffron flex items-center justify-center gap-2">
               <span className="text-2xl">🕉️</span>
-              Yamraj Dham Trust – Yamraj dham Temple
+              Dharam Dham Paavan Nagari Trust – Yamrajdham Temple
             </h2>
           </div>
         </div>
@@ -27,7 +27,7 @@ export default function Footer() {
             </h3>
             <div className="space-y-3 text-sm">
               <div>
-                <p className="font-medium text-temple-saffron">Yamraj Dham Trust</p>
+                <p className="font-medium text-temple-saffron">Dharam Dham Paavan Nagari Trust</p>
                 <p className="text-temple-sand/80">Temple Address</p>
               </div>
               <div className="flex items-start gap-2">
@@ -40,14 +40,14 @@ export default function Footer() {
               <div className="flex items-start gap-2">
                 <Mail className="w-4 h-4 text-temple-saffron mt-0.5 flex-shrink-0" />
                 <div>
-                  <p className="text-temple-sand/80">info@yamrajdham.org</p>
-                  <p className="text-temple-sand/80">donations@yamrajdham.org</p>
+                  <p className="text-temple-sand/80">info@dharamdhamtrust.org</p>
+                  <p className="text-temple-sand/80">donations@dharamdhamtrust.org</p>
                 </div>
               </div>
               <div className="flex items-start gap-2">
                 <MapPin className="w-4 h-4 text-temple-saffron mt-0.5 flex-shrink-0" />
                 <p className="text-temple-sand/80">
-                  Raju ki dhani, Yamraj dham Temple<br />
+                  Raju ki dhani, Yamrajdham Temple<br />
                   On road NH-52, Rajgarh Churu<br />
                   Taranagar, Rajasthan 331304
                 </p>
@@ -74,19 +74,16 @@ export default function Footer() {
               <Link href="/" className="block text-temple-sand/80 hover:text-temple-saffron transition-colors">
                 - Home
               </Link>
-              <Link href="#about" className="block text-temple-sand/80 hover:text-temple-saffron transition-colors">
-                - About Temple
+              <Link href="/about" className="block text-temple-sand/80 hover:text-temple-saffron transition-colors">
+                - About Yamraj Dham
               </Link>
               <Link href="/donate" className="block text-temple-sand/80 hover:text-temple-saffron transition-colors">
                 - Donate
               </Link>
-              <Link href="#projects" className="block text-temple-sand/80 hover:text-temple-saffron transition-colors">
-                - Projects
-              </Link>
-              <Link href="#gallery" className="block text-temple-sand/80 hover:text-temple-saffron transition-colors">
+              <Link href="/gallery" className="block text-temple-sand/80 hover:text-temple-saffron transition-colors">
                 - Gallery
               </Link>
-              <Link href="#contact" className="block text-temple-sand/80 hover:text-temple-saffron transition-colors">
+              <Link href="/contact" className="block text-temple-sand/80 hover:text-temple-saffron transition-colors">
                 - Contact
               </Link>
             </div>
@@ -100,7 +97,7 @@ export default function Footer() {
             <div className="space-y-3">
               <div className="flex items-center gap-3">
                 <a 
-                  href="https://facebook.com/yamrajdham" 
+                  href="https://facebook.com/Yamrajdham" 
                   target="_blank" 
                   rel="noopener noreferrer"
                   className="flex items-center gap-2 text-temple-sand/80 hover:text-temple-saffron transition-colors"
@@ -112,7 +109,7 @@ export default function Footer() {
               </div>
               <div className="flex items-center gap-3">
                 <a 
-                  href="https://instagram.com/yamrajdham" 
+                  href="https://instagram.com/yamraj_dham" 
                   target="_blank" 
                   rel="noopener noreferrer"
                   className="flex items-center gap-2 text-temple-sand/80 hover:text-temple-saffron transition-colors"
@@ -124,13 +121,39 @@ export default function Footer() {
               </div>
               <div className="flex items-center gap-3">
                 <a 
-                  href="https://youtube.com/@yamrajdham" 
+                  href="https://www.youtube.com/@yamraj_dham" 
                   target="_blank" 
                   rel="noopener noreferrer"
                   className="flex items-center gap-2 text-temple-sand/80 hover:text-temple-saffron transition-colors"
                 >
                   <Youtube className="w-5 h-5" />
                   <span className="text-sm">YouTube</span>
+                  <ExternalLink className="w-3 h-3" />
+                </a>
+              </div>
+              <div className="flex items-center gap-3">
+                <a 
+                  href="https://x.com/yamraj_dham" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2 text-temple-sand/80 hover:text-temple-saffron transition-colors"
+                >
+                  <Twitter className="w-5 h-5" />
+                  <span className="text-sm">Twitter/X</span>
+                  <ExternalLink className="w-3 h-3" />
+                </a>
+              </div>
+              <div className="flex items-center gap-3">
+                <a 
+                  href="https://threads.com/@yamraj_dham" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2 text-temple-sand/80 hover:text-temple-saffron transition-colors"
+                >
+                  <div className="w-5 h-5 bg-white rounded flex items-center justify-center">
+                    <span className="text-xs font-bold text-black">@</span>
+                  </div>
+                  <span className="text-sm">Threads</span>
                   <ExternalLink className="w-3 h-3" />
                 </a>
               </div>
@@ -173,7 +196,7 @@ export default function Footer() {
                 <div>
                   <p className="font-medium text-temple-saffron mb-2">Bank Details:</p>
                   <div className="bg-temple-charcoal/50 p-3 rounded border border-temple-gold/20">
-                    <p className="text-temple-sand/80">Account Name: Yamraj Dham Trust</p>
+                    <p className="text-temple-sand/80">Account Name: Dharam Dham Paavan Nagari Trust</p>
                     <p className="text-temple-sand/80">Bank: State Bank of India</p>
                     <p className="text-temple-sand/80">Account Number: 1234567890123456</p>
                     <p className="text-temple-sand/80">IFSC Code: SBIN0001234</p>
@@ -183,7 +206,7 @@ export default function Footer() {
                 <div>
                   <p className="font-medium text-temple-saffron mb-2">UPI Details:</p>
                   <div className="bg-temple-charcoal/50 p-3 rounded border border-temple-gold/20">
-                    <p className="text-temple-sand/80">UPI ID: donations@yamrajdham</p>
+                    <p className="text-temple-sand/80">UPI ID: donations@dharamdhamtrust</p>
                     <p className="text-temple-sand/80">PhonePe: +91 84273 83381</p>
                     <p className="text-temple-sand/80">GooglePay: +91 84273 83381</p>
                   </div>
@@ -230,13 +253,13 @@ export default function Footer() {
           <div className="text-center">
             <div className="flex items-center justify-center gap-2 mb-2">
               <span className="text-temple-saffron">🕉️</span>
-              <span className="text-temple-saffron font-medium">Yamraj Dham Trust</span>
+              <span className="text-temple-saffron font-medium">Dharam Dham Paavan Nagari Trust</span>
             </div>
             <p className="text-sm text-temple-sand/80">
-              © 2025 Yamraj Dham Trust | All Rights Reserved
+              © 2025 Dharam Dham Paavan Nagari Trust | All Rights Reserved
             </p>
             <p className="text-xs text-temple-sand/60 mt-1">
-              Building Yamraj dham Temple with devotion, dedication, and divine blessings
+              Building Yamrajdham Temple with devotion, dedication, and divine blessings
             </p>
           </div>
         </div>

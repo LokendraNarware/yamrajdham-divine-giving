@@ -2,11 +2,11 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Yamraj dham Temple Design System - Spiritual & Traditional Colors */
+/* Yamrajdham Temple Design System - Spiritual & Traditional Colors */
 
 @layer base {
   :root {
-    /* Refined Yamraj dham Temple Color Scheme - Elegant & Sacred */
+    /* Refined Yamrajdham Temple Color Scheme - Elegant & Sacred */
     
     /* Primary Colors (Softer & More Elegant) */
     --background: 45 20% 98%; /* Cream #F8F6F0 */

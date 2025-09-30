@@ -52,11 +52,25 @@ export default function Home() {
           <div className="container mx-auto px-4">
             <div className="max-w-4xl mx-auto text-center">
               <h2 className="text-3xl md:text-4xl font-bold mb-6">
-                Be a part of history. Be a part of dharma.
+                🙏 Be a part of history. Be a part of dharma.
               </h2>
               <p className="text-lg leading-relaxed mb-8">
-                Your support ensures that the Yamraj dham Temple, under the guidance of Yamraj Dham Trust, becomes a beacon of faith, justice, and peace for generations to come.
+                Your support ensures that the Yamrajdham Temple, under the guidance of <strong>Dharam Dham Paavan Nagari Trust</strong>, becomes a beacon of faith, justice, and peace for generations to come.
               </p>
+              
+              <div className="bg-white/10 rounded-lg p-6 mb-8">
+                <h3 className="text-xl font-bold mb-4">📑 Trust Information</h3>
+                <div className="grid md:grid-cols-2 gap-4 text-sm">
+                  <div>
+                    <strong>Trust Name:</strong> Dharam Dham Paavan Nagari Trust<br/>
+                    <strong>Email:</strong> dharamdhamtrust@gmail.com
+                  </div>
+                  <div>
+                    <strong>Location:</strong> Rajgarh Churu, Rajasthan<br/>
+                    <strong>Registration:</strong> [Trust Registration No.]
+                  </div>
+                </div>
+              </div>
               
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <button className="bg-white text-temple-gold hover:bg-temple-cream px-8 py-3 rounded-full font-semibold transition-colors">

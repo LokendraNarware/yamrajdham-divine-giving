@@ -20,7 +20,7 @@ export default function YamrajDhamSection() {
               <div className="space-y-4">
                 <div className="flex items-center gap-2 mb-4">
                   <Sparkles className="w-6 h-6 text-temple-peach" />
-                  <span className="text-temple-peach font-medium">Why Yamraj dham Temple?</span>
+                  <span className="text-temple-peach font-medium">🛕 Why Yamrajdham Temple?</span>
                 </div>
                 
                 <h2 className="text-3xl md:text-4xl font-bold leading-tight">
@@ -30,12 +30,19 @@ export default function YamrajDhamSection() {
                 <div className="w-20 h-1 bg-temple-peach rounded-full"></div>
                 
                 <p className="text-lg leading-relaxed text-gray-300">
-                  At Yamraj dham Temple, we honor him as the divine ruler who guides souls after life, balancing karma and dharma with compassion.
+                  At Yamrajdham Temple, we honor him as the divine ruler who guides souls after life, balancing karma and dharma with compassion.
                 </p>
                 
                 <p className="text-lg leading-relaxed text-gray-300">
                   Building a temple dedicated to Yamraj is a rare spiritual milestone – one that preserves ancient wisdom while uplifting future generations.
                 </p>
+                
+                <div className="bg-temple-grey/30 rounded-lg p-4 mt-6">
+                  <h3 className="text-xl font-bold text-temple-peach mb-3">🌟 Our Vision</h3>
+                  <p className="text-gray-300 leading-relaxed">
+                    We envision Dharam Dham Paavan Nagari as a divine city of faith—where devotees experience inner peace, learn spiritual wisdom, and contribute to building a stronger society rooted in dharma.
+                  </p>
+                </div>
               </div>
 
               <Button 
@@ -54,13 +61,14 @@ export default function YamrajDhamSection() {
                 <div className="w-full h-80 rounded-2xl overflow-hidden shadow-2xl">
                   <img 
                     src="/temple-hero.jpg" 
-                    alt="Yamraj dham Temple Construction" 
+                    alt="Yamrajdham Temple Construction" 
                     className="w-full h-full object-cover"
                   />
                 </div>
                 <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent rounded-2xl"></div>
                 <div className="absolute bottom-4 left-4 text-white">
-                  <h4 className="text-xl font-bold">DHARAM DHAM PAAVAN NAGARI</h4>
+                  <h4 className="text-xl font-bold">DHARAM DHAM PAAVAN NAGARI TRUST</h4>
+                  <p className="text-sm opacity-90">Building Yamrajdham Temple</p>
                 </div>
               </div>
 

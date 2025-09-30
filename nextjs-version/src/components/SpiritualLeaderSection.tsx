@@ -37,7 +37,7 @@ export default function SpiritualLeaderSection() {
             <div className="space-y-6">
               <div className="space-y-4">
                 <div className="flex items-center gap-2 mb-4">
-                  <span className="text-temple-gold font-medium">Mataji's Divine Guidance</span>
+                  <span className="text-temple-gold font-medium">🕉️ Mataji's Divine Guidance</span>
                 </div>
                 
                 <blockquote className="text-2xl md:text-3xl font-bold text-temple-charcoal leading-tight italic">
@@ -51,13 +51,14 @@ export default function SpiritualLeaderSection() {
                 </p>
                 
                 <p className="text-lg text-temple-grey leading-relaxed">
-                  Inspired by Mataji, the Yamraj Dham Trust was founded with a sacred mission:
+                  Inspired by Mataji's teachings, the <strong>Dharam Dham Paavan Nagari Trust</strong> was founded with a sacred mission to build Yamrajdham Temple:
                 </p>
                 
                 <ul className="text-lg text-temple-grey leading-relaxed space-y-2 ml-4">
-                  <li>• To protect Sanatan Dharma</li>
-                  <li>• To serve humanity selflessly</li>
-                  <li>• To create a Shaktipeeth and spiritual centers for all</li>
+                  <li>🛕 To construct the grand Yamrajdham Temple as a beacon of Sanatan Dharma</li>
+                  <li>📚 To spread spiritual awareness and cultural values</li>
+                  <li>🏠 To provide facilities like Dharamshala, library, and education center</li>
+                  <li>🙏 To promote seva, meditation, and spiritual learning</li>
                 </ul>
               </div>
 

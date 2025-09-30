@@ -1,4 +1,4 @@
--- Yamraj dham Temple Divine Giving - Database Schema
+-- Yamrajdham Temple Divine Giving - Database Schema
 -- Clean 3-table structure for temple donation management
 
 -- 1. USERS TABLE - Temple devotees and donors

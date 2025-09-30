@@ -221,8 +221,8 @@ const DonationForm = () => {
         });
 
         toast({
-          title: "Payment Successful!",
-          description: "Thank you for your generous donation. You will receive a receipt via email.",
+          title: "Donation Successful!",
+          description: "Thank you for your generous donation. You will receive a donation receipt via email.",
         });
 
         // Redirect to success page or home
@@ -233,7 +233,7 @@ const DonationForm = () => {
     } catch (error) {
       console.error("Error updating donation:", error);
       toast({
-        title: "Payment Successful",
+        title: "Donation Successful",
         description: "Your payment was successful, but there was an issue updating the record. Please contact support.",
       });
     }

@@ -62,7 +62,7 @@ export default function PaymentSuccessPage() {
             }
 
             toast({
-              title: "Payment Successful!",
+              title: "Donation Successful!",
               description: "Thank you for your generous donation.",
             });
           } else if (details.order_status === 'ACTIVE' || details.payment_status === 'PENDING') {
@@ -99,16 +99,16 @@ export default function PaymentSuccessPage() {
   const handleDownloadReceipt = () => {
     // In a real implementation, you would generate and download a PDF receipt
     toast({
-      title: "Receipt Download",
-      description: "Receipt will be sent to your email address.",
+      title: "Donation Receipt Download",
+      description: "Donation receipt will be sent to your email address.",
     });
   };
 
   const handleEmailReceipt = () => {
     // In a real implementation, you would send receipt via email
     toast({
-      title: "Receipt Sent",
-      description: "Receipt has been sent to your email address.",
+      title: "Donation Receipt Sent",
+      description: "Donation receipt has been sent to your email address.",
     });
   };
 
@@ -173,10 +173,10 @@ export default function PaymentSuccessPage() {
               <div className="text-center">
                 <CheckCircle className="w-16 h-16 text-green-600 mx-auto mb-4" />
                 <h1 className="text-2xl font-bold text-green-800 mb-2">
-                  Payment Successful!
+                  Donation Successful!
                 </h1>
                 <p className="text-green-700">
-                  Thank you for your generous donation to Yamraj dham Temple.
+                  Thank you for your generous donation to Yamrajdham Temple.
                 </p>
                 {isDemo && (
                   <div className="mt-4 p-3 bg-yellow-100 border border-yellow-300 rounded-lg">
@@ -201,7 +201,7 @@ export default function PaymentSuccessPage() {
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="text-sm font-medium text-muted-foreground">Order ID</label>
+                    <label className="text-sm font-medium text-muted-foreground">Donation ID</label>
                     <p className="font-mono text-sm">{paymentDetails.order_id}</p>
                   </div>
                   <div>
@@ -244,9 +244,9 @@ export default function PaymentSuccessPage() {
           {/* Receipt Actions */}
           <Card className="mb-6">
             <CardHeader>
-              <CardTitle>Receipt</CardTitle>
+              <CardTitle>Donation Receipt</CardTitle>
               <CardDescription>
-                Download your receipt for your records
+                Download your donation receipt for your records
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -254,11 +254,11 @@ export default function PaymentSuccessPage() {
                 <div className="flex gap-3">
                   <Button onClick={handleDownloadReceipt} variant="outline" className="flex-1">
                     <Download className="w-4 h-4 mr-2" />
-                    Download Receipt
+                    Download Donation Receipt
                   </Button>
                   <Button onClick={handleEmailReceipt} variant="outline" className="flex-1">
                     <Mail className="w-4 h-4 mr-2" />
-                    Email Receipt
+                    Email Donation Receipt
                   </Button>
                 </div>
                 
@@ -292,9 +292,9 @@ export default function PaymentSuccessPage() {
                     1
                   </div>
                   <div>
-                    <h4 className="font-semibold">Receipt Processing</h4>
+                    <h4 className="font-semibold">Donation Receipt Processing</h4>
                     <p className="text-sm text-muted-foreground">
-                      Your official receipt will be processed and sent to your email within 24 hours.
+                      Your official donation receipt will be processed and sent to your email within 24 hours.
                     </p>
                   </div>
                 </div>

@@ -33,7 +33,7 @@ export const handleCashfreeWebhook = async (webhookData: CashfreeWebhookData) =>
     
     // Update donation status in database based on order status
     if (order.order_status === 'PAID') {
-      console.log('Payment successful for order:', order.order_id);
+      console.log('Donation successful for order:', order.order_id);
       
       // Here you would update your database with the payment details
       // Example: await updateDonationPayment(order.order_id, {

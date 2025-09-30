@@ -24,10 +24,10 @@ const Index = () => {
           <div className="container px-4">
             <div className="max-w-4xl mx-auto text-center">
               <h2 className="text-3xl md:text-4xl font-bold mb-6">
-                About Yamraj dham Temple
+                About Yamrajdham Temple
               </h2>
               <p className="text-lg text-muted-foreground leading-relaxed mb-8">
-                Yamraj dham Temple is being built as a sacred space for spiritual growth, community 
+                Yamrajdham Temple is being built as a sacred space for spiritual growth, community 
                 gathering, and divine worship. Our vision is to create a beautiful traditional temple 
                 that honors ancient architectural principles while serving the spiritual needs of 
                 devotees for generations to come.
@@ -123,7 +123,7 @@ const Index = () => {
                 </div>
                 <div className="flex items-center gap-2 opacity-80">
                   <Mail className="w-4 h-4" />
-                  info@yamrajdham.org
+                  info@dharamdhamtrust.org
                 </div>
                 <div className="flex items-center gap-2 opacity-80">
                   <MapPin className="w-4 h-4" />
@@ -134,7 +134,7 @@ const Index = () => {
           </div>
           
           <div className="border-t border-background/20 mt-8 pt-8 text-center text-sm opacity-80">
-            <p>&copy; 2024 Yamraj dham Temple. All rights reserved. Built with devotion and dedication.</p>
+            <p>&copy; 2024 Yamrajdham Temple. All rights reserved. Built with devotion and dedication.</p>
           </div>
         </div>
       </footer>

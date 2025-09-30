@@ -1,5 +1,5 @@
 # 🚀 Next.js Migration Guide
-## Yamraj dham Temple Divine Giving Donation System
+## Yamrajdham Temple Divine Giving Donation System
 
 ## 📋 **Step-by-Step Migration Process**
 
@@ -11,10 +11,10 @@
 cd ..
 
 # Create new Next.js project
-npx create-next-app@latest yamraj-dham-temple-nextjs --typescript --tailwind --eslint --app --src-dir
+npx create-next-app@latest yamrajdham-temple-nextjs --typescript --tailwind --eslint --app --src-dir
 
 # Navigate to new project
-cd yamraj-dham-temple-nextjs
+cd yamrajdham-temple-nextjs
 ```
 
 #### **1.2 Install Dependencies**
@@ -44,7 +44,7 @@ npm install -D @types/node
 
 #### **1.3 Project Structure Setup**
 ```
-yamraj-dham-temple-nextjs/
+yamrajdham-temple-nextjs/
 ├── src/
 │   ├── app/                    # Next.js App Router
 │   │   ├── globals.css        # Global styles
@@ -227,7 +227,7 @@ export default function Header() {
         <div className="mr-4 hidden md:flex">
           <Link href="/" className="mr-6 flex items-center space-x-2">
             <span className="hidden font-bold sm:inline-block">
-              Yamraj dham Temple
+              Yamrajdham Temple
             </span>
           </Link>
         </div>

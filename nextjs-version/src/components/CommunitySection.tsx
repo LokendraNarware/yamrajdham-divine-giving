@@ -1,6 +1,8 @@
+"use client";
+
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Heart, Users, BookOpen, Calendar, Instagram, Facebook, Youtube } from "lucide-react";
+import { Heart, Users, BookOpen, Calendar, Instagram, Facebook, Youtube, Twitter } from "lucide-react";
 
 export default function CommunitySection() {
   return (
@@ -16,7 +18,7 @@ export default function CommunitySection() {
               <span className="text-temple-gold font-medium">Community & Spiritual Growth</span>
             </div>
             <h2 className="text-3xl md:text-4xl font-bold mb-4">
-              The Yamraj dham Temple will serve as:
+              The Yamrajdham Temple will serve as:
             </h2>
           </div>
 
@@ -87,7 +89,9 @@ export default function CommunitySection() {
               <Card className="bg-gradient-gold text-white">
                 <CardContent className="p-8 text-center">
                   <div className="mb-6">
-                    <h3 className="text-2xl font-bold mb-2">Follow us: @yamraj_dham</h3>
+                    <h3 className="text-2xl font-bold mb-2">
+                      Follow us: <a href="https://instagram.com/yamraj_dham" target="_blank" rel="noopener noreferrer" className="text-temple-saffron hover:text-white transition-colors">@yamraj_dham</a>
+                    </h3>
                     <div className="flex justify-center gap-6 text-sm opacity-90">
                       <span>10K+ Followers</span>
                       <span>500+ Posts</span>
@@ -95,25 +99,55 @@ export default function CommunitySection() {
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-3 gap-4 mb-6">
-                    <div className="bg-white/20 backdrop-blur-sm rounded-lg p-4">
+                  <div className="grid grid-cols-2 gap-4 mb-6">
+                    <a 
+                      href="https://instagram.com/yamraj_dham" 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="bg-white/20 backdrop-blur-sm rounded-lg p-4 hover:bg-white/30 transition-colors cursor-pointer"
+                    >
                       <Instagram className="w-8 h-8 mx-auto mb-2" />
                       <div className="text-sm font-medium">Instagram</div>
-                    </div>
-                    <div className="bg-white/20 backdrop-blur-sm rounded-lg p-4">
+                    </a>
+                    <a 
+                      href="https://facebook.com/Yamrajdham" 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="bg-white/20 backdrop-blur-sm rounded-lg p-4 hover:bg-white/30 transition-colors cursor-pointer"
+                    >
                       <Facebook className="w-8 h-8 mx-auto mb-2" />
                       <div className="text-sm font-medium">Facebook</div>
-                    </div>
-                    <div className="bg-white/20 backdrop-blur-sm rounded-lg p-4">
+                    </a>
+                    <a 
+                      href="https://www.youtube.com/@yamraj_dham" 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="bg-white/20 backdrop-blur-sm rounded-lg p-4 hover:bg-white/30 transition-colors cursor-pointer"
+                    >
                       <Youtube className="w-8 h-8 mx-auto mb-2" />
                       <div className="text-sm font-medium">YouTube</div>
-                    </div>
+                    </a>
+                    <a 
+                      href="https://x.com/yamraj_dham" 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="bg-white/20 backdrop-blur-sm rounded-lg p-4 hover:bg-white/30 transition-colors cursor-pointer"
+                    >
+                      <Twitter className="w-8 h-8 mx-auto mb-2" />
+                      <div className="text-sm font-medium">Twitter/X</div>
+                    </a>
                   </div>
 
                   <Button 
                     variant="outline"
                     size="lg" 
                     className="bg-white text-temple-gold hover:bg-temple-cream px-8 py-3 rounded-full font-semibold"
+                    onClick={() => {
+                      const footer = document.querySelector('footer');
+                      if (footer) {
+                        footer.scrollIntoView({ behavior: 'smooth' });
+                      }
+                    }}
                   >
                     Follow Our Journey
                   </Button>
