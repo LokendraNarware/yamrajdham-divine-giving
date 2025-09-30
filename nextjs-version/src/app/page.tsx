@@ -3,6 +3,10 @@ import HeroSection from "@/components/HeroSection";
 import DonationSection from "@/components/DonationSection";
 import ProgressTracker from "@/components/ProgressTracker";
 import PrayerSection from "@/components/PrayerSection";
+import SpiritualLeaderSection from "@/components/SpiritualLeaderSection";
+import YamrajDhamSection from "@/components/YamrajDhamSection";
+import MissionVisionSection from "@/components/MissionVisionSection";
+import CommunitySection from "@/components/CommunitySection";
 import { Card, CardContent } from "@/components/ui/card";
 import { Heart, Phone, Mail, MapPin } from "lucide-react";
 
@@ -14,6 +18,15 @@ export default function Home() {
       <main className="w-full">
         <HeroSection />
         
+        {/* Spiritual Leader Section */}
+        <SpiritualLeaderSection />
+        
+        {/* Yamraj Dham Section */}
+        <YamrajDhamSection />
+        
+        {/* Mission & Vision Section */}
+        <MissionVisionSection />
+        
         <section id="donate" className="py-16">
           <DonationSection />
         </section>
@@ -22,60 +35,34 @@ export default function Home() {
           <ProgressTracker />
         </section>
         
+        {/* Community Section */}
+        <CommunitySection />
+        
         <section id="prayers" className="py-16">
           <PrayerSection />
         </section>
         
-        {/* About Section */}
-        <section id="about" className="py-16 bg-background">
+        {/* Closing Call to Action */}
+        <section className="py-16 bg-gradient-to-br from-orange-600 to-orange-700 text-white">
           <div className="container mx-auto px-4">
             <div className="max-w-4xl mx-auto text-center">
+              <div className="flex items-center justify-center gap-2 mb-4">
+                <span className="text-yellow-300 font-medium">💫 Closing Call</span>
+              </div>
               <h2 className="text-3xl md:text-4xl font-bold mb-6">
-                About Yamrajdham Temple
+                Be a part of history. Be a part of dharma.
               </h2>
-              <p className="text-lg text-muted-foreground leading-relaxed mb-8">
-                Yamrajdham Temple is being built as a sacred space for spiritual growth, community 
-                gathering, and divine worship. Our vision is to create a beautiful traditional temple 
-                that honors ancient architectural principles while serving the spiritual needs of 
-                devotees for generations to come.
+              <p className="text-lg leading-relaxed mb-8">
+                Your support ensures that the Yamrajdham Temple, under the guidance of Dharam Dham Paavan Nagari Trust, becomes a beacon of faith, justice, and peace for generations to come.
               </p>
               
-              <div className="grid md:grid-cols-3 gap-6 mt-12">
-                <Card className="text-center">
-                  <CardContent className="pt-6">
-                    <div className="w-12 h-12 bg-gradient-divine rounded-full flex items-center justify-center mx-auto mb-4">
-                      <Heart className="w-6 h-6 text-primary-foreground" />
-                    </div>
-                    <h3 className="font-semibold mb-2">Spiritual Growth</h3>
-                    <p className="text-sm text-muted-foreground">
-                      A center for meditation, prayer, and spiritual learning
-                    </p>
-                  </CardContent>
-                </Card>
-                
-                <Card className="text-center">
-                  <CardContent className="pt-6">
-                    <div className="w-12 h-12 bg-gradient-divine rounded-full flex items-center justify-center mx-auto mb-4">
-                      <Heart className="w-6 h-6 text-primary-foreground" />
-                    </div>
-                    <h3 className="font-semibold mb-2">Community Service</h3>
-                    <p className="text-sm text-muted-foreground">
-                      Educational programs and charitable activities for all
-                    </p>
-                  </CardContent>
-                </Card>
-                
-                <Card className="text-center">
-                  <CardContent className="pt-6">
-                    <div className="w-12 h-12 bg-gradient-divine rounded-full flex items-center justify-center mx-auto mb-4">
-                      <Heart className="w-6 h-6 text-primary-foreground" />
-                    </div>
-                    <h3 className="font-semibold mb-2">Cultural Heritage</h3>
-                    <p className="text-sm text-muted-foreground">
-                      Preserving and sharing ancient wisdom and traditions
-                    </p>
-                  </CardContent>
-                </Card>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <button className="bg-white text-orange-600 hover:bg-gray-100 px-8 py-3 rounded-full font-semibold transition-colors">
+                  Donate Now
+                </button>
+                <button className="border-2 border-white text-white hover:bg-white hover:text-orange-600 px-8 py-3 rounded-full font-semibold transition-colors">
+                  Contact Us
+                </button>
               </div>
             </div>
           </div>
@@ -97,7 +84,7 @@ export default function Home() {
                 </div>
               </div>
               <p className="text-sm opacity-80">
-                Building a sacred temple for spiritual growth and community worship.
+                Building Yamrajdham Temple with devotion & dedication.
               </p>
             </div>
             
@@ -114,10 +101,10 @@ export default function Home() {
             <div>
               <h4 className="font-semibold mb-4">Services</h4>
               <div className="space-y-2 text-sm">
-                <div className="opacity-80">Daily Worship</div>
-                <div className="opacity-80">Prayer Requests</div>
-                <div className="opacity-80">Special Ceremonies</div>
-                <div className="opacity-80">Educational Programs</div>
+                <div className="opacity-80">Donate</div>
+                <div className="opacity-80">Progress</div>
+                <div className="opacity-80">Services</div>
+                <div className="opacity-80">Contact</div>
               </div>
             </div>
             
@@ -141,7 +128,7 @@ export default function Home() {
           </div>
           
           <div className="border-t border-background/20 mt-8 pt-8 text-center text-sm opacity-80">
-            <p>&copy; 2024 Yamrajdham Temple. All rights reserved. Built with devotion and dedication.</p>
+            <p>&copy; 2024 Dharam Dham Paavan Nagari Trust – Building Yamrajdham Temple with devotion & dedication.</p>
           </div>
         </div>
       </footer>

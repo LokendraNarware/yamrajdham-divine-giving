@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Heart, Menu, User, LogOut } from "lucide-react";
+import { Heart, Menu, User, LogOut, Shield } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
 import {
@@ -76,6 +76,10 @@ const Header = () => {
                   <DropdownMenuItem onClick={() => router.push("/dashboard")}>
                     <User className="w-4 h-4 mr-2" />
                     Dashboard
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => router.push("/admin/donations")}>
+                    <Shield className="w-4 h-4 mr-2" />
+                    Admin Panel
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={handleSignOut}>

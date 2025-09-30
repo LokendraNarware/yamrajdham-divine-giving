@@ -1,13 +1,16 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { getDonations, updateDonationPayment } from "@/services/donations";
 import { useToast } from "@/hooks/use-toast";
-import { RefreshCw, CheckCircle, XCircle } from "lucide-react";
+import { RefreshCw, CheckCircle, XCircle, Shield, LogOut } from "lucide-react";
 import Header from "@/components/Header";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 
 interface Donation {
   id: string;
@@ -35,7 +38,11 @@ export default function DonationsListPage() {
   const [donations, setDonations] = useState<Donation[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [checkingAuth, setCheckingAuth] = useState(true);
   const { toast } = useToast();
+  const { user, signOut } = useAuth();
+  const router = useRouter();
 
   const fetchDonations = async () => {
     try {
@@ -58,9 +65,50 @@ export default function DonationsListPage() {
     }
   };
 
+  // Check admin authentication
   useEffect(() => {
-    fetchDonations();
-  }, []);
+    const checkAdminAuth = async () => {
+      if (!user) {
+        router.push('/login');
+        return;
+      }
+
+      try {
+        // Check if user exists in admin table
+        const { data: adminData, error } = await supabase
+          .from('admin')
+          .select('*')
+          .eq('email', user.email)
+          .eq('is_active', true)
+          .single();
+
+        if (error || !adminData) {
+          console.log('User is not an admin:', error);
+          toast({
+            title: "Access Denied",
+            description: "You don't have admin privileges to access this page.",
+            variant: "destructive",
+          });
+          router.push('/dashboard');
+          return;
+        }
+
+        setIsAdmin(true);
+        setCheckingAuth(false);
+        fetchDonations();
+      } catch (error) {
+        console.error('Error checking admin auth:', error);
+        toast({
+          title: "Error",
+          description: "Failed to verify admin access.",
+          variant: "destructive",
+        });
+        router.push('/dashboard');
+      }
+    };
+
+    checkAdminAuth();
+  }, [user, router, toast]);
 
   const handleRefresh = async () => {
     setRefreshing(true);
@@ -112,6 +160,43 @@ export default function DonationsListPage() {
     });
   };
 
+  const handleSignOut = async () => {
+    await signOut();
+    router.push('/');
+  };
+
+  if (checkingAuth) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Header />
+        <div className="container py-8 px-4">
+          <div className="flex items-center justify-center h-64">
+            <div className="text-center">
+              <Shield className="w-8 h-8 animate-pulse mx-auto mb-4" />
+              <p>Verifying admin access...</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!isAdmin) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Header />
+        <div className="container py-8 px-4">
+          <div className="flex items-center justify-center h-64">
+            <div className="text-center">
+              <Shield className="w-8 h-8 mx-auto mb-4 text-red-500" />
+              <p>Access Denied</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   if (loading) {
     return (
       <div className="min-h-screen bg-background">
@@ -134,13 +219,22 @@ export default function DonationsListPage() {
       <div className="container py-8 px-4">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-3xl font-bold">Donations Management</h1>
+          <h1 className="text-3xl font-bold flex items-center gap-2">
+            <Shield className="w-8 h-8 text-primary" />
+            Admin Panel - Donations Management
+          </h1>
           <p className="text-muted-foreground">View and manage all donations</p>
         </div>
-        <Button onClick={handleRefresh} disabled={refreshing} variant="outline">
-          <RefreshCw className={`w-4 h-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
-          Refresh
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button onClick={handleRefresh} disabled={refreshing} variant="outline">
+            <RefreshCw className={`w-4 h-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
+            Refresh
+          </Button>
+          <Button onClick={handleSignOut} variant="outline">
+            <LogOut className="w-4 h-4 mr-2" />
+            Sign Out
+          </Button>
+        </div>
       </div>
 
       {donations.length === 0 ? (

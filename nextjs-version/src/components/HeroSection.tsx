@@ -24,21 +24,20 @@ const HeroSection = () => {
                 alt="Yamrajdham Logo" 
                 className="w-4 h-4 object-contain"
               />
-              Sacred Temple Construction
+              ✨ Sacred Temple Construction – Yamrajdham
             </span>
           </div>
           
           <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold mb-6 leading-tight">
             <span className="bg-gradient-divine bg-clip-text text-transparent">
-              Yamrajdham
+              ✨ Sacred Temple Construction – Yamrajdham
             </span>
-            <br />
-            <span className="text-foreground">Divine Temple</span>
           </h1>
           
           <p className="text-lg md:text-xl text-muted-foreground mb-8 max-w-2xl leading-relaxed">
-            Join us in building a sacred space of worship, peace, and spiritual awakening. 
-            Your contribution will help create a temple that will serve devotees for generations to come.
+            A space of worship, peace, and spiritual awakening.
+            <br />
+            Join us in building the Yamrajdham Temple, a divine center that will serve devotees for generations to come.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 mb-8">

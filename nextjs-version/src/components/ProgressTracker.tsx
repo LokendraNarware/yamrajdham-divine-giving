@@ -12,23 +12,20 @@ const ProgressTracker = () => {
   };
 
   const milestones = [
-    { name: "Foundation", completed: true, icon: Building },
-    { name: "Structure", completed: true, icon: Building },
-    { name: "Roof & Domes", completed: false, icon: Building },
-    { name: "Interior", completed: false, icon: Building },
-    { name: "Final Touches", completed: false, icon: Building }
+    { name: "Foundation complete", completed: true, icon: Building },
+    { name: "Structure complete", completed: true, icon: Building },
+    { name: "Domes & interiors in progress", completed: false, icon: Building }
   ];
 
   return (
     <div className="container mx-auto px-4">
         <div className="text-center mb-12">
+          <div className="flex items-center justify-center gap-2 mb-4">
+            <span className="text-orange-600 font-medium">🏗️ Temple Construction Progress</span>
+          </div>
           <h2 className="text-3xl md:text-4xl font-bold mb-4">
-            Temple Construction Progress
+            📈 Together, we are bringing Yamrajdham Temple to life.
           </h2>
-          <p className="text-muted-foreground max-w-2xl mx-auto">
-            Watch our sacred temple come to life with your generous contributions. 
-            Every donation brings us closer to completion.
-          </p>
         </div>
 
         <div className="grid lg:grid-cols-2 gap-8 items-center">
@@ -49,59 +46,27 @@ const ProgressTracker = () => {
                   <Progress value={progressData.percentage} className="h-3" />
                   <div className="text-center">
                     <span className="text-2xl font-bold text-primary">
-                      {progressData.percentage}%
+                      {progressData.percentage}% Complete
                     </span>
-                    <span className="text-muted-foreground"> Complete</span>
+                  </div>
+                  <div className="text-center text-sm text-muted-foreground">
+                    {progressData.donors.toLocaleString()} Donors • {progressData.daysLeft} Days Left
                   </div>
                 </div>
               </CardContent>
             </Card>
 
-            <div className="grid grid-cols-2 gap-4">
-              <Card>
-                <CardContent className="pt-6 text-center">
-                  <Users className="w-8 h-8 text-primary mx-auto mb-2" />
-                  <div className="text-2xl font-bold">{progressData.donors.toLocaleString()}</div>
-                  <div className="text-sm text-muted-foreground">Donors</div>
-                </CardContent>
-              </Card>
-              
-              <Card>
-                <CardContent className="pt-6 text-center">
-                  <Calendar className="w-8 h-8 text-primary mx-auto mb-2" />
-                  <div className="text-2xl font-bold">{progressData.daysLeft}</div>
-                  <div className="text-sm text-muted-foreground">Days Left</div>
-                </CardContent>
-              </Card>
+            <div className="text-center space-y-2">
+              <div className="text-lg">
+                <span className="font-semibold">Milestones:</span>
+              </div>
+              <div className="flex flex-wrap justify-center gap-2">
+                <span className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm">✅ Foundation complete</span>
+                <span className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm">✅ Structure complete</span>
+                <span className="px-3 py-1 bg-orange-100 text-orange-800 rounded-full text-sm">🔨 Domes & interiors in progress</span>
+              </div>
             </div>
 
-            <Card>
-              <CardHeader>
-                <CardTitle>Construction Milestones</CardTitle>
-                <CardDescription>Track the progress of each construction phase</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  {milestones.map((milestone, index) => (
-                    <div key={index} className="flex items-center gap-3">
-                      <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                        milestone.completed 
-                          ? 'bg-primary text-primary-foreground' 
-                          : 'bg-muted text-muted-foreground'
-                      }`}>
-                        <milestone.icon className="w-4 h-4" />
-                      </div>
-                      <span className={milestone.completed ? 'text-foreground' : 'text-muted-foreground'}>
-                        {milestone.name}
-                      </span>
-                      {milestone.completed && (
-                        <span className="ml-auto text-sm text-primary font-medium">✓ Complete</span>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
           </div>
 
           <div className="space-y-6">
@@ -115,14 +80,9 @@ const ProgressTracker = () => {
             
             <Card className="bg-gradient-gold">
               <CardContent className="pt-6">
-                <h3 className="font-semibold text-lg mb-2">Latest Update</h3>
+                <h3 className="font-semibold text-lg mb-2">✨ Latest Update (Dec 2024)</h3>
                 <p className="text-sm text-secondary-foreground">
-                  The main structure is now complete! We&apos;ve begun work on the beautiful 
-                  traditional domes and spires. The intricate stone carvings are being 
-                  crafted by master artisans.
-                </p>
-                <p className="text-xs text-secondary-foreground/80 mt-2">
-                  Updated: December 2024
+                  Traditional domes & stone carvings are now being crafted by master artisans.
                 </p>
               </CardContent>
             </Card>
