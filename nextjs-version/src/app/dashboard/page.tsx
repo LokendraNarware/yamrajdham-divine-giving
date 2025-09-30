@@ -60,13 +60,13 @@ export default function DashboardPage() {
   const fetchUserData = async () => {
     if (!user) return;
 
-    console.log('🔍 Fetching data for user:', user.id, user.email);
+    console.log('Fetching data for user:', user.id, user.email);
 
     try {
       let resolvedUserProfile: UserProfile | null = null;
 
       // Fetch user profile
-      console.log('📋 Fetching user profile...');
+      console.log('Fetching user profile...');
       const { data: profileData, error: profileError } = await supabase
         .from('users')
         .select('*')
@@ -77,11 +77,11 @@ export default function DashboardPage() {
       console.log('Profile error:', profileError);
 
       if (profileError) {
-        console.error('❌ Error fetching user profile:', profileError);
+        console.error('Error fetching user profile:', profileError);
         
         // If user profile doesn't exist, try to find by email first, then create
         if (profileError.code === 'PGRST116' || profileError.message?.includes('No rows found')) {
-          console.log('🔍 User profile not found by ID, checking by email...');
+          console.log('User profile not found by ID, checking by email...');
           
           // First, try to find existing user by email
           const { data: existingUser, error: emailError } = await supabase
@@ -91,10 +91,10 @@ export default function DashboardPage() {
             .single();
           
           if (existingUser && !emailError) {
-            console.log('✅ Found existing user by email:', existingUser.email);
+            console.log('Found existing user by email:', existingUser.email);
             resolvedUserProfile = existingUser;
           } else {
-            console.log('🆕 No existing user found, creating new profile...');
+            console.log('No existing user found, creating new profile...');
             // Create new user profile
             const { data: newProfile, error: createError } = await supabase
               .from('users')
@@ -109,15 +109,15 @@ export default function DashboardPage() {
               .single();
             
             if (createError) {
-              console.error('❌ Error creating user profile:', createError);
+              console.error('Error creating user profile:', createError);
             } else {
-              console.log('✅ User profile created:', newProfile);
+              console.log('User profile created:', newProfile);
               resolvedUserProfile = newProfile;
             }
           }
         }
       } else {
-        console.log('✅ User profile found:', profileData);
+        console.log('User profile found:', profileData);
         resolvedUserProfile = profileData;
       }
 
@@ -127,7 +127,7 @@ export default function DashboardPage() {
       }
 
       // Fetch user donations using the resolved user ID
-      console.log('💰 Fetching user donations...');
+      console.log('Fetching user donations...');
       const userIdForDonations = resolvedUserProfile?.id || user.id;
       console.log('Using user ID for donations:', userIdForDonations);
       
@@ -141,13 +141,13 @@ export default function DashboardPage() {
       console.log('Donations error:', donationsError);
 
       if (donationsError) {
-        console.error('❌ Error fetching donations:', donationsError);
+        console.error('Error fetching donations:', donationsError);
       } else {
-        console.log('✅ Found donations:', donationsData?.length || 0);
+        console.log('Found donations:', donationsData?.length || 0);
         setDonations(donationsData || []);
       }
     } catch (error) {
-      console.error('❌ Error fetching user data:', error);
+      console.error('Error fetching user data:', error);
     } finally {
       setLoading(false);
     }

@@ -98,7 +98,7 @@ export default function DonationFormPage() {
           <div className="mr-4 hidden md:flex">
             <Link href="/" className="mr-6 flex items-center space-x-2">
               <span className="hidden font-bold sm:inline-block text-primary">
-                Yamrajdham Temple
+                Yamraj dham Temple
               </span>
             </Link>
           </div>
@@ -118,7 +118,7 @@ export default function DonationFormPage() {
             <CardHeader>
               <CardTitle className="text-2xl text-center">Make a Donation</CardTitle>
               <CardDescription className="text-center">
-                Support the construction of Yamrajdham Temple
+                Support the construction of Yamraj dham Temple
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -191,7 +191,7 @@ export default function DonationFormPage() {
           {/* Test Information */}
           <Card className="mt-6 border-blue-200 bg-blue-50">
             <CardHeader>
-              <CardTitle className="text-blue-800">🧪 Test Mode</CardTitle>
+              <CardTitle className="text-blue-800">Test Mode</CardTitle>
               <CardDescription className="text-blue-700">
                 This is using Cashfree sandbox environment
               </CardDescription>

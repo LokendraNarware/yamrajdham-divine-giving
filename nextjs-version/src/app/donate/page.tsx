@@ -175,7 +175,7 @@ export default function DonatePage() {
               }
             });
             
-            console.log('✅ User data prefilled from profile');
+            console.log('User data prefilled from profile');
           }
         } catch (error) {
           console.error('Error fetching user data for prefill:', error);
@@ -192,7 +192,7 @@ export default function DonatePage() {
 
   const onSubmit = async (data: DonationFormData) => {
     try {
-      console.log('🚀 Processing donation for:', data.email);
+      console.log('Processing donation for:', data.email);
       
       // Auto account creation logic - no login required
       let userId: string | null = null;
@@ -202,11 +202,11 @@ export default function DonatePage() {
       
       if (userResult.success && userResult.data) {
         // User exists, use their ID
-        console.log('✅ User already exists:', userResult.data.email);
+        console.log('User already exists:', userResult.data.email);
         userId = userResult.data.id;
       } else {
         // User doesn't exist, create new account automatically
-        console.log('🆕 Creating new user account for:', data.email);
+        console.log('Creating new user account for:', data.email);
         
         const userData = {
           email: data.email,
@@ -223,7 +223,7 @@ export default function DonatePage() {
         const createUserResult = await createUser(userData);
         if (createUserResult.success && createUserResult.data) {
           userId = createUserResult.data.id;
-          console.log('✅ New user account created:', userId);
+          console.log('New user account created:', userId);
         } else {
           const errorMessage = createUserResult.error?.message || 'Failed to create user account';
           throw new Error(`Account creation failed: ${errorMessage}`);

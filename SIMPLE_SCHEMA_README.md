@@ -1,4 +1,4 @@
-# Yamraj Dham Divine Giving - Simplified Database Schema
+# Yamraj dham Temple Divine Giving - Simplified Database Schema
 
 ## Database Structure
 

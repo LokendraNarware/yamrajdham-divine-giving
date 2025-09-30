@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
 import { AuthProvider } from "@/contexts/AuthContext";
+import WhatsAppIcon from "@/components/WhatsAppIcon";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -15,8 +16,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Yamrajdham Temple - Divine Giving",
-  description: "Support the construction of Yamrajdham Temple through your generous donations. Join us in building a sacred space for spiritual growth and community worship.",
+  title: "Yamraj dham Temple - Divine Giving",
+  description: "Support the construction of Yamraj dham Temple through your generous donations. Join us in building a sacred space for spiritual growth and community worship.",
 };
 
 export default function RootLayout({
@@ -32,6 +33,7 @@ export default function RootLayout({
         <AuthProvider>
           {children}
           <Toaster />
+          <WhatsAppIcon />
         </AuthProvider>
       </body>
     </html>

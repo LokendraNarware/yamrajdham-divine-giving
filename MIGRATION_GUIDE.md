@@ -1,5 +1,5 @@
 # 🚀 Next.js Migration Guide
-## Yamrajdham Divine Giving Donation System
+## Yamraj dham Temple Divine Giving Donation System
 
 ## 📋 **Step-by-Step Migration Process**
 
@@ -11,10 +11,10 @@
 cd ..
 
 # Create new Next.js project
-npx create-next-app@latest yamrajdham-nextjs --typescript --tailwind --eslint --app --src-dir
+npx create-next-app@latest yamraj-dham-temple-nextjs --typescript --tailwind --eslint --app --src-dir
 
 # Navigate to new project
-cd yamrajdham-nextjs
+cd yamraj-dham-temple-nextjs
 ```
 
 #### **1.2 Install Dependencies**
@@ -44,7 +44,7 @@ npm install -D @types/node
 
 #### **1.3 Project Structure Setup**
 ```
-yamrajdham-nextjs/
+yamraj-dham-temple-nextjs/
 ├── src/
 │   ├── app/                    # Next.js App Router
 │   │   ├── globals.css        # Global styles
@@ -227,7 +227,7 @@ export default function Header() {
         <div className="mr-4 hidden md:flex">
           <Link href="/" className="mr-6 flex items-center space-x-2">
             <span className="hidden font-bold sm:inline-block">
-              Yamrajdham Temple
+              Yamraj dham Temple
             </span>
           </Link>
         </div>
@@ -370,8 +370,8 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'Yamrajdham Divine Giving',
-  description: 'Support the construction of Yamrajdham Temple',
+  title: 'Yamraj dham Temple Divine Giving',
+  description: 'Support the construction of Yamraj dham Temple',
 };
 
 export default function RootLayout({
@@ -485,7 +485,7 @@ export default function DonationFormPage() {
             <CardHeader>
               <CardTitle className="text-2xl text-center">Make a Donation</CardTitle>
               <CardDescription className="text-center">
-                Support the construction of Yamrajdham Temple
+                Support the construction of Yamraj dham Temple
               </CardDescription>
             </CardHeader>
             <CardContent>

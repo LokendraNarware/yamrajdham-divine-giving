@@ -13,7 +13,7 @@ const Header = () => {
             <div className="px-4 py-2 bg-black rounded flex items-center justify-center">
               <img 
                 src="/LOGO.png" 
-                alt="Yamrajdham Logo" 
+                alt="Yamraj dham Logo" 
                 className="h-8 object-contain"
               />
             </div>

@@ -20,7 +20,7 @@ export default function DebugDashboardPage() {
 
     setLoading(true);
     try {
-      console.log('🔍 Running debug check for user:', user.id, user.email);
+      console.log('Running debug check for user:', user.id, user.email);
 
       // Check 1: User profile by ID
       const { data: profileById, error: profileByIdError } = await supabase
@@ -102,10 +102,10 @@ export default function DebugDashboardPage() {
         },
       };
 
-      console.log('🔍 Debug data:', debugData);
+      console.log('Debug data:', debugData);
       setDebugInfo(debugData);
     } catch (error) {
-      console.error('❌ Debug error:', error);
+      console.error('Debug error:', error);
       setDebugInfo({ error: error.message });
     } finally {
       setLoading(false);
@@ -126,7 +126,7 @@ export default function DebugDashboardPage() {
         <div className="max-w-6xl mx-auto">
           <div className="flex justify-between items-center mb-8">
             <div>
-              <h1 className="text-3xl font-bold">🔍 Dashboard Debug</h1>
+              <h1 className="text-3xl font-bold">Dashboard Debug</h1>
               <p className="text-muted-foreground">
                 Debug information for dashboard issues
               </p>
@@ -147,7 +147,7 @@ export default function DebugDashboardPage() {
               {/* Auth User Info */}
               <Card>
                 <CardHeader>
-                  <CardTitle>🔐 Auth User Info</CardTitle>
+                  <CardTitle>Auth User Info</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <pre className="bg-muted p-4 rounded text-sm overflow-auto">
@@ -159,7 +159,7 @@ export default function DebugDashboardPage() {
               {/* Profile by ID */}
               <Card>
                 <CardHeader>
-                  <CardTitle>👤 Profile by Auth ID</CardTitle>
+                  <CardTitle>Profile by Auth ID</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <pre className="bg-muted p-4 rounded text-sm overflow-auto">
@@ -171,7 +171,7 @@ export default function DebugDashboardPage() {
               {/* Profile by Email */}
               <Card>
                 <CardHeader>
-                  <CardTitle>📧 Profile by Email</CardTitle>
+                  <CardTitle>Profile by Email</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <pre className="bg-muted p-4 rounded text-sm overflow-auto">
@@ -183,7 +183,7 @@ export default function DebugDashboardPage() {
               {/* All Users */}
               <Card>
                 <CardHeader>
-                  <CardTitle>👥 All Users ({debugInfo?.allUsers?.count || 0})</CardTitle>
+                  <CardTitle>All Users ({debugInfo?.allUsers?.count || 0})</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <pre className="bg-muted p-4 rounded text-sm overflow-auto max-h-60">
@@ -195,7 +195,7 @@ export default function DebugDashboardPage() {
               {/* All Donations */}
               <Card>
                 <CardHeader>
-                  <CardTitle>💰 All Donations ({debugInfo?.allDonations?.count || 0})</CardTitle>
+                  <CardTitle>All Donations ({debugInfo?.allDonations?.count || 0})</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <pre className="bg-muted p-4 rounded text-sm overflow-auto max-h-60">
@@ -207,7 +207,7 @@ export default function DebugDashboardPage() {
               {/* Donations by Auth ID */}
               <Card>
                 <CardHeader>
-                  <CardTitle>🎯 Donations by Auth ID ({debugInfo?.donationsByAuthId?.count || 0})</CardTitle>
+                  <CardTitle>Donations by Auth ID ({debugInfo?.donationsByAuthId?.count || 0})</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <pre className="bg-muted p-4 rounded text-sm overflow-auto">
@@ -219,7 +219,7 @@ export default function DebugDashboardPage() {
               {/* Donations by Email Profile ID */}
               <Card>
                 <CardHeader>
-                  <CardTitle>📧 Donations by Email Profile ID ({debugInfo?.donationsByEmailId?.count || 0})</CardTitle>
+                  <CardTitle>Donations by Email Profile ID ({debugInfo?.donationsByEmailId?.count || 0})</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <pre className="bg-muted p-4 rounded text-sm overflow-auto">

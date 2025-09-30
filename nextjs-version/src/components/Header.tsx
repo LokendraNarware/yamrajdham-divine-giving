@@ -1,9 +1,10 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Heart, Menu, User, LogOut, Shield } from "lucide-react";
+import { Heart, Menu, User, LogOut, Shield, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
+import { useState } from "react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -15,74 +16,113 @@ import {
 const Header = () => {
   const router = useRouter();
   const { user, signOut } = useAuth();
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const handleSignOut = async () => {
     await signOut();
     router.push('/');
   };
 
+  const toggleMobileMenu = () => {
+    setIsMobileMenuOpen(!isMobileMenuOpen);
+  };
+
+  const scrollToSection = (sectionId: string) => {
+    const element = document.getElementById(sectionId);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' });
+    }
+    setIsMobileMenuOpen(false);
+  };
+
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-transparent backdrop-blur supports-[backdrop-filter]:bg-transparent">
-      <div className="container flex h-16 items-center justify-between px-4">
-        <div className="flex items-center space-x-4">
-          <div className="flex items-center space-x-2">
-            <div className="px-4 py-2 bg-black rounded flex items-center justify-center">
-              <img 
-                src="/LOGO.png" 
-                alt="Yamrajdham Logo" 
-                className="h-8 object-contain"
-              />
-            </div>
+    <header className="sticky top-0 z-50 w-full border-b border-temple-gold/20 bg-temple-cream/95 backdrop-blur-md supports-[backdrop-filter]:bg-temple-cream/80 shadow-temple">
+      <div className="container mx-auto flex h-20 items-center justify-between px-4 max-w-7xl">
+        {/* Logo Section */}
+        <div className="flex items-center">
+          <div className="px-4 py-3 bg-gradient-divine rounded-lg shadow-gold flex items-center justify-center">
+            <img 
+              src="/LOGO.png" 
+              alt="Yamraj Dham Temple Logo" 
+              className="h-12 w-auto object-contain"
+            />
           </div>
         </div>
 
-        <nav className="hidden md:flex items-center space-x-6">
-          <a href="#home" className="text-foreground hover:text-primary transition-colors">
+        {/* Desktop Navigation - Centered */}
+        <nav className="hidden lg:flex items-center space-x-8">
+          <button 
+            onClick={() => scrollToSection('home')} 
+            className="text-temple-charcoal hover:text-temple-peach transition-colors font-medium relative group py-2"
+          >
             Home
-          </a>
-          <a href="#about" className="text-foreground hover:text-primary transition-colors">
+            <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-temple-peach transition-all group-hover:w-full"></span>
+          </button>
+          <button 
+            onClick={() => scrollToSection('about')} 
+            className="text-temple-charcoal hover:text-temple-peach transition-colors font-medium relative group py-2"
+          >
             About
-          </a>
-          <a href="#donate" className="text-foreground hover:text-primary transition-colors">
+            <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-temple-peach transition-all group-hover:w-full"></span>
+          </button>
+          <button 
+            onClick={() => scrollToSection('donate')} 
+            className="text-temple-charcoal hover:text-temple-peach transition-colors font-medium relative group py-2"
+          >
             Donate
-          </a>
-          <a href="#progress" className="text-foreground hover:text-primary transition-colors">
+            <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-temple-peach transition-all group-hover:w-full"></span>
+          </button>
+          <button 
+            onClick={() => scrollToSection('progress')} 
+            className="text-temple-charcoal hover:text-temple-peach transition-colors font-medium relative group py-2"
+          >
             Progress
-          </a>
-          <a href="#prayers" className="text-foreground hover:text-primary transition-colors">
+            <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-temple-peach transition-all group-hover:w-full"></span>
+          </button>
+          <button 
+            onClick={() => scrollToSection('prayers')} 
+            className="text-temple-charcoal hover:text-temple-peach transition-colors font-medium relative group py-2"
+          >
             Prayers
-          </a>
+            <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-temple-peach transition-all group-hover:w-full"></span>
+          </button>
         </nav>
 
-        <div className="flex items-center space-x-2">
+        {/* Action Buttons */}
+        <div className="flex items-center space-x-3">
           {user ? (
             <>
-              <Button variant="divine" size="sm" onClick={() => router.push("/donate")}>
+              <Button 
+                variant="divine" 
+                size="sm" 
+                onClick={() => router.push("/donate")}
+                className="hidden sm:flex items-center gap-2 shadow-temple hover:shadow-divine"
+              >
                 <Heart className="w-4 h-4" />
                 Donate Now
               </Button>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="sm" className="flex items-center gap-2">
+                  <Button variant="ghost" size="sm" className="flex items-center gap-2 hover:bg-temple-soft-peach">
                     <User className="w-4 h-4" />
                     <span className="hidden sm:inline">My Account</span>
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem onClick={() => router.push("/profile")}>
+                <DropdownMenuContent align="end" className="bg-temple-cream border-temple-gold shadow-temple">
+                  <DropdownMenuItem onClick={() => router.push("/profile")} className="hover:bg-temple-soft-peach">
                     <User className="w-4 h-4 mr-2" />
                     Profile
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => router.push("/dashboard")}>
+                  <DropdownMenuItem onClick={() => router.push("/dashboard")} className="hover:bg-temple-soft-peach">
                     <User className="w-4 h-4 mr-2" />
                     Dashboard
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => router.push("/admin/donations")}>
+                  <DropdownMenuItem onClick={() => router.push("/admin/donations")} className="hover:bg-temple-soft-peach">
                     <Shield className="w-4 h-4 mr-2" />
                     Admin Panel
                   </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={handleSignOut}>
+                  <DropdownMenuSeparator className="bg-temple-gold" />
+                  <DropdownMenuItem onClick={handleSignOut} className="hover:bg-temple-soft-peach">
                     <LogOut className="w-4 h-4 mr-2" />
                     Sign Out
                   </DropdownMenuItem>
@@ -91,20 +131,90 @@ const Header = () => {
             </>
           ) : (
             <>
-              <Button variant="outline" size="sm" onClick={() => router.push("/login")}>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={() => router.push("/login")}
+                className="border-temple-gold text-temple-charcoal hover:bg-temple-soft-peach"
+              >
                 Sign In
               </Button>
-              <Button variant="divine" size="sm" onClick={() => router.push("/donate")}>
+              <Button 
+                variant="divine" 
+                size="sm" 
+                onClick={() => router.push("/donate")}
+                className="hidden sm:flex items-center gap-2 shadow-temple hover:shadow-divine"
+              >
                 <Heart className="w-4 h-4" />
                 Donate Now
               </Button>
             </>
           )}
-          <Button variant="ghost" size="icon" className="md:hidden">
-            <Menu className="w-4 h-4" />
+          
+          {/* Mobile Menu Button */}
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            className="lg:hidden hover:bg-temple-soft-peach"
+            onClick={toggleMobileMenu}
+          >
+            {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </Button>
         </div>
       </div>
+
+      {/* Mobile Menu */}
+      {isMobileMenuOpen && (
+        <div className="lg:hidden bg-temple-cream/98 backdrop-blur-md border-t border-temple-gold/20 shadow-temple">
+          <div className="container px-4 py-4 space-y-3">
+            <button 
+              onClick={() => scrollToSection('home')} 
+              className="block w-full text-left text-temple-charcoal hover:text-temple-peach transition-colors font-medium py-2"
+            >
+              Home
+            </button>
+            <button 
+              onClick={() => scrollToSection('about')} 
+              className="block w-full text-left text-temple-charcoal hover:text-temple-peach transition-colors font-medium py-2"
+            >
+              About
+            </button>
+            <button 
+              onClick={() => scrollToSection('donate')} 
+              className="block w-full text-left text-temple-charcoal hover:text-temple-peach transition-colors font-medium py-2"
+            >
+              Donate
+            </button>
+            <button 
+              onClick={() => scrollToSection('progress')} 
+              className="block w-full text-left text-temple-charcoal hover:text-temple-peach transition-colors font-medium py-2"
+            >
+              Progress
+            </button>
+            <button 
+              onClick={() => scrollToSection('prayers')} 
+              className="block w-full text-left text-temple-charcoal hover:text-temple-peach transition-colors font-medium py-2"
+            >
+              Prayers
+            </button>
+            
+            {/* Mobile Action Buttons */}
+            <div className="pt-3 border-t border-temple-gold/20 space-y-2">
+              {!user && (
+                <Button 
+                  variant="divine" 
+                  size="sm" 
+                  onClick={() => router.push("/donate")}
+                  className="w-full flex items-center gap-2 shadow-temple"
+                >
+                  <Heart className="w-4 h-4" />
+                  Donate Now
+                </Button>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </header>
   );
 };

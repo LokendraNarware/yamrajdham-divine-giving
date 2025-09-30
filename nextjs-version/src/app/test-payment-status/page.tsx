@@ -128,7 +128,7 @@ export default function TestPaymentStatusPage() {
         <div className="max-w-6xl mx-auto">
           <div className="flex justify-between items-center mb-8">
             <div>
-              <h1 className="text-3xl font-bold">🧪 Test Payment Status</h1>
+              <h1 className="text-3xl font-bold">Test Payment Status</h1>
               <p className="text-muted-foreground">
                 Manually update donation payment statuses for testing
               </p>

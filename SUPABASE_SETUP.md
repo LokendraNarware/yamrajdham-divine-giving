@@ -1,4 +1,4 @@
-# Yamraj Dham Divine Giving - Supabase Setup
+# Yamraj dham Temple Divine Giving - Supabase Setup
 
 ## Database Setup Instructions
 

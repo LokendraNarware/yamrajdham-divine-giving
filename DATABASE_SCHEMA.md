@@ -1,6 +1,6 @@
-# Yamrajdham Temple Divine Giving - Database Schema
+# Yamraj dham Temple Divine Giving - Database Schema
 
-This document describes the comprehensive database schema for the Yamrajdham Temple Divine Giving platform, designed to support temple donations, prayer requests, and construction progress tracking.
+This document describes the comprehensive database schema for the Yamraj dham Temple Divine Giving platform, designed to support temple donations, prayer requests, and construction progress tracking.
 
 ## Overview
 
@@ -430,4 +430,4 @@ const milestoneUpdate: ConstructionMilestoneUpdate = {
 };
 ```
 
-This comprehensive schema provides a robust foundation for the Yamrajdham Temple Divine Giving platform, supporting all current features while maintaining flexibility for future enhancements.
+This comprehensive schema provides a robust foundation for the Yamraj dham Temple Divine Giving platform, supporting all current features while maintaining flexibility for future enhancements.

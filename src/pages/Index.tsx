@@ -24,10 +24,10 @@ const Index = () => {
           <div className="container px-4">
             <div className="max-w-4xl mx-auto text-center">
               <h2 className="text-3xl md:text-4xl font-bold mb-6">
-                About Yamrajdham Temple
+                About Yamraj dham Temple
               </h2>
               <p className="text-lg text-muted-foreground leading-relaxed mb-8">
-                Yamrajdham Temple is being built as a sacred space for spiritual growth, community 
+                Yamraj dham Temple is being built as a sacred space for spiritual growth, community 
                 gathering, and divine worship. Our vision is to create a beautiful traditional temple 
                 that honors ancient architectural principles while serving the spiritual needs of 
                 devotees for generations to come.
@@ -84,7 +84,7 @@ const Index = () => {
                 <div className="px-4 py-2 bg-black rounded flex items-center justify-center">
                   <img 
                     src="/LOGO.png" 
-                    alt="Yamrajdham Logo" 
+                    alt="Yamraj dham Logo" 
                     className="h-8 object-contain"
                   />
                 </div>
@@ -134,7 +134,7 @@ const Index = () => {
           </div>
           
           <div className="border-t border-background/20 mt-8 pt-8 text-center text-sm opacity-80">
-            <p>&copy; 2024 Yamrajdham Temple. All rights reserved. Built with devotion and dedication.</p>
+            <p>&copy; 2024 Yamraj dham Temple. All rights reserved. Built with devotion and dedication.</p>
           </div>
         </div>
       </footer>

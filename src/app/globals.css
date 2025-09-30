@@ -2,62 +2,72 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Yamrajdham Temple Design System - Spiritual & Traditional Colors */
+/* Yamraj dham Temple Design System - Spiritual & Traditional Colors */
 
 @layer base {
   :root {
-    /* Temple-inspired color palette */
-    --background: 45 20% 98%;
-    --foreground: 25 45% 15%;
+    /* Refined Yamraj dham Temple Color Scheme - Elegant & Sacred */
+    
+    /* Primary Colors (Softer & More Elegant) */
+    --background: 45 20% 98%; /* Cream #F8F6F0 */
+    --foreground: 0 0% 17%; /* Charcoal #2C2C2C */
 
-    --card: 45 30% 97%;
-    --card-foreground: 25 45% 15%;
+    --card: 0 0% 100%; /* Pure White #FFFFFF */
+    --card-foreground: 0 0% 17%; /* Charcoal #2C2C2C */
 
-    --popover: 45 30% 97%;
-    --popover-foreground: 25 45% 15%;
+    --popover: 0 0% 100%; /* Pure White #FFFFFF */
+    --popover-foreground: 0 0% 17%; /* Charcoal #2C2C2C */
 
-    /* Saffron primary - sacred temple color */
-    --primary: 25 85% 55%;
-    --primary-foreground: 45 20% 98%;
-    --primary-glow: 30 90% 65%;
+    /* Warm Peach-Orange - Primary */
+    --primary: 30 100% 70%; /* #ffa968 */
+    --primary-foreground: 0 0% 100%; /* White */
+    --primary-glow: 30 100% 75%; /* #ffb380 */
 
-    /* Gold secondary - divine accent */
-    --secondary: 45 75% 70%;
-    --secondary-foreground: 25 45% 15%;
-    --secondary-rich: 40 80% 50%;
+    /* Deep Amber - Secondary */
+    --secondary: 45 85% 40%; /* #B8860B */
+    --secondary-foreground: 0 0% 100%; /* White */
+    --secondary-rich: 45 90% 50%; /* #DAA520 */
 
-    /* Earth tone muted */
-    --muted: 40 25% 92%;
-    --muted-foreground: 25 30% 45%;
+    /* Neutral Base */
+    --muted: 45 20% 98%; /* Cream #F8F6F0 */
+    --muted-foreground: 0 0% 35%; /* Warm Grey #5A5A5A */
 
-    /* Sacred accent colors */
-    --accent: 45 75% 70%;
-    --accent-foreground: 25 45% 15%;
+    /* Rich Burgundy - Accent */
+    --accent: 340 70% 35%; /* #8B1538 */
+    --accent-foreground: 0 0% 100%; /* White */
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 45 20% 98%;
+    --destructive: 340 70% 35%; /* Rich Burgundy #8B1538 */
+    --destructive-foreground: 0 0% 100%; /* White */
 
-    --border: 40 25% 88%;
-    --input: 40 25% 90%;
-    --ring: 25 85% 55%;
+    --border: 45 85% 40%; /* Antique Gold #B8860B */
+    --input: 45 20% 98%; /* Cream #F8F6F0 */
+    --ring: 30 100% 70%; /* Warm Peach-Orange #ffa968 */
 
     --radius: 0.75rem;
 
-    /* Temple-specific colors */
-    --temple-saffron: 25 85% 55%;
-    --temple-gold: 45 75% 70%;
-    --temple-earth: 30 40% 85%;
-    --temple-sacred: 25 90% 60%;
+    /* Temple-specific colors (Refined) */
+    --temple-saffron: 30 100% 70%; /* #ffa968 */
+    --temple-gold: 45 85% 40%; /* #B8860B */
+    --temple-earth: 45 85% 40%; /* #B8860B */
+    --temple-sacred: 280 60% 40%; /* #6A1B9A */
+    --temple-crimson: 340 70% 35%; /* #8B1538 */
+    --temple-maroon: 280 60% 40%; /* #6A1B9A */
+    --temple-charcoal: 0 0% 17%; /* #2C2C2C */
+    --temple-grey: 0 0% 35%; /* #5A5A5A */
+    --temple-sand: 45 20% 98%; /* #F8F6F0 */
+    --temple-muted-gold: 45 85% 40%; /* #B8860B */
 
     /* Gradients for spiritual feel */
     --gradient-divine: linear-gradient(135deg, hsl(var(--temple-saffron)), hsl(var(--primary-glow)));
-    --gradient-peaceful: linear-gradient(180deg, hsl(var(--background)), hsl(var(--temple-earth)));
-    --gradient-gold: linear-gradient(45deg, hsl(var(--temple-gold)), hsl(var(--secondary-rich)));
+    --gradient-peaceful: linear-gradient(180deg, hsl(var(--background)), hsl(var(--temple-sand)));
+    --gradient-gold: linear-gradient(45deg, hsl(var(--temple-gold)), hsl(var(--temple-saffron)));
+    --gradient-crimson: linear-gradient(135deg, hsl(var(--temple-crimson)), hsl(var(--secondary)));
     
     /* Shadows with warm glow */
     --shadow-temple: 0 10px 30px -10px hsl(var(--temple-saffron) / 0.3);
     --shadow-gold: 0 5px 20px -5px hsl(var(--temple-gold) / 0.4);
-    --shadow-divine: 0 0 40px hsl(var(--temple-sacred) / 0.2);
+    --shadow-divine: 0 0 40px hsl(var(--temple-saffron) / 0.2);
+    --shadow-crimson: 0 5px 20px -5px hsl(var(--temple-crimson) / 0.3);
 
     /* Animations */
     --transition-spiritual: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);

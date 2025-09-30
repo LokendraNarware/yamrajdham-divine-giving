@@ -1,5 +1,5 @@
 -- Migration: 001_initial_schema.sql
--- Description: Initial database schema for Yamrajdham Temple Divine Giving platform
+-- Description: Initial database schema for Yamraj dham Temple Divine Giving platform
 -- Created: 2024-12-28
 
 -- Enable necessary extensions
@@ -169,7 +169,7 @@ SELECT * FROM (VALUES
     ('current_funding', '3250000', 'Current funding amount in rupees', 'number'),
     ('donor_count', '1247', 'Total number of donors', 'number'),
     ('days_left', '180', 'Days remaining for funding campaign', 'number'),
-    ('temple_name', 'Yamrajdham Temple', 'Name of the temple being constructed', 'string'),
+    ('temple_name', 'Yamraj dham Temple', 'Name of the temple being constructed', 'string'),
     ('contact_phone', '+91 98765 43210', 'Temple contact phone number', 'string'),
     ('contact_email', 'info@yamrajdham.org', 'Temple contact email', 'string'),
     ('temple_address', 'Temple Grounds, Sacred City', 'Temple location address', 'string'),

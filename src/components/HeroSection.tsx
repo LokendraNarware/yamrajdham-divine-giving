@@ -9,7 +9,7 @@ const HeroSection = () => {
       <div className="absolute inset-0 z-0">
         <img 
           src={templeHeroImage} 
-          alt="Yamrajdham Temple" 
+          alt="Yamraj dham Temple" 
           className="w-full h-full object-cover"
         />
         <div className="absolute inset-0 bg-gradient-to-r from-background/80 via-background/50 to-transparent"></div>
@@ -22,7 +22,7 @@ const HeroSection = () => {
             <span className="inline-flex items-center gap-2 bg-gradient-divine text-primary-foreground px-4 py-2 rounded-full text-sm font-medium">
               <img 
                 src="/LOGO.png" 
-                alt="Yamrajdham Logo" 
+                alt="Yamraj dham Logo" 
                 className="w-4 h-4 object-contain"
               />
               Sacred Temple Construction
@@ -31,7 +31,7 @@ const HeroSection = () => {
           
           <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold mb-6 leading-tight">
             <span className="bg-gradient-divine bg-clip-text text-transparent">
-              Yamrajdham
+              Yamraj dham Temple
             </span>
             <br />
             <span className="text-foreground">Divine Temple</span>

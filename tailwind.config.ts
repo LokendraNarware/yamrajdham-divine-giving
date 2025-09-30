@@ -58,7 +58,13 @@ export default {
 					saffron: 'hsl(var(--temple-saffron))',
 					gold: 'hsl(var(--temple-gold))',
 					earth: 'hsl(var(--temple-earth))',
-					sacred: 'hsl(var(--temple-sacred))'
+					sacred: 'hsl(var(--temple-sacred))',
+					crimson: 'hsl(var(--temple-crimson))',
+					maroon: 'hsl(var(--temple-maroon))',
+					charcoal: 'hsl(var(--temple-charcoal))',
+					grey: 'hsl(var(--temple-grey))',
+					sand: 'hsl(var(--temple-sand))',
+					mutedGold: 'hsl(var(--temple-muted-gold))'
 				},
 				sidebar: {
 					DEFAULT: 'hsl(var(--sidebar-background))',
@@ -74,12 +80,14 @@ export default {
 			backgroundImage: {
 				'gradient-divine': 'var(--gradient-divine)',
 				'gradient-peaceful': 'var(--gradient-peaceful)',
-				'gradient-gold': 'var(--gradient-gold)'
+				'gradient-gold': 'var(--gradient-gold)',
+				'gradient-crimson': 'var(--gradient-crimson)'
 			},
 			boxShadow: {
 				'temple': 'var(--shadow-temple)',
 				'gold': 'var(--shadow-gold)',
-				'divine': 'var(--shadow-divine)'
+				'divine': 'var(--shadow-divine)',
+				'crimson': 'var(--shadow-crimson)'
 			},
 			transitionTimingFunction: {
 				'spiritual': 'var(--transition-spiritual)',

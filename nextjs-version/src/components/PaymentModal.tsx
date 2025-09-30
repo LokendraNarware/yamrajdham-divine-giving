@@ -222,7 +222,7 @@ const PaymentModal = ({
         <DialogHeader>
           <DialogTitle className="text-center">Complete Your Donation</DialogTitle>
           <DialogDescription className="text-center">
-            Support the construction of Yamrajdham Temple
+            Support the construction of Yamraj dham Temple
           </DialogDescription>
         </DialogHeader>
 
@@ -311,11 +311,11 @@ const PaymentModal = ({
           {/* Security Badge */}
           <div className="text-center space-y-2">
             <Badge variant="secondary" className="text-xs">
-              🔒 Secure Payment • SSL Encrypted
+              Secure Payment • SSL Encrypted
             </Badge>
             {CASHFREE_CONFIG.DEMO_MODE && (
               <Badge variant="outline" className="text-xs text-yellow-600 border-yellow-300">
-                🧪 Demo Mode • Testing Only
+                Demo Mode • Testing Only
               </Badge>
             )}
           </div>

@@ -21,10 +21,10 @@ const ProgressTracker = () => {
     <div className="container mx-auto px-4">
         <div className="text-center mb-12">
           <div className="flex items-center justify-center gap-2 mb-4">
-            <span className="text-orange-600 font-medium">🏗️ Temple Construction Progress</span>
+            <span className="text-temple-gold font-medium">Temple Construction Progress</span>
           </div>
           <h2 className="text-3xl md:text-4xl font-bold mb-4">
-            📈 Together, we are bringing Yamrajdham Temple to life.
+            Together, we are bringing Yamraj dham Temple to life.
           </h2>
         </div>
 
@@ -61,9 +61,9 @@ const ProgressTracker = () => {
                 <span className="font-semibold">Milestones:</span>
               </div>
               <div className="flex flex-wrap justify-center gap-2">
-                <span className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm">✅ Foundation complete</span>
-                <span className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm">✅ Structure complete</span>
-                <span className="px-3 py-1 bg-orange-100 text-orange-800 rounded-full text-sm">🔨 Domes & interiors in progress</span>
+                <span className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm">Foundation complete</span>
+                <span className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm">Structure complete</span>
+                <span className="px-3 py-1 bg-temple-cream text-temple-gold rounded-full text-sm">Domes & interiors in progress</span>
               </div>
             </div>
 
@@ -80,7 +80,7 @@ const ProgressTracker = () => {
             
             <Card className="bg-gradient-gold">
               <CardContent className="pt-6">
-                <h3 className="font-semibold text-lg mb-2">✨ Latest Update (Dec 2024)</h3>
+                <h3 className="font-semibold text-lg mb-2">Latest Update (Dec 2024)</h3>
                 <p className="text-sm text-secondary-foreground">
                   Traditional domes & stone carvings are now being crafted by master artisans.
                 </p>

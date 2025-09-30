@@ -21,7 +21,7 @@ const DonationSection = () => {
   const donationTypes = [
     {
       title: "₹101 – ईंट दान (Brick Seva)",
-      description: "Offer sacred bricks that will form the walls of Yamrajdham Temple.",
+      description: "Offer sacred bricks that will form the walls of Yamraj dham Temple.",
       amount: "101",
       icon: <Building className="w-6 h-6 text-primary" />
     },
@@ -70,7 +70,7 @@ const DonationSection = () => {
     <div className="container mx-auto px-4">
         <div className="text-center mb-12">
           <div className="flex items-center justify-center gap-2 mb-4">
-            <span className="text-orange-600 font-medium">🙏 Donate & Support</span>
+            <span className="text-temple-gold font-medium">Donate & Support</span>
           </div>
           <h2 className="text-3xl md:text-4xl font-bold mb-4">
             Every rupee builds a brick of devotion.
@@ -123,13 +123,13 @@ const DonationSection = () => {
                   />
                 </div>
 
-                <Button variant="sacred" size="lg" className="w-full" onClick={handleQuickDonate}>
-                  <Heart className="w-4 h-4" />
-                  Donate Today – Be Part of the Divine Journey
-                </Button>
+        <Button variant="brown" size="lg" className="w-full" onClick={handleQuickDonate}>
+          <Heart className="w-4 h-4" />
+          Donate Today – Be Part of the Divine Journey
+        </Button>
 
                 <div className="text-xs text-muted-foreground text-center">
-                  👉 Secure payment • Tax benefits under 80G • Transparent fund usage
+                  Secure payment • Transparent fund usage
                 </div>
               </CardContent>
             </Card>
@@ -156,14 +156,11 @@ const DonationSection = () => {
         <div className="mt-12 text-center">
           <Card className="max-w-3xl mx-auto bg-gradient-peaceful">
             <CardContent className="pt-6">
-              <h3 className="font-semibold text-lg mb-2">Tax Benefits & Trust Information</h3>
+              <h3 className="font-semibold text-lg mb-2">Trust Information</h3>
               <p className="text-sm text-muted-foreground mb-4">
-                All donations are eligible for 80G tax deduction under Income Tax Act. 
                 Official receipts will be provided for all donations.
               </p>
               <div className="flex flex-wrap justify-center gap-4 text-xs text-muted-foreground">
-                <span>• 12A Registration Available</span>
-                <span>• 80G Certificate Provided</span>
                 <span>• Transparent Fund Usage</span>
                 <span>• Regular Progress Updates</span>
               </div>

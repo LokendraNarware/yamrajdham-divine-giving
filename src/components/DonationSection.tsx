@@ -120,7 +120,7 @@ const DonationSection = () => {
                 </Button>
 
                 <div className="text-xs text-muted-foreground text-center">
-                  Secure payment • Tax benefits available • 80G receipt provided
+                  Secure payment • Transparent fund usage
                 </div>
               </CardContent>
             </Card>
@@ -147,14 +147,11 @@ const DonationSection = () => {
         <div className="mt-12 text-center">
           <Card className="max-w-3xl mx-auto bg-gradient-peaceful">
             <CardContent className="pt-6">
-              <h3 className="font-semibold text-lg mb-2">Tax Benefits & Trust Information</h3>
+              <h3 className="font-semibold text-lg mb-2">Trust Information</h3>
               <p className="text-sm text-muted-foreground mb-4">
-                All donations are eligible for 80G tax deduction under Income Tax Act. 
                 Official receipts will be provided for all donations.
               </p>
               <div className="flex flex-wrap justify-center gap-4 text-xs text-muted-foreground">
-                <span>• 12A Registration Available</span>
-                <span>• 80G Certificate Provided</span>
                 <span>• Transparent Fund Usage</span>
                 <span>• Regular Progress Updates</span>
               </div>

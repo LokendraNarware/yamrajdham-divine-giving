@@ -13,7 +13,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    console.log('🔄 Updating donation status:', {
+    console.log('Updating donation status:', {
       donationId,
       status,
       paymentId
@@ -33,14 +33,14 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (error) {
-      console.error('❌ Error updating donation status:', error);
+      console.error('Error updating donation status:', error);
       return NextResponse.json(
         { error: 'Failed to update donation status' },
         { status: 500 }
       );
     }
 
-    console.log('✅ Donation status updated successfully:', updatedDonation);
+    console.log('Donation status updated successfully:', updatedDonation);
 
     return NextResponse.json({
       success: true,
@@ -49,7 +49,7 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('❌ Error in update-status:', error);
+    console.error('Error in update-status:', error);
     
     return NextResponse.json(
       { error: `Failed to update donation status: ${error instanceof Error ? error.message : 'Unknown error'}` },

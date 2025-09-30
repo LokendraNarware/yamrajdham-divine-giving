@@ -27,19 +27,19 @@ export default function TestAutoAccountPage() {
 
     setLoading(true);
     try {
-      console.log('🧪 Testing auto account creation for:', email);
+      console.log('Testing auto account creation for:', email);
       
       // Check if user already exists
       const userResult = await getUserByEmail(email);
       
       if (userResult.success && userResult.data) {
-        console.log('✅ User already exists:', userResult.data);
+        console.log('User already exists:', userResult.data);
         toast({
           title: "User Found",
           description: `User ${userResult.data.email} already exists with ID: ${userResult.data.id}`,
         });
       } else {
-        console.log('🆕 Creating new user account...');
+        console.log('Creating new user account...');
         
         const userData = {
           email: email,
@@ -50,7 +50,7 @@ export default function TestAutoAccountPage() {
 
         const createUserResult = await createUser(userData);
         if (createUserResult.success && createUserResult.data) {
-          console.log('✅ New user account created:', createUserResult.data);
+          console.log('New user account created:', createUserResult.data);
           toast({
             title: "Account Created",
             description: `New account created for ${createUserResult.data.email} with ID: ${createUserResult.data.id}`,
@@ -61,7 +61,7 @@ export default function TestAutoAccountPage() {
         }
       }
     } catch (error: any) {
-      console.error('❌ Error:', error);
+      console.error('Error:', error);
       toast({
         title: "Error",
         description: error.message,
@@ -74,7 +74,7 @@ export default function TestAutoAccountPage() {
 
   return (
     <div className="container mx-auto p-4 max-w-2xl">
-      <h1 className="text-3xl font-bold mb-6">🧪 Auto Account Creation Test</h1>
+      <h1 className="text-3xl font-bold mb-6">Auto Account Creation Test</h1>
       
       <Card>
         <CardHeader>
@@ -123,7 +123,7 @@ export default function TestAutoAccountPage() {
 
       <Card className="mt-6">
         <CardHeader>
-          <CardTitle>📋 How It Works</CardTitle>
+          <CardTitle>How It Works</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-2 text-sm">

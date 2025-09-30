@@ -41,11 +41,31 @@ export default {
           foreground: 'var(--color-destructive-foreground)'
         },
         temple: {
-          saffron: 'var(--color-temple-saffron)',
+          peach: 'var(--color-temple-peach)',
+          coral: 'var(--color-temple-coral)',
           gold: 'var(--color-temple-gold)',
-          earth: 'var(--color-temple-earth)',
-          sacred: 'var(--color-temple-sacred)'
+          bronze: 'var(--color-temple-bronze)',
+          brown: 'var(--color-temple-brown)',
+          charcoal: 'var(--color-temple-charcoal)',
+          grey: 'var(--color-temple-grey)',
+          cream: 'var(--color-temple-cream)',
+          antiqueGold: 'var(--color-temple-antique-gold)',
+          softPeach: 'var(--color-temple-soft-peach)'
         }
+      },
+      backgroundImage: {
+        'gradient-divine': 'var(--gradient-divine)',
+        'gradient-peaceful': 'var(--gradient-peaceful)',
+        'gradient-gold': 'var(--gradient-gold)',
+        'gradient-coral': 'var(--gradient-coral)',
+        'gradient-brown': 'var(--gradient-brown)'
+      },
+      boxShadow: {
+        'temple': 'var(--shadow-temple)',
+        'gold': 'var(--shadow-gold)',
+        'divine': 'var(--shadow-divine)',
+        'coral': 'var(--shadow-coral)',
+        'brown': 'var(--shadow-brown)'
       }
     }
   }

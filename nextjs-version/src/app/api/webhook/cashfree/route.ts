@@ -49,7 +49,7 @@ async function handlePaymentSuccess(data: any) {
   const order = data.order;
   const payment = data.payment;
   
-  console.log('✅ Payment successful:', {
+  console.log('Payment successful:', {
     orderId: order.order_id,
     amount: order.order_amount,
     paymentId: payment.payment_id,
@@ -71,12 +71,12 @@ async function handlePaymentSuccess(data: any) {
       .single();
 
     if (error) {
-      console.error('❌ Error updating donation status:', error);
+      console.error('Error updating donation status:', error);
     } else {
-      console.log('✅ Donation status updated successfully:', updatedDonation);
+      console.log('Donation status updated successfully:', updatedDonation);
     }
   } catch (error) {
-    console.error('❌ Error in handlePaymentSuccess:', error);
+    console.error('Error in handlePaymentSuccess:', error);
   }
 }
 
@@ -84,7 +84,7 @@ async function handlePaymentFailed(data: any) {
   const order = data.order;
   const payment = data.payment;
   
-  console.log('❌ Payment failed:', {
+  console.log('Payment failed:', {
     orderId: order.order_id,
     amount: order.order_amount,
     failureReason: payment.payment_message
@@ -105,19 +105,19 @@ async function handlePaymentFailed(data: any) {
       .single();
 
     if (error) {
-      console.error('❌ Error updating donation status:', error);
+      console.error('Error updating donation status:', error);
     } else {
-      console.log('✅ Donation status updated to failed:', updatedDonation);
+      console.log('Donation status updated to failed:', updatedDonation);
     }
   } catch (error) {
-    console.error('❌ Error in handlePaymentFailed:', error);
+    console.error('Error in handlePaymentFailed:', error);
   }
 }
 
 async function handlePaymentDropped(data: any) {
   const order = data.order;
   
-  console.log('⚠️ Payment dropped by user:', {
+  console.log('Payment dropped by user:', {
     orderId: order.order_id,
     amount: order.order_amount
   });
@@ -135,12 +135,12 @@ async function handlePaymentDropped(data: any) {
       .single();
 
     if (error) {
-      console.error('❌ Error updating donation status:', error);
+      console.error('Error updating donation status:', error);
     } else {
-      console.log('✅ Donation status updated (dropped):', updatedDonation);
+      console.log('Donation status updated (dropped):', updatedDonation);
     }
   } catch (error) {
-    console.error('❌ Error in handlePaymentDropped:', error);
+    console.error('Error in handlePaymentDropped:', error);
   }
 }
 

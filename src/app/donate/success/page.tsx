@@ -98,7 +98,7 @@ export default function PaymentSuccessPage() {
           <div className="mr-4 hidden md:flex">
             <Link href="/" className="mr-6 flex items-center space-x-2">
               <span className="hidden font-bold sm:inline-block text-primary">
-                Yamrajdham Temple
+                Yamraj dham Temple
               </span>
             </Link>
           </div>
@@ -123,7 +123,7 @@ export default function PaymentSuccessPage() {
                   Payment Successful!
                 </h1>
                 <p className="text-green-700">
-                  Thank you for your generous donation to Yamrajdham Temple.
+                  Thank you for your generous donation to Yamraj dham Temple.
                 </p>
               </div>
             </CardContent>
@@ -184,22 +184,13 @@ export default function PaymentSuccessPage() {
           {/* Receipt Actions */}
           <Card className="mb-6">
             <CardHeader>
-              <CardTitle>Receipt & Tax Benefits</CardTitle>
+              <CardTitle>Receipt</CardTitle>
               <CardDescription>
-                Download your receipt for tax deduction purposes
+                Download your receipt for your records
               </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                <div className="bg-blue-50 p-4 rounded-lg">
-                  <h4 className="font-semibold text-blue-800 mb-2">Tax Benefits</h4>
-                  <ul className="text-sm text-blue-700 space-y-1">
-                    <li>• Eligible for 80G tax deduction under Income Tax Act</li>
-                    <li>• Receipt valid for current financial year</li>
-                    <li>• Keep this receipt for your tax filing</li>
-                  </ul>
-                </div>
-                
                 <div className="flex gap-3">
                   <Button onClick={handleDownloadReceipt} variant="outline" className="flex-1">
                     <Download className="w-4 h-4 mr-2" />

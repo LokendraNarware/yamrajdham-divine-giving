@@ -1,6 +1,6 @@
 # Cashfree Payment Gateway Integration
 
-This document provides instructions for setting up Cashfree payment gateway integration for the Yamrajdham Divine Giving donation system.
+This document provides instructions for setting up Cashfree payment gateway integration for the Yamraj dham Temple Divine Giving donation system.
 
 ## ✅ IMPLEMENTATION COMPLETE
 

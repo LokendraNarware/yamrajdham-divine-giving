@@ -10,8 +10,8 @@ import { ReactQueryProvider } from '@/components/providers/react-query-provider'
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'Yamrajdham Divine Giving',
-  description: 'Support the construction of Yamrajdham Temple',
+  title: 'Yamraj dham Temple Divine Giving',
+  description: 'Support the construction of Yamraj dham Temple',
 };
 
 export default function RootLayout({

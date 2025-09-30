@@ -1,4 +1,4 @@
-// TypeScript types for Yamrajdham Temple Divine Giving Database Schema
+// TypeScript types for Yamraj dham Temple Divine Giving Database Schema
 // Generated to match the database schema
 
 export type Json =

@@ -11,7 +11,7 @@ export default function HomePage() {
           <div className="mr-4 hidden md:flex">
             <Link href="/" className="mr-6 flex items-center space-x-2">
               <span className="hidden font-bold sm:inline-block text-primary">
-                Yamrajdham Temple
+                Yamraj dham Temple
               </span>
             </Link>
           </div>
@@ -31,7 +31,7 @@ export default function HomePage() {
           <div className="space-y-4">
             <h1 className="text-4xl font-bold tracking-tight text-foreground sm:text-6xl">
               Welcome to{' '}
-              <span className="text-primary">Yamrajdham</span>{' '}
+              <span className="text-primary">Yamraj dham Temple</span>{' '}
               Divine Giving
             </h1>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
@@ -43,7 +43,7 @@ export default function HomePage() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-12">
             <Card>
               <CardHeader>
-                <CardTitle className="text-primary">✅ Next.js Setup</CardTitle>
+                <CardTitle className="text-primary">Next.js Setup</CardTitle>
                 <CardDescription>Modern React framework with App Router</CardDescription>
               </CardHeader>
               <CardContent>
@@ -55,7 +55,7 @@ export default function HomePage() {
 
             <Card>
               <CardHeader>
-                <CardTitle className="text-primary">🔒 Cashfree Integration</CardTitle>
+                <CardTitle className="text-primary">Cashfree Integration</CardTitle>
                 <CardDescription>Secure payment processing</CardDescription>
               </CardHeader>
               <CardContent>
@@ -67,7 +67,7 @@ export default function HomePage() {
 
             <Card>
               <CardHeader>
-                <CardTitle className="text-primary">🎨 Temple Theme</CardTitle>
+                <CardTitle className="text-primary">Temple Theme</CardTitle>
                 <CardDescription>Sacred saffron and gold design</CardDescription>
               </CardHeader>
               <CardContent>
@@ -91,7 +91,7 @@ export default function HomePage() {
           {/* Migration Status */}
           <Card className="mt-12 border-green-200 bg-green-50">
             <CardHeader>
-              <CardTitle className="text-green-800">🚀 Migration Progress</CardTitle>
+              <CardTitle className="text-green-800">Migration Progress</CardTitle>
               <CardDescription className="text-green-700">
                 Next.js setup is complete and ready for component migration
               </CardDescription>
@@ -100,23 +100,23 @@ export default function HomePage() {
               <div className="space-y-2 text-sm text-green-700">
                 <div className="flex items-center space-x-2">
                   <span className="w-2 h-2 bg-green-500 rounded-full"></span>
-                  <span>✅ Next.js project created</span>
+                  <span>Next.js project created</span>
                 </div>
                 <div className="flex items-center space-x-2">
                   <span className="w-2 h-2 bg-green-500 rounded-full"></span>
-                  <span>✅ Dependencies installed</span>
+                  <span>Dependencies installed</span>
                 </div>
                 <div className="flex items-center space-x-2">
                   <span className="w-2 h-2 bg-green-500 rounded-full"></span>
-                  <span>✅ Temple theme configured</span>
+                  <span>Temple theme configured</span>
                 </div>
                 <div className="flex items-center space-x-2">
                   <span className="w-2 h-2 bg-green-500 rounded-full"></span>
-                  <span>✅ Cashfree API routes created</span>
+                  <span>Cashfree API routes created</span>
                 </div>
                 <div className="flex items-center space-x-2">
                   <span className="w-2 h-2 bg-green-500 rounded-full"></span>
-                  <span>✅ Environment variables set</span>
+                  <span>Environment variables set</span>
                 </div>
               </div>
             </CardContent>
