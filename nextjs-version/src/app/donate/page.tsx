@@ -24,7 +24,6 @@ declare global {
     };
   }
 }
-import Header from "@/components/Header";
 
 const donationFormSchema = z.object({
   amount: z.string().min(1, "Amount is required"),
@@ -481,10 +480,9 @@ export default function DonatePage() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <Header />
+    <div className="w-full">
 
-      <main className="container mx-auto py-8 px-4">
+      <div className="container mx-auto py-8 px-4">
         <div className="max-w-2xl mx-auto">
           <Card className="shadow-lg">
             <CardHeader className="text-center pb-6">
@@ -767,7 +765,7 @@ export default function DonatePage() {
             </CardContent>
           </Card>
         </div>
-      </main>
+      </div>
 
     </div>
   );

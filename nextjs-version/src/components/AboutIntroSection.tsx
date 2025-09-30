@@ -16,7 +16,7 @@ const AboutIntroSection = () => {
                 🌸 Our Sacred Purpose
               </h3>
               <p className="text-temple-grey leading-relaxed">
-                Dharam Dham Paavan Nagari Trust stands as a beacon of faith, dedicated to the construction of Yamrajdham Temple. We believe in creating a sacred space that serves not just as a place of worship, but as a center for spiritual growth, community service, and cultural preservation.
+                DHARAM DHAM TRUST stands as a beacon of faith, dedicated to the construction of Yamrajdham Temple. We believe in creating a sacred space that serves not just as a place of worship, but as a center for spiritual growth, community service, and cultural preservation.
               </p>
             </div>
             

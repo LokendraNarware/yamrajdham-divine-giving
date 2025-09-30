@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Donate to Yamrajdham Temple - Support Temple Construction",
-  description: "Make a donation to support the construction of Yamrajdham Temple. Your generous contribution helps build a sacred space for spiritual growth and community worship in Rajgarh Churu, Rajasthan.",
+  description: "Make a donation to support the construction of Yamrajdham Temple. Your generous contribution helps build a sacred space for spiritual growth and community worship in Taranagar Churu, Rajasthan.",
   keywords: [
     "Donate to Yamrajdham Temple",
     "Temple Donation",
@@ -10,7 +10,7 @@ export const metadata: Metadata = {
     "Temple Construction Fund",
     "Spiritual Giving",
     "Hindu Temple Donation",
-    "Dharam Dham Paavan Nagari Trust",
+    "DHARAM DHAM TRUST",
     "Temple Seva",
     "Divine Giving",
     "Sacred Donation"

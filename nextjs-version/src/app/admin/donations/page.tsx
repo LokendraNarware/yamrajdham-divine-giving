@@ -2,68 +2,77 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { getDonations, updateDonationPayment } from "@/services/donations";
-import { useToast } from "@/hooks/use-toast";
-import { RefreshCw, CheckCircle, XCircle, Shield, LogOut } from "lucide-react";
-import Header from "@/components/Header";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
+import { Shield, AlertCircle, DollarSign, TrendingUp, Users, Clock } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import DataTable from "@/components/admin/DataTable";
 
 interface Donation {
   id: string;
-  user_id: string | null;
+  user_id: string;
   amount: number;
-  donation_type: string | null;
-  payment_status: 'pending' | 'completed' | 'failed' | 'refunded';
-  payment_id: string | null;
-  payment_gateway: string | null;
-  receipt_number: string | null;
-  is_anonymous: boolean | null;
-  dedication_message: string | null;
-  preacher_name: string | null;
-  created_at: string | null;
-  updated_at: string | null;
-  users?: {
-    id: string;
+  donation_type: string;
+  payment_status: string;
+  payment_id: string;
+  payment_gateway: string;
+  receipt_number: string;
+  is_anonymous: boolean;
+  dedication_message: string;
+  preacher_name: string;
+  created_at: string;
+  updated_at: string;
+  user?: {
     name: string;
     email: string;
     mobile: string;
-  } | null;
+  };
 }
 
-export default function DonationsListPage() {
-  const [donations, setDonations] = useState<Donation[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
+interface DashboardStats {
+  totalDonations: number;
+  totalAmount: number;
+  pendingDonations: number;
+  completedDonations: number;
+  failedDonations: number;
+  refundedDonations: number;
+}
+
+export default function DonationsManagement() {
   const [isAdmin, setIsAdmin] = useState(false);
   const [checkingAuth, setCheckingAuth] = useState(true);
+  const [donations, setDonations] = useState<Donation[]>([]);
+  const [stats, setStats] = useState<DashboardStats>({
+    totalDonations: 0,
+    totalAmount: 0,
+    pendingDonations: 0,
+    completedDonations: 0,
+    failedDonations: 0,
+    refundedDonations: 0,
+  });
+  const [loading, setLoading] = useState(true);
+  const [selectedDonation, setSelectedDonation] = useState<Donation | null>(null);
   const { toast } = useToast();
   const { user, signOut } = useAuth();
   const router = useRouter();
 
-  const fetchDonations = async () => {
-    try {
-      const result = await getDonations();
-      if (result.success) {
-        setDonations(result.data || []);
-      } else {
-        throw new Error('Failed to fetch donations');
-      }
-    } catch (error) {
-      console.error('Error fetching donations:', error);
-      toast({
-        title: "Error",
-        description: "Failed to fetch donations",
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
-      setRefreshing(false);
-    }
-  };
+  // Hide global header and footer for admin pages
+  useEffect(() => {
+    const style = document.createElement('style');
+    style.textContent = `
+      header { display: none !important; }
+      footer { display: none !important; }
+      main { padding-top: 0 !important; }
+    `;
+    document.head.appendChild(style);
+    
+    return () => {
+      document.head.removeChild(style);
+    };
+  }, []);
 
   // Check admin authentication
   useEffect(() => {
@@ -74,7 +83,6 @@ export default function DonationsListPage() {
       }
 
       try {
-        // Check if user exists in admin table
         const { data: adminData, error } = await supabase
           .from('admin')
           .select('*')
@@ -83,13 +91,7 @@ export default function DonationsListPage() {
           .single();
 
         if (error || !adminData) {
-          console.log('User is not an admin:', error);
-          toast({
-            title: "Access Denied",
-            description: "You don't have admin privileges to access this page.",
-            variant: "destructive",
-          });
-          router.push('/dashboard');
+          setCheckingAuth(false);
           return;
         }
 
@@ -98,84 +100,215 @@ export default function DonationsListPage() {
         fetchDonations();
       } catch (error) {
         console.error('Error checking admin auth:', error);
-        toast({
-          title: "Error",
-          description: "Failed to verify admin access.",
-          variant: "destructive",
-        });
-        router.push('/dashboard');
+        setCheckingAuth(false);
       }
     };
 
     checkAdminAuth();
-  }, [user, router, toast]);
+  }, [user, router]);
 
-  const handleRefresh = async () => {
-    setRefreshing(true);
-    await fetchDonations();
-  };
-
-  const handlePaymentStatusUpdate = async (id: string, status: 'completed' | 'failed') => {
+  const fetchDonations = async () => {
     try {
-      const result = await updateDonationPayment(id, { payment_status: status });
-      if (result.success) {
-        toast({
-          title: "Success",
-          description: `Payment status updated to ${status}`,
-        });
-        await fetchDonations(); // Refresh the list
-      } else {
-        throw new Error('Failed to update payment status');
+      setLoading(true);
+      
+      // Fetch donations with user data
+      const { data: donationsData, error } = await supabase
+        .from('user_donations')
+        .select(`
+          *,
+          user:users(name, email, mobile)
+        `)
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        throw error;
       }
+
+      setDonations(donationsData || []);
+      calculateStats(donationsData || []);
+      setLoading(false);
     } catch (error) {
-      console.error('Error updating payment status:', error);
+      console.error('Error fetching donations:', error);
       toast({
         title: "Error",
-        description: "Failed to update payment status",
+        description: "Failed to load donations.",
+        variant: "destructive",
+      });
+      setLoading(false);
+    }
+  };
+
+  const calculateStats = (donationsData: Donation[]) => {
+    const stats = {
+      totalDonations: donationsData.length,
+      totalAmount: donationsData.reduce((sum, d) => sum + d.amount, 0),
+      pendingDonations: donationsData.filter(d => d.payment_status === 'pending').length,
+      completedDonations: donationsData.filter(d => d.payment_status === 'completed').length,
+      failedDonations: donationsData.filter(d => d.payment_status === 'failed').length,
+      refundedDonations: donationsData.filter(d => d.payment_status === 'refunded').length,
+    };
+    setStats(stats);
+  };
+
+  const handleStatusChange = async (donationId: string, newStatus: string) => {
+    try {
+      const { error } = await supabase
+        .from('user_donations')
+        .update({ 
+          payment_status: newStatus,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', donationId);
+
+      if (error) {
+        throw error;
+      }
+
+      toast({
+        title: "Success",
+        description: `Donation status updated to ${newStatus}.`,
+      });
+
+      // Refresh donations
+      fetchDonations();
+    } catch (error) {
+      console.error('Error updating donation status:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update donation status.",
         variant: "destructive",
       });
     }
   };
 
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case 'completed':
-        return <Badge variant="default" className="bg-green-500">Completed</Badge>;
-      case 'failed':
-        return <Badge variant="destructive">Failed</Badge>;
-      case 'pending':
-        return <Badge variant="secondary">Pending</Badge>;
-      default:
-        return <Badge variant="outline">{status}</Badge>;
-    }
+  const handleExport = () => {
+    const csvContent = [
+      ['ID', 'Donor Name', 'Email', 'Amount', 'Status', 'Type', 'Date', 'Receipt Number'].join(','),
+      ...donations.map(donation => [
+        donation.id,
+        donation.user?.name || 'Anonymous',
+        donation.user?.email || '',
+        donation.amount,
+        donation.payment_status,
+        donation.donation_type,
+        new Date(donation.created_at).toLocaleDateString(),
+        donation.receipt_number || ''
+      ].join(','))
+    ].join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `donations-${new Date().toISOString().split('T')[0]}.csv`;
+    a.click();
+    window.URL.revokeObjectURL(url);
+
+    toast({
+      title: "Export Complete",
+      description: "Donations data exported successfully.",
+    });
+  };
+
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('en-IN', {
+      style: 'currency',
+      currency: 'INR',
+    }).format(amount);
   };
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-IN', {
       year: 'numeric',
-      month: 'long',
+      month: 'short',
       day: 'numeric',
       hour: '2-digit',
-      minute: '2-digit',
+      minute: '2-digit'
     });
   };
 
-  const handleSignOut = async () => {
-    await signOut();
-    router.push('/');
+  const getStatusBadge = (status: string) => {
+    const statusConfig = {
+      pending: { variant: "secondary" as const, label: "Pending" },
+      completed: { variant: "default" as const, label: "Completed" },
+      failed: { variant: "destructive" as const, label: "Failed" },
+      refunded: { variant: "outline" as const, label: "Refunded" },
+    };
+    
+    const config = statusConfig[status as keyof typeof statusConfig] || statusConfig.pending;
+    return <Badge variant={config.variant}>{config.label}</Badge>;
   };
+
+  const columns = [
+    {
+      key: 'receipt_number',
+      label: 'Receipt #',
+      sortable: true,
+      render: (value: string, row: Donation) => (
+        <span className="font-mono text-sm">
+          {value || `DON-${row.id.slice(-8).toUpperCase()}`}
+        </span>
+      )
+    },
+    {
+      key: 'user',
+      label: 'Donor',
+      sortable: true,
+      render: (value: any, row: Donation) => (
+        <div>
+          <div className="font-medium">
+            {row.is_anonymous ? 'Anonymous' : (value?.name || 'Unknown')}
+          </div>
+          <div className="text-sm text-gray-500">
+            {row.is_anonymous ? '' : (value?.email || '')}
+          </div>
+        </div>
+      )
+    },
+    {
+      key: 'amount',
+      label: 'Amount',
+      sortable: true,
+      render: (value: number) => (
+        <span className="font-semibold text-green-600">
+          {formatCurrency(value)}
+        </span>
+      )
+    },
+    {
+      key: 'donation_type',
+      label: 'Type',
+      sortable: true,
+      render: (value: string) => (
+        <Badge variant="outline" className="capitalize">
+          {value}
+        </Badge>
+      )
+    },
+    {
+      key: 'payment_status',
+      label: 'Status',
+      sortable: true,
+      render: (value: string) => getStatusBadge(value)
+    },
+    {
+      key: 'created_at',
+      label: 'Date',
+      sortable: true,
+      render: (value: string) => (
+        <span className="text-sm text-gray-600">
+          {formatDate(value)}
+        </span>
+      )
+    }
+  ];
 
   if (checkingAuth) {
     return (
-      <div className="min-h-screen bg-background">
-        <Header />
-        <div className="container py-8 px-4">
-          <div className="flex items-center justify-center h-64">
-            <div className="text-center">
-              <Shield className="w-8 h-8 animate-pulse mx-auto mb-4" />
-              <p>Verifying admin access...</p>
-            </div>
-          </div>
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <Shield className="w-12 h-12 animate-pulse mx-auto mb-4 text-primary" />
+          <p className="text-lg font-medium">Verifying admin access...</p>
         </div>
       </div>
     );
@@ -183,135 +316,224 @@ export default function DonationsListPage() {
 
   if (!isAdmin) {
     return (
-      <div className="min-h-screen bg-background">
-        <Header />
-        <div className="container py-8 px-4">
-          <div className="flex items-center justify-center h-64">
-            <div className="text-center">
-              <Shield className="w-8 h-8 mx-auto mb-4 text-red-500" />
-              <p>Access Denied</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-background">
-        <Header />
-        <div className="container py-8 px-4">
-          <div className="flex items-center justify-center h-64">
-            <div className="text-center">
-              <RefreshCw className="w-8 h-8 animate-spin mx-auto mb-4" />
-              <p>Loading donations...</p>
-            </div>
-          </div>
-        </div>
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <Card className="w-full max-w-md">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-red-600">
+              <AlertCircle className="w-5 h-5" />
+              Access Denied
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <p className="text-gray-600">You don&apos;t have admin privileges.</p>
+            <Button onClick={() => router.push('/')} className="w-full">
+              Go Home
+            </Button>
+          </CardContent>
+        </Card>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <Header />
-      <div className="container py-8 px-4">
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-3xl font-bold flex items-center gap-2">
-            <Shield className="w-8 h-8 text-primary" />
-            Admin Panel - Donations Management
-          </h1>
-          <p className="text-muted-foreground">View and manage all donations</p>
+    <div className="min-h-screen bg-gray-50">
+      {/* Admin Header */}
+      <header className="bg-white shadow-sm border-b border-gray-200">
+        <div className="px-6 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => router.push('/admin')}
+              >
+                ← Back to Dashboard
+              </Button>
+              <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
+                <span className="text-white font-bold text-sm">Y</span>
+              </div>
+              <div>
+                <h1 className="text-xl font-bold text-gray-900">Donations Management</h1>
+                <p className="text-sm text-gray-500">Manage temple donations</p>
+              </div>
+            </div>
+            <Button onClick={() => signOut()} variant="outline" size="sm">
+              Sign Out
+            </Button>
+          </div>
         </div>
-        <div className="flex items-center gap-2">
-          <Button onClick={handleRefresh} disabled={refreshing} variant="outline">
-            <RefreshCw className={`w-4 h-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
-            Refresh
-          </Button>
-          <Button onClick={handleSignOut} variant="outline">
-            <LogOut className="w-4 h-4 mr-2" />
-            Sign Out
-          </Button>
-        </div>
-      </div>
+      </header>
 
-      {donations.length === 0 ? (
-        <Card>
-          <CardContent className="text-center py-8">
-            <p className="text-muted-foreground">No donations found</p>
-          </CardContent>
-        </Card>
-      ) : (
-        <div className="space-y-4">
-          {donations.map((donation) => (
-            <Card key={donation.id}>
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <CardTitle className="text-lg">
-                      {donation.users?.name || 'Anonymous Donor'}
-                    </CardTitle>
-                    <CardDescription>
-                      {donation.users?.email || 'N/A'} • {donation.users?.mobile || 'N/A'}
-                    </CardDescription>
-                  </div>
-                  <div className="text-right">
-                    <div className="text-2xl font-bold text-primary">
-                      ₹{donation.amount.toLocaleString('en-IN')}
-                    </div>
-                    {getStatusBadge(donation.payment_status)}
-                  </div>
-                </div>
+      {/* Main Content */}
+      <main className="p-6">
+        <div className="max-w-7xl mx-auto space-y-6">
+          {/* Stats Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium text-gray-600">Total Donations</CardTitle>
+                <DollarSign className="h-4 w-4 text-gray-600" />
               </CardHeader>
               <CardContent>
-                <div className="grid md:grid-cols-2 gap-4 mb-4">
+                <div className="text-2xl font-bold">{stats.totalDonations}</div>
+                <p className="text-xs text-gray-500">All time donations</p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium text-gray-600">Total Amount</CardTitle>
+                <TrendingUp className="h-4 w-4 text-gray-600" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold text-green-600">
+                  {formatCurrency(stats.totalAmount)}
+                </div>
+                <p className="text-xs text-gray-500">Total funds raised</p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium text-gray-600">Pending</CardTitle>
+                <Clock className="h-4 w-4 text-gray-600" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold text-yellow-600">{stats.pendingDonations}</div>
+                <p className="text-xs text-gray-500">Awaiting processing</p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium text-gray-600">Completed</CardTitle>
+                <Users className="h-4 w-4 text-gray-600" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold text-green-600">{stats.completedDonations}</div>
+                <p className="text-xs text-gray-500">Successfully processed</p>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Donations Table */}
+          <DataTable
+            data={donations}
+            columns={columns}
+            searchKey="receipt_number"
+            searchPlaceholder="Search by receipt number, donor name, or email..."
+            onRowClick={setSelectedDonation}
+            onStatusChange={handleStatusChange}
+            onExport={handleExport}
+            loading={loading}
+          />
+
+          {/* Donation Details Modal */}
+          {selectedDonation && (
+            <Card className="fixed inset-4 z-50 overflow-auto">
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <CardTitle>Donation Details</CardTitle>
+                  <Button 
+                    variant="ghost" 
+                    size="sm"
+                    onClick={() => setSelectedDonation(null)}
+                  >
+                    ×
+                  </Button>
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <p><strong>Donation Type:</strong> {donation.donation_type || 'General'}</p>
-                    <p><strong>Date:</strong> {formatDate(donation.created_at || '')}</p>
-                    {donation.payment_id && <p><strong>Payment ID:</strong> {donation.payment_id}</p>}
-                    {donation.preacher_name && <p><strong>Preacher:</strong> {donation.preacher_name}</p>}
+                    <label className="text-sm font-medium text-gray-600">Receipt Number</label>
+                    <p className="text-lg font-mono">
+                      {selectedDonation.receipt_number || `DON-${selectedDonation.id.slice(-8).toUpperCase()}`}
+                    </p>
                   </div>
                   <div>
-                    {donation.dedication_message && (
-                      <div>
-                        <p><strong>Dedication Message:</strong></p>
-                        <p className="text-sm text-muted-foreground italic">&ldquo;{donation.dedication_message}&rdquo;</p>
-                      </div>
-                    )}
-                    {donation.is_anonymous && (
-                      <p className="text-sm text-muted-foreground">Anonymous Donation</p>
-                    )}
+                    <label className="text-sm font-medium text-gray-600">Amount</label>
+                    <p className="text-lg font-semibold text-green-600">
+                      {formatCurrency(selectedDonation.amount)}
+                    </p>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-gray-600">Status</label>
+                    <div className="mt-1">{getStatusBadge(selectedDonation.payment_status)}</div>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-gray-600">Type</label>
+                    <p className="capitalize">{selectedDonation.donation_type}</p>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-gray-600">Donor Name</label>
+                    <p>{selectedDonation.is_anonymous ? 'Anonymous' : (selectedDonation.user?.name || 'Unknown')}</p>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-gray-600">Email</label>
+                    <p>{selectedDonation.is_anonymous ? 'Hidden' : (selectedDonation.user?.email || 'N/A')}</p>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-gray-600">Mobile</label>
+                    <p>{selectedDonation.is_anonymous ? 'Hidden' : (selectedDonation.user?.mobile || 'N/A')}</p>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-gray-600">Date</label>
+                    <p>{formatDate(selectedDonation.created_at)}</p>
                   </div>
                 </div>
                 
-                {donation.payment_status === 'pending' && (
-                  <div className="flex gap-2">
-                    <Button
-                      size="sm"
-                      onClick={() => handlePaymentStatusUpdate(donation.id, 'completed')}
-                      className="bg-green-500 hover:bg-green-600"
-                    >
-                      <CheckCircle className="w-4 h-4 mr-2" />
-                      Mark Completed
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="destructive"
-                      onClick={() => handlePaymentStatusUpdate(donation.id, 'failed')}
-                    >
-                      <XCircle className="w-4 h-4 mr-2" />
-                      Mark Failed
-                    </Button>
+                {selectedDonation.dedication_message && (
+                  <div>
+                    <label className="text-sm font-medium text-gray-600">Dedication Message</label>
+                    <p className="mt-1 p-3 bg-gray-50 rounded-lg">
+                      {selectedDonation.dedication_message}
+                    </p>
                   </div>
                 )}
+
+                {selectedDonation.preacher_name && (
+                  <div>
+                    <label className="text-sm font-medium text-gray-600">Preacher Name</label>
+                    <p>{selectedDonation.preacher_name}</p>
+                  </div>
+                )}
+
+                <div className="flex gap-2 pt-4">
+                  {selectedDonation.payment_status === 'pending' && (
+                    <>
+                      <Button 
+                        onClick={() => {
+                          handleStatusChange(selectedDonation.id, 'completed');
+                          setSelectedDonation(null);
+                        }}
+                        className="bg-green-600 hover:bg-green-700"
+                      >
+                        Mark Completed
+                      </Button>
+                      <Button 
+                        onClick={() => {
+                          handleStatusChange(selectedDonation.id, 'failed');
+                          setSelectedDonation(null);
+                        }}
+                        variant="destructive"
+                      >
+                        Mark Failed
+                      </Button>
+                    </>
+                  )}
+                  <Button 
+                    onClick={() => setSelectedDonation(null)}
+                    variant="outline"
+                  >
+                    Close
+                  </Button>
+                </div>
               </CardContent>
             </Card>
-          ))}
+          )}
         </div>
-      )}
-      </div>
+      </main>
     </div>
   );
 }

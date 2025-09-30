@@ -1,18 +1,13 @@
 import { Metadata } from 'next';
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
 
 export const metadata: Metadata = {
-  title: 'Contact Us | Dharam Dham Paavan Nagari Trust',
-  description: 'Get in touch with Dharam Dham Paavan Nagari Trust for donations, inquiries, and temple information.',
+  title: 'Contact Us | DHARAM DHAM TRUST',
+  description: 'Get in touch with DHARAM DHAM TRUST for donations, inquiries, and temple information.',
 };
 
 export default function ContactPage() {
   return (
-    <div className="min-h-screen bg-background">
-      <Header />
-      
-      <main className="w-full">
+    <div className="w-full">
       <div className="container mx-auto px-4 py-12">
         <div className="max-w-6xl mx-auto">
           {/* Header */}
@@ -22,7 +17,7 @@ export default function ContactPage() {
             </h1>
             <div className="flex items-center justify-center gap-2 mb-4">
               <span className="text-2xl">🕉️</span>
-              <span className="text-temple-gold text-lg">Dharam Dham Paavan Nagari Trust</span>
+              <span className="text-temple-gold text-lg">DHARAM DHAM TRUST</span>
             </div>
             <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
               We would love to hear from you. Reach out to us for any inquiries, donations, or spiritual guidance.
@@ -42,11 +37,11 @@ export default function ContactPage() {
                   <div className="flex items-start gap-3">
                     <span className="text-temple-gold text-lg">🏛️</span>
                     <div>
-                      <p className="text-temple-gold font-medium">Dharam Dham Paavan Nagari Trust</p>
+                      <p className="text-temple-gold font-medium">DHARAM DHAM TRUST</p>
                       <p className="text-foreground">
-                        Raju ki dhani, Yamrajdham Temple<br />
-                        On road NH-52, Rajgarh Churu<br />
-                        Taranagar, Rajasthan 331304
+                        Yamraj Dham, Dhani Raju<br />
+                        Ta. Taranagar, Dist. Churu<br />
+                        Rajasthan-331023
                       </p>
                     </div>
                   </div>
@@ -73,21 +68,21 @@ export default function ContactPage() {
                     <span className="text-temple-gold text-lg">📱</span>
                     <div>
                       <p className="text-temple-gold font-medium">Phone</p>
-                      <p className="text-foreground">+91 84273 83381</p>
+                      <p className="text-foreground">+91 96625 44676, +91 84273 83381</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-3">
                     <span className="text-temple-gold text-lg">📧</span>
                     <div>
                       <p className="text-temple-gold font-medium">Email</p>
-                      <p className="text-foreground">info@dharamdhamtrust.org</p>
+                      <p className="text-foreground">dharamdhamtrust@gmail.com</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-3">
                     <span className="text-temple-gold text-lg">💰</span>
                     <div>
                       <p className="text-temple-gold font-medium">Donations</p>
-                      <p className="text-foreground">donations@dharamdhamtrust.org</p>
+                      <p className="text-foreground">dharamdhamtrust@gmail.com</p>
                     </div>
                   </div>
                 </div>
@@ -101,17 +96,17 @@ export default function ContactPage() {
                 <div className="space-y-4">
                   <div className="bg-muted p-4 rounded-lg border border-border">
                     <p className="text-temple-gold font-medium mb-2">Bank Account:</p>
-                    <p className="text-temple-sand/90">Account Name: Dharam Dham Paavan Nagari Trust</p>
-                    <p className="text-temple-sand/90">Bank: State Bank of India</p>
-                    <p className="text-temple-sand/90">Account Number: 1234567890123456</p>
-                    <p className="text-temple-sand/90">IFSC Code: SBIN0001234</p>
-                    <p className="text-temple-sand/90">Branch: Taranagar Branch, Rajasthan</p>
+                    <p className="text-temple-sand/90">Account Name: DHARAM DHAM TRUST</p>
+                    <p className="text-temple-sand/90">Regd. No.- RAJ-202401341007870</p>
+                    <p className="text-temple-sand/90">12AA & 80G approved</p>
+                    <p className="text-temple-sand/90">PAN No.: AAETD9289Q</p>
+                    <p className="text-temple-sand/90">Temple Trust NGO Regd. by Government of India Trust Act, 1882</p>
                   </div>
                   <div className="bg-muted p-4 rounded-lg border border-border">
                     <p className="text-temple-gold font-medium mb-2">UPI Details:</p>
-                    <p className="text-temple-sand/90">UPI ID: donations@dharamdhamtrust</p>
-                    <p className="text-temple-sand/90">PhonePe: +91 84273 83381</p>
-                    <p className="text-temple-sand/90">GooglePay: +91 84273 83381</p>
+                    <p className="text-temple-sand/90">Mobile: +91 96625 44676, +91 84273 83381</p>
+                    <p className="text-temple-sand/90">Website: https://dharamdhamtrust.org</p>
+                    <p className="text-temple-sand/90">Email ID: dharamdhamtrust@gmail.com</p>
                   </div>
                 </div>
               </div>
@@ -232,11 +227,8 @@ export default function ContactPage() {
               </div>
             </div>
           </div>
-         </div>
-       </div>
-       </main>
-       
-       <Footer />
-     </div>
+        </div>
+      </div>
+    </div>
    );
  }

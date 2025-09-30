@@ -1,18 +1,13 @@
 import { Metadata } from 'next';
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
 
 export const metadata: Metadata = {
-  title: 'Refund & Cancellation Policy | Dharam Dham Paavan Nagari Trust',
-  description: 'Refund and Cancellation Policy for Dharam Dham Paavan Nagari Trust - Learn about our refund procedures and cancellation terms for donations.',
+  title: 'Refund & Cancellation Policy | DHARAM DHAM TRUST',
+  description: 'Refund and Cancellation Policy for DHARAM DHAM TRUST - Learn about our refund procedures and cancellation terms for donations.',
 };
 
 export default function RefundPolicyPage() {
   return (
-    <div className="min-h-screen bg-background">
-      <Header />
-      
-      <main className="w-full">
+    <div className="w-full">
       <div className="container mx-auto px-4 py-12">
         <div className="max-w-4xl mx-auto">
           {/* Header */}
@@ -22,7 +17,7 @@ export default function RefundPolicyPage() {
             </h1>
             <div className="flex items-center justify-center gap-2 mb-4">
               <span className="text-2xl">🕉️</span>
-              <span className="text-temple-gold text-lg">Dharam Dham Paavan Nagari Trust</span>
+              <span className="text-temple-gold text-lg">DHARAM DHAM TRUST</span>
             </div>
             <p className="text-muted-foreground text-lg">
               Last updated: January 15, 2025
@@ -40,7 +35,7 @@ export default function RefundPolicyPage() {
               </h2>
               <div className="text-foreground leading-relaxed space-y-4">
                 <p>
-                  At Dharam Dham Paavan Nagari Trust, we understand that circumstances may change, and you may need to cancel or request a refund for your donation. This Refund & Cancellation Policy outlines the terms and conditions under which refunds may be processed.
+                  At DHARAM DHAM TRUST, we understand that circumstances may change, and you may need to cancel or request a refund for your donation. This Refund & Cancellation Policy outlines the terms and conditions under which refunds may be processed.
                 </p>
                 <p>
                   Please read this policy carefully before making a donation, as it forms part of our Terms and Conditions.
@@ -58,7 +53,7 @@ export default function RefundPolicyPage() {
                 <div className="bg-temple-charcoal/30 p-4 rounded-lg border border-temple-gold/20">
                   <p className="text-temple-gold font-medium mb-2">Important Notice:</p>
                   <p>
-                    Donations made to Dharam Dham Paavan Nagari Trust are generally considered final and non-refundable, as they are made voluntarily for charitable and religious purposes. However, we understand that exceptional circumstances may arise.
+                    Donations made to DHARAM DHAM TRUST are generally considered final and non-refundable, as they are made voluntarily for charitable and religious purposes. However, we understand that exceptional circumstances may arise.
                   </p>
                 </div>
                 <p>
@@ -294,11 +289,11 @@ export default function RefundPolicyPage() {
               <div className="text-foreground leading-relaxed space-y-4">
                 <p>To submit a refund request, please contact us:</p>
                 <div className="bg-temple-charcoal/30 p-4 rounded-lg border border-temple-gold/20">
-                  <p><strong className="text-temple-gold">Dharam Dham Paavan Nagari Trust</strong></p>
+                  <p><strong className="text-temple-gold">DHARAM DHAM TRUST</strong></p>
                   <p>Email: refunds@dharamdhamtrust.org</p>
                   <p>Phone: +91 84273 83381</p>
                   <p>Address: Raju ki dhani, Yamrajdham Temple<br />
-                  On road NH-52, Rajgarh Churu<br />
+                  On road NH-52, Taranagar Churu<br />
                   Taranagar, Rajasthan 331304</p>
                   <p className="mt-2 text-sm text-temple-sand/80">
                     <strong>Business Hours:</strong> Monday to Saturday, 9:00 AM to 6:00 PM (IST)
@@ -330,9 +325,6 @@ export default function RefundPolicyPage() {
           </div>
         </div>
       </div>
-      </main>
-      
-      <Footer />
     </div>
   );
 }

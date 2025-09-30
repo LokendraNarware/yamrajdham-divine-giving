@@ -1,4 +1,3 @@
-import Header from "@/components/Header";
 import HeroSection from "@/components/HeroSection";
 import DonationSection from "@/components/DonationSection";
 import ProgressTracker from "@/components/ProgressTracker";
@@ -7,16 +6,12 @@ import SpiritualLeaderSection from "@/components/SpiritualLeaderSection";
 import YamrajDhamSection from "@/components/YamrajDhamSection";
 import MissionVisionSection from "@/components/MissionVisionSection";
 import CommunitySection from "@/components/CommunitySection";
-import Footer from "@/components/Footer";
 import { Card, CardContent } from "@/components/ui/card";
 import { Heart, Phone, Mail, MapPin } from "lucide-react";
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-background">
-      <Header />
-      
-      <main className="w-full">
+    <div className="w-full">
         <section id="home">
           <HeroSection />
         </section>
@@ -55,21 +50,21 @@ export default function Home() {
                 🙏 Be a part of history. Be a part of dharma.
               </h2>
               <p className="text-lg leading-relaxed mb-8">
-                Your support ensures that the Yamrajdham Temple, under the guidance of <strong>Dharam Dham Paavan Nagari Trust</strong>, becomes a beacon of faith, justice, and peace for generations to come.
+                Your support ensures that the Yamrajdham Temple, under the guidance of <strong>DHARAM DHAM TRUST</strong>, becomes a beacon of faith, justice, and peace for generations to come.
               </p>
               
               <div className="bg-white/10 rounded-lg p-6 mb-8">
                 <h3 className="text-xl font-bold mb-4">📑 Trust Information</h3>
                 <div className="grid md:grid-cols-2 gap-4 text-sm">
                   <div>
-                    <strong>Trust Name:</strong> Dharam Dham Paavan Nagari Trust<br/>
+                    <strong>Trust Name:</strong> DHARAM DHAM TRUST<br/>
                     <strong>Email:</strong> dharamdhamtrust@gmail.com<br/>
                     <strong>Phone:</strong> +91-84273-83381
                   </div>
                   <div>
-                    <strong>Location:</strong> Rajgarh Churu, Rajasthan<br/>
+                    <strong>Location:</strong> Taranagar Churu, Rajasthan<br/>
                     <strong>Registration:</strong> [Trust Registration No.]<br/>
-                    <strong>Website:</strong> yamrajdhamtemple.com
+                    <strong>Website:</strong> https://dharamdhamtrust.org
                   </div>
                 </div>
               </div>
@@ -85,9 +80,6 @@ export default function Home() {
             </div>
           </div>
         </section>
-      </main>
-
-      <Footer />
     </div>
   );
 }

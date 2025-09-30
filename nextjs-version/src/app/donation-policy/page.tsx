@@ -1,18 +1,13 @@
 import { Metadata } from 'next';
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
 
 export const metadata: Metadata = {
-  title: 'Donation Policy | Dharam Dham Paavan Nagari Trust',
-  description: 'Donation Policy for Dharam Dham Paavan Nagari Trust - Learn about our donation guidelines, processes, and how your contributions are used.',
+  title: 'Donation Policy | DHARAM DHAM TRUST',
+  description: 'Donation Policy for DHARAM DHAM TRUST - Learn about our donation guidelines, processes, and how your contributions are used.',
 };
 
 export default function DonationPolicyPage() {
   return (
-    <div className="min-h-screen bg-background">
-      <Header />
-      
-      <main className="w-full">
+    <div className="w-full">
       <div className="container mx-auto px-4 py-12">
         <div className="max-w-4xl mx-auto">
           {/* Header */}
@@ -22,7 +17,7 @@ export default function DonationPolicyPage() {
             </h1>
             <div className="flex items-center justify-center gap-2 mb-4">
               <span className="text-2xl">🕉️</span>
-              <span className="text-temple-gold text-lg">Dharam Dham Paavan Nagari Trust</span>
+              <span className="text-temple-gold text-lg">DHARAM DHAM TRUST</span>
             </div>
             <p className="text-muted-foreground text-lg">
               Last updated: January 15, 2025
@@ -40,7 +35,7 @@ export default function DonationPolicyPage() {
               </h2>
               <div className="text-foreground leading-relaxed space-y-4">
                 <p>
-                  Welcome to Dharam Dham Paavan Nagari Trust's Donation Policy. This policy outlines our guidelines, processes, and commitments regarding donations made to support the construction and maintenance of Yamrajdham Temple.
+                  Welcome to DHARAM DHAM TRUST's Donation Policy. This policy outlines our guidelines, processes, and commitments regarding donations made to support the construction and maintenance of Yamrajdham Temple.
                 </p>
                 <p>
                   We are grateful for your support and commitment to our mission of building a sacred space for spiritual growth and community service.
@@ -56,7 +51,7 @@ export default function DonationPolicyPage() {
               </h2>
               <div className="text-foreground leading-relaxed space-y-4">
                 <p>
-                  Dharam Dham Paavan Nagari Trust is dedicated to:
+                  DHARAM DHAM TRUST is dedicated to:
                 </p>
                 <ul className="list-disc list-inside space-y-2 ml-4">
                   <li>Building and maintaining Yamrajdham Temple</li>
@@ -239,7 +234,7 @@ export default function DonationPolicyPage() {
                 <div className="bg-temple-charcoal/30 p-4 rounded-lg border border-temple-gold/20">
                   <p className="text-temple-gold font-medium mb-2">Tax-Exempt Status:</p>
                   <p>
-                    Dharam Dham Paavan Nagari Trust is registered as a charitable trust and may be eligible for tax exemptions under applicable Indian tax laws.
+                    DHARAM DHAM TRUST is registered as a charitable trust and may be eligible for tax exemptions under applicable Indian tax laws.
                   </p>
                 </div>
                 <div>
@@ -361,11 +356,11 @@ export default function DonationPolicyPage() {
               <div className="text-foreground leading-relaxed space-y-4">
                 <p>For donation-related inquiries, please contact us:</p>
                 <div className="bg-temple-charcoal/30 p-4 rounded-lg border border-temple-gold/20">
-                  <p><strong className="text-temple-gold">Dharam Dham Paavan Nagari Trust</strong></p>
+                  <p><strong className="text-temple-gold">DHARAM DHAM TRUST</strong></p>
                   <p>Email: donations@dharamdhamtrust.org</p>
                   <p>Phone: +91 84273 83381</p>
                   <p>Address: Raju ki dhani, Yamrajdham Temple<br />
-                  On road NH-52, Rajgarh Churu<br />
+                  On road NH-52, Taranagar Churu<br />
                   Taranagar, Rajasthan 331304</p>
                   <p className="mt-2 text-sm text-temple-sand/80">
                     <strong>Business Hours:</strong> Monday to Saturday, 9:00 AM to 6:00 PM (IST)
@@ -397,9 +392,6 @@ export default function DonationPolicyPage() {
           </div>
         </div>
       </div>
-      </main>
-      
-      <Footer />
     </div>
   );
 }

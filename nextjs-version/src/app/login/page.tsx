@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import Header from '@/components/Header';
+import { isUserAdmin } from '@/lib/admin-utils';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -27,7 +27,16 @@ export default function LoginPage() {
     const result = await signIn(email, password);
     
     if (result.success) {
-      router.push('/dashboard');
+      // Check if user is an admin
+      const isAdmin = await isUserAdmin(email);
+      
+      if (isAdmin) {
+        // Redirect admin users to admin dashboard
+        router.push('/admin');
+      } else {
+        // Redirect regular users to user dashboard
+        router.push('/dashboard');
+      }
     } else {
       setError(result.error || 'Login failed');
     }
@@ -36,8 +45,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <Header />
+    <div className="w-full">
       
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-md mx-auto">

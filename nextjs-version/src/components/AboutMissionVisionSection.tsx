@@ -119,7 +119,7 @@ const AboutMissionVisionSection = () => {
             <blockquote className="text-xl font-medium text-temple-charcoal italic">
               "Together, we build not just a temple, but a legacy of faith, service, and spiritual enlightenment that will inspire countless souls for generations to come."
             </blockquote>
-            <cite className="block mt-4 text-temple-grey">— Dharam Dham Paavan Nagari Trust</cite>
+            <cite className="block mt-4 text-temple-grey">— DHARAM DHAM TRUST</cite>
           </div>
         </div>
       </div>

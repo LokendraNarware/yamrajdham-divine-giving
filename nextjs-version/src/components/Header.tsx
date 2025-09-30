@@ -15,7 +15,7 @@ import {
 
 const Header = () => {
   const router = useRouter();
-  const { user, signOut } = useAuth();
+  const { user, signOut, isAdmin } = useAuth();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const handleSignOut = async () => {
@@ -106,14 +106,17 @@ const Header = () => {
                     <User className="w-4 h-4 mr-2" />
                     Profile
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => router.push("/dashboard")} className="hover:bg-temple-soft-peach">
-                    <User className="w-4 h-4 mr-2" />
-                    Dashboard
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => router.push("/admin/donations")} className="hover:bg-temple-soft-peach">
-                    <Shield className="w-4 h-4 mr-2" />
-                    Admin Panel
-                  </DropdownMenuItem>
+                  {isAdmin ? (
+                    <DropdownMenuItem onClick={() => router.push("/admin")} className="hover:bg-temple-soft-peach">
+                      <Shield className="w-4 h-4 mr-2" />
+                      Admin Dashboard
+                    </DropdownMenuItem>
+                  ) : (
+                    <DropdownMenuItem onClick={() => router.push("/dashboard")} className="hover:bg-temple-soft-peach">
+                      <User className="w-4 h-4 mr-2" />
+                      Dashboard
+                    </DropdownMenuItem>
+                  )}
                   <DropdownMenuSeparator className="bg-temple-gold" />
                   <DropdownMenuItem onClick={handleSignOut} className="hover:bg-temple-soft-peach">
                     <LogOut className="w-4 h-4 mr-2" />

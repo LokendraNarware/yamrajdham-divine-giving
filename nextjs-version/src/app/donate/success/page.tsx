@@ -7,7 +7,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { CheckCircle, Download, Mail, Heart } from "lucide-react";
 import { verifyPayment } from "@/services/cashfree";
 import { useToast } from "@/hooks/use-toast";
-import Header from "@/components/Header";
 import DonationReceipt from "@/components/DonationReceipt";
 import { generateReceiptPDF } from "@/lib/receipt-utils";
 
@@ -22,6 +21,30 @@ export default function PaymentSuccessPage() {
     payment_status?: string;
     payment_method?: string;
     payment_time?: string;
+  } | null>(null);
+  const [donationData, setDonationData] = useState<{
+    id: string;
+    amount: number;
+    donationType: string;
+    paymentStatus: string;
+    paymentId: string;
+    paymentGateway: string;
+    receiptNumber: string;
+    isAnonymous: boolean;
+    dedicationMessage: string;
+    preacherName: string;
+    createdAt: string;
+    updatedAt: string;
+    donor: {
+      name: string;
+      email: string;
+      mobile: string;
+      address: string;
+      city: string;
+      state: string;
+      pinCode: string;
+      panNo: string;
+    } | null;
   } | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [receiptRef, setReceiptRef] = useState<HTMLDivElement | null>(null);
@@ -38,6 +61,19 @@ export default function PaymentSuccessPage() {
           
           const details = await verifyPayment(orderId);
           setPaymentDetails(details);
+          
+          // Fetch donation data from database
+          try {
+            const donationResponse = await fetch(`/api/donations/${orderId}`);
+            if (donationResponse.ok) {
+              const donation = await donationResponse.json();
+              setDonationData(donation);
+            } else {
+              console.error('Failed to fetch donation data');
+            }
+          } catch (error) {
+            console.error('Error fetching donation data:', error);
+          }
           
           // Update donation status in database if payment was successful
           if (details.order_status === 'PAID' || details.payment_status === 'SUCCESS') {
@@ -100,7 +136,7 @@ export default function PaymentSuccessPage() {
   }, [orderId, toast]);
 
   const handleDownloadReceipt = async () => {
-    if (!receiptRef || !paymentDetails) {
+    if (!receiptRef || !paymentDetails || !donationData) {
       toast({
         title: "Error",
         description: "Receipt data not available",
@@ -112,10 +148,10 @@ export default function PaymentSuccessPage() {
     try {
       await generateReceiptPDF(receiptRef, {
         donationId: paymentDetails.order_id,
-        donorName: "Devotee", // You can get this from user data
+        donorName: donationData.donor?.name || "Devotee",
         amount: paymentDetails.order_amount,
-        date: paymentDetails.payment_time || new Date().toISOString(),
-        purpose: "Temple Construction",
+        date: paymentDetails.payment_time || donationData.createdAt,
+        purpose: donationData.donationType === 'general' ? 'Temple Construction' : donationData.donationType,
         paymentMethod: paymentDetails.payment_method || "Online Payment"
       });
 
@@ -191,8 +227,7 @@ export default function PaymentSuccessPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <Header />
+    <div className="w-full">
 
       <main className="container py-8 px-4">
         <div className="max-w-2xl mx-auto">
@@ -319,10 +354,10 @@ export default function PaymentSuccessPage() {
                 <div ref={setReceiptRef}>
                   <DonationReceipt
                     donationId={paymentDetails.order_id}
-                    donorName="Devotee" // You can get this from user data
+                    donorName={donationData?.donor?.name || "Devotee"}
                     amount={paymentDetails.order_amount}
-                    date={paymentDetails.payment_time || new Date().toISOString()}
-                    purpose="Temple Construction"
+                    date={paymentDetails.payment_time || donationData?.createdAt || new Date().toISOString()}
+                    purpose={donationData?.donationType === 'general' ? 'Temple Construction' : donationData?.donationType || 'Temple Construction'}
                     paymentMethod={paymentDetails.payment_method || "Online Payment"}
                   />
                 </div>

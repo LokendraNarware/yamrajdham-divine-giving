@@ -1,18 +1,13 @@
 import { Metadata } from 'next';
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
 
 export const metadata: Metadata = {
-  title: 'Gallery | Dharam Dham Paavan Nagari Trust',
+  title: 'Gallery | DHARAM DHAM TRUST',
   description: 'View our temple construction progress, religious ceremonies, and community events in our photo gallery.',
 };
 
 export default function GalleryPage() {
   return (
-    <div className="min-h-screen bg-background">
-      <Header />
-      
-      <main className="w-full">
+    <div className="w-full">
       <div className="container mx-auto px-4 py-12">
         <div className="max-w-6xl mx-auto">
           {/* Header */}
@@ -22,7 +17,7 @@ export default function GalleryPage() {
             </h1>
             <div className="flex items-center justify-center gap-2 mb-4">
               <span className="text-2xl">🕉️</span>
-              <span className="text-temple-gold text-lg">Dharam Dham Paavan Nagari Trust</span>
+              <span className="text-temple-gold text-lg">DHARAM DHAM TRUST</span>
             </div>
             <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
               Witness the divine journey of Yamrajdham Temple construction and our community's spiritual moments
@@ -174,9 +169,6 @@ export default function GalleryPage() {
           </div>
         </div>
       </div>
-      </main>
-      
-      <Footer />
     </div>
   );
 }

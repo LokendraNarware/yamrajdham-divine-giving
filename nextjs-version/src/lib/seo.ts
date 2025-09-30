@@ -10,29 +10,29 @@ interface SEOConfig {
 }
 
 export function generateMetadata(config: SEOConfig): Metadata {
-  const baseUrl = 'https://yamrajdhamtemple.com';
+  const baseUrl = 'https://dharamdhamtrust.org';
   const defaultImage = '/temple-hero.jpg';
   
   return {
     title: {
       default: config.title,
-      template: '%s | Yamrajdham Temple'
+      template: '%s | DHARAM DHAM TRUST'
     },
     description: config.description,
     keywords: config.keywords || [
       'Yamrajdham Temple',
-      'Dharam Dham Paavan Nagari Trust',
+      'DHARAM DHAM TRUST',
       'Temple Donation',
       'Spiritual Giving',
       'Hindu Temple',
-      'Rajgarh Churu',
+      'Taranagar Churu',
       'Rajasthan Temple'
     ],
     openGraph: {
       title: config.title,
       description: config.description,
       url: config.url ? `${baseUrl}${config.url}` : baseUrl,
-      siteName: 'Yamrajdham Temple',
+      siteName: 'DHARAM DHAM TRUST',
       images: [
         {
           url: config.image || defaultImage,
@@ -49,7 +49,7 @@ export function generateMetadata(config: SEOConfig): Metadata {
       title: config.title,
       description: config.description,
       images: [config.image || defaultImage],
-      creator: '@yamrajdhamtemple',
+      creator: '@dharamdhamtrust',
     },
     alternates: {
       canonical: config.url ? `${baseUrl}${config.url}` : baseUrl,
@@ -71,15 +71,15 @@ export function generateMetadata(config: SEOConfig): Metadata {
 // Predefined SEO configurations for common pages
 export const seoConfigs = {
   home: {
-    title: 'Yamrajdham Temple - Divine Giving | Dharam Dham Paavan Nagari Trust',
-    description: 'Support the construction of Yamrajdham Temple through your generous donations. Join Dharam Dham Paavan Nagari Trust in building a sacred space for spiritual growth, community worship, and divine justice in Rajgarh Churu, Rajasthan.',
+    title: 'Yamrajdham Temple - Divine Giving | DHARAM DHAM TRUST',
+    description: 'Support the construction of Yamrajdham Temple through your generous donations. Join DHARAM DHAM TRUST in building a sacred space for spiritual growth, community worship, and divine justice in Taranagar Churu, Rajasthan.',
     keywords: [
       'Yamrajdham Temple',
-      'Dharam Dham Paavan Nagari Trust',
+      'DHARAM DHAM TRUST',
       'Temple Donation',
       'Spiritual Giving',
       'Hindu Temple',
-      'Rajgarh Churu',
+      'Taranagar Churu',
       'Rajasthan Temple',
       'Yamraj Temple',
       'Dharma Temple',
@@ -95,15 +95,15 @@ export const seoConfigs = {
   },
   
   about: {
-    title: 'About Us - Dharam Dham Paavan Nagari Trust',
-    description: 'Learn about Dharam Dham Paavan Nagari Trust, our mission to build Yamrajdham Temple, and our spiritual leader Mataji\'s divine guidance in Rajgarh Churu, Rajasthan.',
+    title: 'About Us - DHARAM DHAM TRUST',
+    description: 'Learn about DHARAM DHAM TRUST, our mission to build Yamrajdham Temple, and our spiritual leader Mataji\'s divine guidance in Taranagar Churu, Rajasthan.',
     keywords: [
-      'About Dharam Dham Paavan Nagari Trust',
+      'About DHARAM DHAM TRUST',
       'Yamrajdham Temple Trust',
       'Mataji Spiritual Leader',
       'Temple Mission',
       'Spiritual Guidance',
-      'Rajgarh Churu Temple',
+      'Taranagar Churu Temple',
       'Hindu Temple Trust',
       'Divine Mission',
       'Spiritual Education',
@@ -115,7 +115,7 @@ export const seoConfigs = {
   
   donate: {
     title: 'Donate to Yamrajdham Temple - Support Temple Construction',
-    description: 'Make a donation to support the construction of Yamrajdham Temple. Your generous contribution helps build a sacred space for spiritual growth and community worship in Rajgarh Churu, Rajasthan.',
+    description: 'Make a donation to support the construction of Yamrajdham Temple. Your generous contribution helps build a sacred space for spiritual growth and community worship in Taranagar Churu, Rajasthan.',
     keywords: [
       'Donate to Yamrajdham Temple',
       'Temple Donation',
@@ -123,7 +123,7 @@ export const seoConfigs = {
       'Temple Construction Fund',
       'Spiritual Giving',
       'Hindu Temple Donation',
-      'Dharam Dham Paavan Nagari Trust',
+      'DHARAM DHAM TRUST',
       'Temple Seva',
       'Divine Giving',
       'Sacred Donation'
@@ -134,14 +134,14 @@ export const seoConfigs = {
   
   contact: {
     title: 'Contact Us - Yamrajdham Temple',
-    description: 'Get in touch with Dharam Dham Paavan Nagari Trust for temple visits, seva opportunities, donations, and spiritual guidance. Located in Rajgarh Churu, Rajasthan.',
+    description: 'Get in touch with DHARAM DHAM TRUST for temple visits, seva opportunities, donations, and spiritual guidance. Located in Taranagar Churu, Rajasthan.',
     keywords: [
       'Contact Yamrajdham Temple',
       'Temple Contact Information',
-      'Dharam Dham Paavan Nagari Trust Contact',
+      'DHARAM DHAM TRUST Contact',
       'Temple Visit Information',
       'Seva Opportunities',
-      'Rajgarh Churu Temple',
+      'Taranagar Churu Temple',
       'Temple Office Hours',
       'Spiritual Guidance Contact'
     ],
@@ -151,14 +151,14 @@ export const seoConfigs = {
   
   gallery: {
     title: 'Temple Gallery - Yamrajdham Temple Construction Progress',
-    description: 'View the construction progress of Yamrajdham Temple. See photos of our sacred space, spiritual ceremonies, and community events at Dharam Dham Paavan Nagari Trust.',
+    description: 'View the construction progress of Yamrajdham Temple. See photos of our sacred space, spiritual ceremonies, and community events at DHARAM DHAM TRUST.',
     keywords: [
       'Yamrajdham Temple Gallery',
       'Temple Construction Photos',
       'Temple Progress Images',
       'Spiritual Ceremonies',
       'Temple Events',
-      'Dharam Dham Paavan Nagari Trust Gallery',
+      'DHARAM DHAM TRUST Gallery',
       'Temple Architecture',
       'Sacred Space Photos'
     ],
@@ -169,7 +169,7 @@ export const seoConfigs = {
 
 // Generate structured data for different page types
 export function generateStructuredData(type: 'organization' | 'website' | 'place' | 'event', data?: any) {
-  const baseUrl = 'https://yamrajdhamtemple.com';
+  const baseUrl = 'https://dharamdhamtrust.org';
   
   const baseStructuredData = {
     "@context": "https://schema.org",
@@ -177,7 +177,7 @@ export function generateStructuredData(type: 'organization' | 'website' | 'place
       {
         "@type": "Organization",
         "@id": `${baseUrl}/#organization`,
-        "name": "Dharam Dham Paavan Nagari Trust",
+        "name": "DHARAM DHAM TRUST",
         "alternateName": "Yamrajdham Temple Trust",
         "url": baseUrl,
         "logo": {
@@ -186,12 +186,12 @@ export function generateStructuredData(type: 'organization' | 'website' | 'place
           "width": 400,
           "height": 400
         },
-        "description": "Dharam Dham Paavan Nagari Trust is dedicated to building Yamrajdham Temple, a divine center of spirituality, faith, and service in Rajgarh Churu, Rajasthan.",
+        "description": "DHARAM DHAM TRUST is dedicated to building Yamrajdham Temple, a divine center of spirituality, faith, and service in Taranagar, Churu, Rajasthan.",
         "email": "dharamdhamtrust@gmail.com",
         "address": {
           "@type": "PostalAddress",
-          "addressLocality": "Rajgarh Churu",
-          "addressRegion": "Rajasthan",
+          "addressLocality": "Taranagar",
+          "addressRegion": "Churu",
           "addressCountry": "IN"
         },
         "sameAs": [baseUrl]
@@ -231,11 +231,11 @@ export function generateStructuredData(type: 'organization' | 'website' | 'place
         "description": "A sacred temple dedicated to Yamraj (Dharmaraj), the divine guardian of moral order and justice in Hindu mythology.",
         "address": {
           "@type": "PostalAddress",
-          "addressLocality": "Rajgarh Churu",
-          "addressRegion": "Rajasthan",
+          "addressLocality": "Taranagar",
+          "addressRegion": "Churu",
           "addressCountry": "IN"
         },
-        "telephone": "+91-84273-83381",
+        "telephone": "+91-96625-44676",
         "url": baseUrl,
         "sameAs": baseUrl
       });
@@ -254,7 +254,7 @@ export function generateStructuredData(type: 'organization' | 'website' | 'place
             "name": "Yamrajdham Temple",
             "address": {
               "@type": "PostalAddress",
-              "addressLocality": "Rajgarh Churu",
+              "addressLocality": "Taranagar Churu",
               "addressRegion": "Rajasthan",
               "addressCountry": "IN"
             }
@@ -272,7 +272,7 @@ export function generateStructuredData(type: 'organization' | 'website' | 'place
 
 // Utility function to generate breadcrumb structured data
 export function generateBreadcrumbStructuredData(items: Array<{name: string, url: string}>) {
-  const baseUrl = 'https://yamrajdhamtemple.com';
+  const baseUrl = 'https://dharamdhamtrust.org';
   
   return {
     "@context": "https://schema.org",

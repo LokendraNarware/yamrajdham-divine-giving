@@ -8,10 +8,10 @@ export default function Footer() {
       <div className="border-b border-temple-gold/30">
         <div className="container mx-auto px-4 py-6">
           <div className="text-center">
-            <h2 className="text-xl md:text-2xl font-bold text-temple-saffron flex items-center justify-center gap-2">
-              <span className="text-2xl">🕉️</span>
-              Dharam Dham Paavan Nagari Trust – Yamrajdham Temple
-            </h2>
+              <h2 className="text-xl md:text-2xl font-bold text-temple-saffron flex items-center justify-center gap-2">
+                <span className="text-2xl">🕉️</span>
+                DHARAM DHAM TRUST – YAMRAJ - THE JUDGE OF KARMA, THE GUARDIAN OF DHARMA
+              </h2>
           </div>
         </div>
       </div>
@@ -27,29 +27,29 @@ export default function Footer() {
             </h3>
             <div className="space-y-3 text-sm">
               <div>
-                <p className="font-medium text-temple-saffron">Dharam Dham Paavan Nagari Trust</p>
-                <p className="text-temple-sand/80">Temple Address</p>
+                <p className="font-medium text-temple-saffron">DHARAM DHAM TRUST</p>
+                <p className="text-temple-sand/80">Yamraj Dham, Dhani Raju, Ta. Taranagar, Dist. Churu, Rajasthan-331023</p>
               </div>
               <div className="flex items-start gap-2">
                 <Phone className="w-4 h-4 text-temple-saffron mt-0.5 flex-shrink-0" />
                 <div>
-                  <p className="text-temple-sand/80">+91 84273 83381</p>
-                  <p className="text-temple-sand/80">Temple Office</p>
+                  <p className="text-temple-sand/80">+91 96625 44676, +91 84273 83381</p>
+                  <p className="text-temple-sand/80">Trust Office</p>
                 </div>
               </div>
               <div className="flex items-start gap-2">
                 <Mail className="w-4 h-4 text-temple-saffron mt-0.5 flex-shrink-0" />
                 <div>
-                  <p className="text-temple-sand/80">info@dharamdhamtrust.org</p>
-                  <p className="text-temple-sand/80">donations@dharamdhamtrust.org</p>
+                  <p className="text-temple-sand/80">dharamdhamtrust@gmail.com</p>
+                  <p className="text-temple-sand/80">https://dharamdhamtrust.org</p>
                 </div>
               </div>
               <div className="flex items-start gap-2">
                 <MapPin className="w-4 h-4 text-temple-saffron mt-0.5 flex-shrink-0" />
                 <p className="text-temple-sand/80">
-                  Raju ki dhani, Yamrajdham Temple<br />
-                  On road NH-52, Rajgarh Churu<br />
-                  Taranagar, Rajasthan 331304
+                  Yamraj Dham, Dhani Raju<br />
+                  Ta. Taranagar, Dist. Churu<br />
+                  Rajasthan-331023
                 </p>
               </div>
               <div className="flex items-start gap-2">
@@ -196,19 +196,19 @@ export default function Footer() {
                 <div>
                   <p className="font-medium text-temple-saffron mb-2">Bank Details:</p>
                   <div className="bg-temple-charcoal/50 p-3 rounded border border-temple-gold/20">
-                    <p className="text-temple-sand/80">Account Name: Dharam Dham Paavan Nagari Trust</p>
-                    <p className="text-temple-sand/80">Bank: State Bank of India</p>
-                    <p className="text-temple-sand/80">Account Number: 1234567890123456</p>
-                    <p className="text-temple-sand/80">IFSC Code: SBIN0001234</p>
-                    <p className="text-temple-sand/80">Branch: Taranagar Branch, Rajasthan</p>
+                    <p className="text-temple-sand/80">Account Name: DHARAM DHAM TRUST</p>
+                    <p className="text-temple-sand/80">Regd. No.- RAJ-202401341007870</p>
+                    <p className="text-temple-sand/80">12AA & 80G approved</p>
+                    <p className="text-temple-sand/80">PAN No.: AAETD9289Q</p>
+                    <p className="text-temple-sand/80">Temple Trust NGO Regd. by Government of India Trust Act, 1882</p>
                   </div>
                 </div>
                 <div>
                   <p className="font-medium text-temple-saffron mb-2">UPI Details:</p>
                   <div className="bg-temple-charcoal/50 p-3 rounded border border-temple-gold/20">
-                    <p className="text-temple-sand/80">UPI ID: donations@dharamdhamtrust</p>
-                    <p className="text-temple-sand/80">PhonePe: +91 84273 83381</p>
-                    <p className="text-temple-sand/80">GooglePay: +91 84273 83381</p>
+                    <p className="text-temple-sand/80">Mobile: +91 96625 44676, +91 84273 83381</p>
+                    <p className="text-temple-sand/80">Website: https://dharamdhamtrust.org</p>
+                    <p className="text-temple-sand/80">Email ID: dharamdhamtrust@gmail.com</p>
                   </div>
                 </div>
               </div>
@@ -253,10 +253,10 @@ export default function Footer() {
           <div className="text-center">
             <div className="flex items-center justify-center gap-2 mb-2">
               <span className="text-temple-saffron">🕉️</span>
-              <span className="text-temple-saffron font-medium">Dharam Dham Paavan Nagari Trust</span>
+              <span className="text-temple-saffron font-medium">DHARAM DHAM TRUST</span>
             </div>
             <p className="text-sm text-temple-sand/80">
-              © 2025 Dharam Dham Paavan Nagari Trust | All Rights Reserved
+              © 2025 DHARAM DHAM TRUST | All Rights Reserved
             </p>
             <p className="text-xs text-temple-sand/60 mt-1">
               Building Yamrajdham Temple with devotion, dedication, and divine blessings

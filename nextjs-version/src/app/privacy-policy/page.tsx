@@ -1,18 +1,14 @@
 import { Metadata } from 'next';
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
+import Footer from '@/components/Footer';
 
 export const metadata: Metadata = {
-  title: 'Privacy Policy | Dharam Dham Paavan Nagari Trust',
-  description: 'Privacy Policy for Dharam Dham Paavan Nagari Trust - Learn how we collect, use, and protect your personal information.',
+  title: 'Privacy Policy | DHARAM DHAM TRUST',
+  description: 'Privacy Policy for DHARAM DHAM TRUST - Learn how we collect, use, and protect your personal information.',
 };
 
 export default function PrivacyPolicyPage() {
   return (
-    <div className="min-h-screen bg-background">
-      <Header />
-      
-      <main className="w-full">
+    <div className="w-full">
       <div className="container mx-auto px-4 py-12">
         <div className="max-w-4xl mx-auto">
           {/* Header */}
@@ -22,7 +18,7 @@ export default function PrivacyPolicyPage() {
             </h1>
             <div className="flex items-center justify-center gap-2 mb-4">
               <span className="text-2xl">🕉️</span>
-              <span className="text-temple-gold text-lg">Dharam Dham Paavan Nagari Trust</span>
+              <span className="text-temple-gold text-lg">DHARAM DHAM TRUST</span>
             </div>
             <p className="text-muted-foreground text-lg">
               Last updated: January 15, 2025
@@ -40,7 +36,7 @@ export default function PrivacyPolicyPage() {
               </h2>
               <div className="text-foreground leading-relaxed space-y-4">
                 <p>
-                  At Dharam Dham Paavan Nagari Trust ("we," "our," or "us"), we are committed to protecting your privacy and ensuring the security of your personal information. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you visit our website or make donations to support the construction of Yamrajdham Temple.
+                  At DHARAM DHAM TRUST ("we," "our," or "us"), we are committed to protecting your privacy and ensuring the security of your personal information. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you visit our website or make donations to support the construction of Yamrajdham Temple.
                 </p>
                 <p>
                   We respect your privacy and are committed to handling your personal data in accordance with applicable data protection laws and regulations.
@@ -229,7 +225,7 @@ export default function PrivacyPolicyPage() {
               <div className="text-foreground leading-relaxed space-y-4">
                 <p>If you have any questions about this Privacy Policy or our privacy practices, please contact us:</p>
                 <div className="bg-temple-charcoal/30 p-4 rounded-lg border border-temple-gold/20">
-                  <p><strong className="text-temple-gold">Dharam Dham Paavan Nagari Trust</strong></p>
+                  <p><strong className="text-temple-gold">DHARAM DHAM TRUST</strong></p>
                   <p>Email: privacy@dharamdhamtrust.org</p>
                   <p>Phone: +91 84273 83381</p>
                   <p>Address: Raju ki dhani, Yamrajdham Temple<br />
@@ -249,9 +245,9 @@ export default function PrivacyPolicyPage() {
           </div>
         </div>
       </div>
-      </main>
-      
       <Footer />
     </div>
   );
 }
+
+

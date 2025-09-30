@@ -5,7 +5,6 @@ import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import Header from '@/components/Header';
 import { useToast } from '@/hooks/use-toast';
 
 interface Donation {
@@ -110,7 +109,7 @@ export default function TestPaymentStatusPage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-background">
-        <Header />
+        {/* Header removed - using global layout */}
         <div className="container mx-auto px-4 py-8">
           <div className="flex items-center justify-center min-h-[400px]">
             <div>Loading...</div>
@@ -122,7 +121,7 @@ export default function TestPaymentStatusPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <Header />
+        {/* Header removed - using global layout */}
       
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-6xl mx-auto">

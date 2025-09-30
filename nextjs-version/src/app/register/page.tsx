@@ -9,7 +9,6 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import Header from '@/components/Header';
 
 export default function RegisterPage() {
   const [formData, setFormData] = useState({
@@ -70,7 +69,7 @@ export default function RegisterPage() {
   if (success) {
     return (
       <div className="min-h-screen bg-background">
-        <Header />
+        {/* Header removed - using global layout */}
         <div className="container mx-auto px-4 py-8">
           <div className="max-w-md mx-auto">
             <Card>
@@ -97,7 +96,7 @@ export default function RegisterPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <Header />
+        {/* Header removed - using global layout */}
       
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-md mx-auto">

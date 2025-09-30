@@ -170,9 +170,9 @@ SELECT * FROM (VALUES
     ('donor_count', '1247', 'Total number of donors', 'number'),
     ('days_left', '180', 'Days remaining for funding campaign', 'number'),
     ('temple_name', 'Yamrajdham Temple', 'Name of the temple being constructed', 'string'),
-    ('contact_phone', '+91 98765 43210', 'Temple contact phone number', 'string'),
-    ('contact_email', 'info@dharamdhamtrust.org', 'Temple contact email', 'string'),
-    ('temple_address', 'Temple Grounds, Sacred City', 'Temple location address', 'string'),
+    ('contact_phone', '+91 96625 44676, +91 84273 83381', 'Temple contact phone number', 'string'),
+    ('contact_email', 'dharamdhamtrust@gmail.com', 'Temple contact email', 'string'),
+    ('temple_address', 'Yamraj Dham, Dhani Raju, Ta. Taranagar, Dist. Churu, Rajasthan-331023', 'Temple location address', 'string'),
     ('pan_required_threshold', '10000', 'PAN required for donations above this amount', 'number'),
     ('tax_exemption_available', 'true', 'Whether tax exemption is available', 'boolean')
 ) AS v(key, value, description, data_type)

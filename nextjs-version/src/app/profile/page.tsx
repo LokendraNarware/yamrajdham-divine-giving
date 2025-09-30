@@ -15,7 +15,6 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { getUserById, updateUser, getDonations } from "@/services/donations";
-import Header from "@/components/Header";
 
 const profileFormSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -239,7 +238,7 @@ export default function ProfilePage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-background">
-        <Header />
+        {/* Header removed - using global layout */}
         <main className="container mx-auto py-8 px-4">
           <div className="max-w-4xl mx-auto">
             <div className="flex items-center justify-center h-64">
@@ -256,7 +255,7 @@ export default function ProfilePage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <Header />
+        {/* Header removed - using global layout */}
 
       <main className="container mx-auto py-8 px-4">
         <div className="max-w-4xl mx-auto space-y-8">

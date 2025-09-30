@@ -1,39 +1,37 @@
 import type { Metadata } from "next";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 
 export const metadata: Metadata = {
-  title: "About Us - Dharam Dham Paavan Nagari Trust",
-  description: "Learn about Dharam Dham Paavan Nagari Trust, our mission to build Yamrajdham Temple, and our spiritual leader Mataji's divine guidance in Rajgarh Churu, Rajasthan.",
+  title: "About Us - DHARAM DHAM TRUST",
+  description: "Learn about DHARAM DHAM TRUST, our mission to build Yamrajdham Temple, and our spiritual leader Mataji's divine guidance in Taranagar, Churu, Rajasthan.",
   keywords: [
-    "About Dharam Dham Paavan Nagari Trust",
+    "About DHARAM DHAM TRUST",
     "Yamrajdham Temple Trust",
     "Mataji Spiritual Leader",
     "Temple Mission",
     "Spiritual Guidance",
-    "Rajgarh Churu Temple",
+    "Taranagar Churu Temple",
     "Hindu Temple Trust",
     "Divine Mission",
     "Spiritual Education",
     "Community Service"
   ],
   openGraph: {
-    title: "About Us - Dharam Dham Paavan Nagari Trust",
-    description: "Learn about Dharam Dham Paavan Nagari Trust, our mission to build Yamrajdham Temple, and our spiritual leader Mataji's divine guidance.",
+    title: "About Us - DHARAM DHAM TRUST",
+    description: "Learn about DHARAM DHAM TRUST, our mission to build Yamrajdham Temple, and our spiritual leader Mataji's divine guidance.",
     images: [
       {
         url: '/mataji.png',
         width: 1200,
         height: 630,
-        alt: 'Mataji - Spiritual Leader of Dharam Dham Paavan Nagari Trust',
+        alt: 'Mataji - Spiritual Leader of DHARAM DHAM TRUST',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: "About Us - Dharam Dham Paavan Nagari Trust",
+    title: "About Us - DHARAM DHAM TRUST",
     description: "Learn about our mission to build Yamrajdham Temple and Mataji's divine guidance.",
     images: ['/mataji.png'],
   },
@@ -44,16 +42,13 @@ export const metadata: Metadata = {
 
 export default function AboutPage() {
   return (
-    <div className="min-h-screen bg-background">
-      <Header />
-      
-      <main className="w-full">
+    <div className="w-full">
         {/* Hero Section */}
         <section className="relative py-20 bg-gradient-peaceful">
           <div className="container mx-auto px-4 max-w-6xl">
             <div className="text-center mb-16">
               <div className="inline-flex items-center gap-2 bg-temple-soft-peach px-4 py-2 rounded-full mb-6">
-                <span className="text-temple-brown font-medium">About Dharam Dham Paavan Nagari Trust</span>
+                <span className="text-temple-brown font-medium">About DHARAM DHAM TRUST</span>
               </div>
               
               <h1 className="text-4xl md:text-6xl font-bold text-temple-charcoal mb-6">
@@ -61,7 +56,7 @@ export default function AboutPage() {
               </h1>
               
               <p className="text-xl text-temple-grey leading-relaxed max-w-4xl mx-auto mb-8">
-                Dharam Dham Paavan Nagari Trust is dedicated to building Yamrajdham Temple, a divine center of spirituality, faith, and service. Our mission is to create a sacred space where devotion, wisdom, and community come together for generations to come.
+                DHARAM DHAM TRUST is dedicated to building Yamrajdham Temple, a divine center of spirituality, faith, and service. Our mission is to create a sacred space where devotion, wisdom, and community come together for generations to come.
               </p>
               
               <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
@@ -136,7 +131,7 @@ export default function AboutPage() {
                   </p>
                   
                   <p className="text-lg text-temple-grey leading-relaxed">
-                    Inspired by Mataji's teachings, the <strong>Dharam Dham Paavan Nagari Trust</strong> was founded with a sacred mission to build Yamrajdham Temple and serve humanity through spiritual awareness and community service.
+                    Inspired by Mataji's teachings, the <strong>DHARAM DHAM TRUST</strong> was founded with a sacred mission to build Yamrajdham Temple and serve humanity through spiritual awareness and community service.
                   </p>
                 </div>
 
@@ -541,7 +536,7 @@ export default function AboutPage() {
                     </div>
                     <div>
                       <h3 className="font-semibold text-temple-charcoal">Trust Name</h3>
-                      <p className="text-temple-grey">Dharam Dham Paavan Nagari Trust</p>
+                      <p className="text-temple-grey">DHARAM DHAM TRUST</p>
                     </div>
                   </div>
                   
@@ -551,7 +546,7 @@ export default function AboutPage() {
                     </div>
                     <div>
                       <h3 className="font-semibold text-temple-charcoal">Registration No.</h3>
-                      <p className="text-temple-grey">[Trust Registration No.]</p>
+                      <p className="text-temple-grey">RAJ-202401341007870</p>
                     </div>
                   </div>
                   
@@ -572,7 +567,7 @@ export default function AboutPage() {
                     </div>
                     <div>
                       <h3 className="font-semibold text-temple-charcoal">Website</h3>
-                      <p className="text-temple-grey">yamrajdhamtemple.com</p>
+                      <p className="text-temple-grey">https://dharamdhamtrust.org</p>
                       <p className="text-sm text-temple-grey mt-1">Stay updated with temple progress</p>
                     </div>
                   </div>
@@ -593,7 +588,7 @@ export default function AboutPage() {
                     </div>
                     <div>
                       <h3 className="font-semibold text-temple-charcoal">Address</h3>
-                      <p className="text-temple-grey">[Temple Address / City / State]</p>
+                      <p className="text-temple-grey">Yamraj Dham, Dhani Raju, Ta. Taranagar, Dist. Churu, Rajasthan-331023</p>
                     </div>
                   </div>
                   
@@ -603,7 +598,7 @@ export default function AboutPage() {
                     </div>
                     <div>
                       <h3 className="font-semibold text-temple-charcoal">Phone</h3>
-                      <p className="text-temple-grey">+91-84273-83381</p>
+                      <p className="text-temple-grey">+91 96625 44676, +91 84273 83381</p>
                     </div>
                   </div>
                   
@@ -649,13 +644,13 @@ export default function AboutPage() {
               <div className="grid md:grid-cols-2 gap-6 text-sm">
                 <div className="text-left">
                   <div className="mb-3">
-                    <strong>Trust Name:</strong> Dharam Dham Paavan Nagari Trust<br/>
+                    <strong>Trust Name:</strong> DHARAM DHAM TRUST<br/>
                     <strong>Registration:</strong> [Trust Registration No.]<br/>
                     <strong>Email:</strong> dharamdhamtrust@gmail.com
                   </div>
                   <div>
-                    <strong>Location:</strong> Rajgarh Churu, Rajasthan<br/>
-                    <strong>Website:</strong> yamrajdhamtemple.com<br/>
+                    <strong>Location:</strong> Taranagar Churu, Rajasthan<br/>
+                    <strong>Website:</strong> https://dharamdhamtrust.org<br/>
                     <strong>Office Hours:</strong> 6:00 AM - 9:00 PM (Daily)
                   </div>
                 </div>
@@ -703,9 +698,6 @@ export default function AboutPage() {
             </div>
           </div>
         </section>
-      </main>
-
-      <Footer />
     </div>
   );
 }

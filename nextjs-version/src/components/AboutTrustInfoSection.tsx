@@ -1,6 +1,6 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Mail, MapPin, Phone, FileText, Shield, Award } from "lucide-react";
+import { Mail, MapPin, Phone, FileText, Shield, Award, Heart } from "lucide-react";
 
 const AboutTrustInfoSection = () => {
   return (
@@ -12,7 +12,7 @@ const AboutTrustInfoSection = () => {
           </h2>
           <div className="w-24 h-1 bg-gradient-divine mx-auto mb-8"></div>
           <p className="text-lg text-temple-grey max-w-3xl mx-auto">
-            Dharam Dham Paavan Nagari Trust operates with complete transparency and legal compliance, ensuring every contribution is used responsibly for the temple construction.
+            DHARAM DHAM TRUST operates with complete transparency and legal compliance, ensuring every contribution is used responsibly for the temple construction.
           </p>
         </div>
         
@@ -33,12 +33,12 @@ const AboutTrustInfoSection = () => {
                 <div className="space-y-4">
                   <div className="bg-gradient-to-r from-temple-cream to-temple-peach rounded-lg p-4">
                     <div className="font-semibold text-temple-charcoal mb-2">Trust Name</div>
-                    <div className="text-temple-grey">Dharam Dham Paavan Nagari Trust</div>
+                    <div className="text-temple-grey">DHARAM DHAM TRUST</div>
                   </div>
                   
                   <div className="bg-white border border-border/30 rounded-lg p-4">
                     <div className="font-semibold text-temple-charcoal mb-2">Registration Number</div>
-                    <div className="text-temple-grey">[Trust Registration No.]</div>
+                    <div className="text-temple-grey">RAJ-202401341007870</div>
                   </div>
                   
                   <div className="bg-white border border-border/30 rounded-lg p-4">
@@ -48,7 +48,7 @@ const AboutTrustInfoSection = () => {
                   
                   <div className="bg-white border border-border/30 rounded-lg p-4">
                     <div className="font-semibold text-temple-charcoal mb-2">Address</div>
-                    <div className="text-temple-grey">[Temple Address / City / State]</div>
+                    <div className="text-temple-grey">Yamraj Dham, Dhani Raju, Ta. Taranagar, Dist. Churu, Rajasthan-331023</div>
                   </div>
                 </div>
               </div>
@@ -128,7 +128,7 @@ const AboutTrustInfoSection = () => {
               <h3 className="text-lg font-semibold mb-2 text-temple-charcoal">Call Us</h3>
               <p className="text-temple-grey mb-4">Speak with our team</p>
               <Button variant="outline" size="sm">
-                [Phone Number]
+                +91 96625 44676, +91 84273 83381
               </Button>
             </CardContent>
           </Card>
@@ -141,7 +141,7 @@ const AboutTrustInfoSection = () => {
               <h3 className="text-lg font-semibold mb-2 text-temple-charcoal">Visit Us</h3>
               <p className="text-temple-grey mb-4">Come to our temple site</p>
               <Button variant="outline" size="sm">
-                [Temple Address]
+                Yamraj Dham, Dhani Raju, Ta. Taranagar, Dist. Churu, Rajasthan-331023
               </Button>
             </CardContent>
           </Card>

@@ -2,7 +2,6 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import Header from "@/components/Header";
 import { Button } from "@/components/ui/button";
 import { Home } from "lucide-react";
 
@@ -16,8 +15,7 @@ export default function NotFound() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-background">
-      <Header />
+    <div className="w-full">
       <div className="flex items-center justify-center min-h-[calc(100vh-4rem)]">
         <div className="text-center">
           <h1 className="text-6xl font-bold text-primary mb-4">404</h1>

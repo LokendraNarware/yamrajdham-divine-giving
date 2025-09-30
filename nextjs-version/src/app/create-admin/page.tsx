@@ -9,7 +9,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { createAdmin } from "@/services/donations";
 import { Shield, User, Mail, Phone } from "lucide-react";
-import Header from "@/components/Header";
 
 export default function CreateAdminPage() {
   const [formData, setFormData] = useState({
@@ -55,7 +54,7 @@ export default function CreateAdminPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <Header />
+        {/* Header removed - using global layout */}
       
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-md mx-auto">

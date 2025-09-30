@@ -35,7 +35,7 @@ const HeroSection = () => {
           </h1>
           
           <p className="text-lg md:text-xl text-foreground/90 mb-8 max-w-2xl leading-relaxed">
-            🌸 Welcome to Dharam Dham Paavan Nagari Trust
+            🌸 Welcome to DHARAM DHAM TRUST
             <br />
             Building a divine center of spirituality, faith, and service where devotion, wisdom, and community come together for generations to come.
           </p>
@@ -57,8 +57,8 @@ const HeroSection = () => {
               </div>
               <div>
                 <div className="font-semibold text-temple-charcoal">📍 Location</div>
-                <div className="text-sm text-temple-grey">Dharam Dham Paavan Nagari Trust</div>
-                <div className="text-sm text-temple-grey">Rajgarh Churu, Rajasthan</div>
+                <div className="text-sm text-temple-grey">DHARAM DHAM TRUST</div>
+                <div className="text-sm text-temple-grey">Taranagar Churu, Rajasthan</div>
               </div>
             </div>
             

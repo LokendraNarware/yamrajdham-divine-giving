@@ -24,18 +24,18 @@ const AboutHeroSection = () => {
                 alt="Yamraj dham Logo" 
                 className="w-4 h-4 object-contain"
               />
-              Dharam Dham Paavan Nagari Trust
+              DHARAM DHAM TRUST
             </span>
           </div>
           
           <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold mb-6 leading-tight">
             <span className="bg-gradient-divine bg-clip-text text-transparent">
-              About Dharam Dham Paavan Nagari Trust
+              About DHARAM DHAM TRUST
             </span>
           </h1>
           
           <p className="text-lg md:text-xl text-foreground/90 mb-8 max-w-3xl mx-auto leading-relaxed">
-            Dharam Dham Paavan Nagari Trust is dedicated to building Yamrajdham Temple, a divine center of spirituality, faith, and service. Our mission is to create a sacred space where devotion, wisdom, and community come together for generations to come.
+            DHARAM DHAM TRUST is dedicated to building Yamrajdham Temple, a divine center of spirituality, faith, and service. Our mission is to create a sacred space where devotion, wisdom, and community come together for generations to come.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">

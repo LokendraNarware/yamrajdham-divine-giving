@@ -4,6 +4,8 @@ import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
 import { AuthProvider } from "@/contexts/AuthContext";
 import WhatsAppIcon from "@/components/WhatsAppIcon";
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -17,17 +19,17 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "Yamrajdham Temple - Divine Giving | Dharam Dham Paavan Nagari Trust",
-    template: "%s | Yamrajdham Temple"
+    default: "Yamrajdham Temple - Divine Giving | DHARAM DHAM TRUST",
+    template: "%s | DHARAM DHAM TRUST"
   },
-  description: "Support the construction of Yamrajdham Temple through your generous donations. Join Dharam Dham Paavan Nagari Trust in building a sacred space for spiritual growth, community worship, and divine justice in Rajgarh Churu, Rajasthan.",
+  description: "Support the construction of Yamrajdham Temple through your generous donations. Join DHARAM DHAM TRUST in building a sacred space for spiritual growth, community worship, and divine justice in Taranagar, Churu, Rajasthan.",
   keywords: [
     "Yamrajdham Temple",
-    "Dharam Dham Paavan Nagari Trust", 
+    "DHARAM DHAM TRUST", 
     "Temple Donation",
     "Spiritual Giving",
     "Hindu Temple",
-    "Rajgarh Churu",
+    "Taranagar Churu",
     "Rajasthan Temple",
     "Yamraj Temple",
     "Dharma Temple",
@@ -38,29 +40,29 @@ export const metadata: Metadata = {
     "Temple Seva",
     "Religious Donation"
   ],
-  authors: [{ name: "Dharam Dham Paavan Nagari Trust" }],
-  creator: "Dharam Dham Paavan Nagari Trust",
-  publisher: "Dharam Dham Paavan Nagari Trust",
+  authors: [{ name: "DHARAM DHAM TRUST" }],
+  creator: "DHARAM DHAM TRUST",
+  publisher: "DHARAM DHAM TRUST",
   formatDetection: {
     email: false,
     address: false,
     telephone: false,
   },
-  metadataBase: new URL('https://yamrajdhamtemple.com'),
+  metadataBase: new URL('https://https://dharamdhamtrust.org'),
   alternates: {
     canonical: '/',
   },
   openGraph: {
-    title: "Yamrajdham Temple - Divine Giving | Dharam Dham Paavan Nagari Trust",
+    title: "Yamrajdham Temple - Divine Giving | DHARAM DHAM TRUST",
     description: "Support the construction of Yamrajdham Temple through your generous donations. Join us in building a sacred space for spiritual growth and community worship.",
-    url: 'https://yamrajdhamtemple.com',
+    url: 'https://https://dharamdhamtrust.org',
     siteName: 'Yamrajdham Temple',
     images: [
       {
         url: '/temple-hero.jpg',
         width: 1200,
         height: 630,
-        alt: 'Yamrajdham Temple Construction - Dharam Dham Paavan Nagari Trust',
+        alt: 'Yamrajdham Temple Construction - DHARAM DHAM TRUST',
       },
     ],
     locale: 'en_IN',
@@ -101,43 +103,43 @@ export default function RootLayout({
     "@graph": [
       {
         "@type": "Organization",
-        "@id": "https://yamrajdhamtemple.com/#organization",
-        "name": "Dharam Dham Paavan Nagari Trust",
+        "@id": "https://https://dharamdhamtrust.org/#organization",
+        "name": "DHARAM DHAM TRUST",
         "alternateName": "Yamrajdham Temple Trust",
-        "url": "https://yamrajdhamtemple.com",
+        "url": "https://https://dharamdhamtrust.org",
         "logo": {
           "@type": "ImageObject",
-          "url": "https://yamrajdhamtemple.com/LOGO.png",
+          "url": "https://https://dharamdhamtrust.org/LOGO.png",
           "width": 400,
           "height": 400
         },
-        "description": "Dharam Dham Paavan Nagari Trust is dedicated to building Yamrajdham Temple, a divine center of spirituality, faith, and service in Rajgarh Churu, Rajasthan.",
+        "description": "DHARAM DHAM TRUST is dedicated to building Yamrajdham Temple, a divine center of spirituality, faith, and service in Taranagar Churu, Rajasthan.",
         "email": "dharamdhamtrust@gmail.com",
         "address": {
           "@type": "PostalAddress",
-          "addressLocality": "Rajgarh Churu",
+          "addressLocality": "Taranagar Churu",
           "addressRegion": "Rajasthan",
           "addressCountry": "IN"
         },
         "sameAs": [
-          "https://yamrajdhamtemple.com"
+          "https://https://dharamdhamtrust.org"
         ]
       },
       {
         "@type": "WebSite",
-        "@id": "https://yamrajdhamtemple.com/#website",
-        "url": "https://yamrajdhamtemple.com",
+        "@id": "https://https://dharamdhamtrust.org/#website",
+        "url": "https://https://dharamdhamtrust.org",
         "name": "Yamrajdham Temple - Divine Giving",
         "description": "Support the construction of Yamrajdham Temple through your generous donations. Join us in building a sacred space for spiritual growth and community worship.",
         "publisher": {
-          "@id": "https://yamrajdhamtemple.com/#organization"
+          "@id": "https://https://dharamdhamtrust.org/#organization"
         },
         "potentialAction": [
           {
             "@type": "SearchAction",
             "target": {
               "@type": "EntryPoint",
-              "urlTemplate": "https://yamrajdhamtemple.com/search?q={search_term_string}"
+              "urlTemplate": "https://https://dharamdhamtrust.org/search?q={search_term_string}"
             },
             "query-input": "required name=search_term_string"
           }
@@ -145,18 +147,18 @@ export default function RootLayout({
       },
       {
         "@type": "PlaceOfWorship",
-        "@id": "https://yamrajdhamtemple.com/#place",
+        "@id": "https://https://dharamdhamtrust.org/#place",
         "name": "Yamrajdham Temple",
         "description": "A sacred temple dedicated to Yamraj (Dharmaraj), the divine guardian of moral order and justice in Hindu mythology.",
         "address": {
           "@type": "PostalAddress",
-          "addressLocality": "Rajgarh Churu",
+          "addressLocality": "Taranagar Churu",
           "addressRegion": "Rajasthan",
           "addressCountry": "IN"
         },
         "telephone": "+91-84273-83381",
-        "url": "https://yamrajdhamtemple.com",
-        "sameAs": "https://yamrajdhamtemple.com"
+        "url": "https://https://dharamdhamtrust.org",
+        "sameAs": "https://https://dharamdhamtrust.org"
       }
     ]
   };
@@ -173,7 +175,11 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <AuthProvider>
-          {children}
+          <Header />
+          <main className="min-h-screen">
+            {children}
+          </main>
+          <Footer />
           <Toaster />
           <WhatsAppIcon />
         </AuthProvider>

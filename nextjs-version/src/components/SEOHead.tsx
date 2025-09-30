@@ -12,24 +12,24 @@ interface SEOHeadProps {
 }
 
 export default function SEOHead({
-  title = 'Yamrajdham Temple - Divine Giving | Dharam Dham Paavan Nagari Trust',
-  description = 'Support the construction of Yamrajdham Temple through your generous donations. Join Dharam Dham Paavan Nagari Trust in building a sacred space for spiritual growth, community worship, and divine justice in Rajgarh Churu, Rajasthan.',
+  title = 'Yamrajdham Temple - Divine Giving | DHARAM DHAM TRUST',
+  description = 'Support the construction of Yamrajdham Temple through your generous donations. Join DHARAM DHAM TRUST in building a sacred space for spiritual growth, community worship, and divine justice in Taranagar Churu, Rajasthan.',
   keywords = [
     'Yamrajdham Temple',
-    'Dharam Dham Paavan Nagari Trust',
+    'DHARAM DHAM TRUST',
     'Temple Donation',
     'Spiritual Giving',
     'Hindu Temple',
-    'Rajgarh Churu',
+    'Taranagar Churu',
     'Rajasthan Temple'
   ],
   image = '/temple-hero.jpg',
-  url = 'https://yamrajdhamtemple.com',
+  url = 'https://https://dharamdhamtrust.org',
   type = 'website',
   structuredData,
   canonical
 }: SEOHeadProps) {
-  const baseUrl = 'https://yamrajdhamtemple.com';
+  const baseUrl = 'https://https://dharamdhamtrust.org';
   const fullImageUrl = image.startsWith('http') ? image : `${baseUrl}${image}`;
   const fullUrl = url.startsWith('http') ? url : `${baseUrl}${url}`;
   const canonicalUrl = canonical ? `${baseUrl}${canonical}` : fullUrl;
@@ -40,7 +40,7 @@ export default function SEOHead({
       <title>{title}</title>
       <meta name="description" content={description} />
       <meta name="keywords" content={keywords.join(', ')} />
-      <meta name="author" content="Dharam Dham Paavan Nagari Trust" />
+      <meta name="author" content="DHARAM DHAM TRUST" />
       <meta name="robots" content="index, follow" />
       <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       <meta httpEquiv="Content-Type" content="text/html; charset=utf-8" />
@@ -113,11 +113,11 @@ export function PageSEO({
 }) {
   const defaultKeywords = [
     'Yamrajdham Temple',
-    'Dharam Dham Paavan Nagari Trust',
+    'DHARAM DHAM TRUST',
     'Temple Donation',
     'Spiritual Giving',
     'Hindu Temple',
-    'Rajgarh Churu',
+    'Taranagar Churu',
     'Rajasthan Temple'
   ];
 

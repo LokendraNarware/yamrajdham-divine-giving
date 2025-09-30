@@ -5,7 +5,6 @@ import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import Header from '@/components/Header';
 
 export default function DebugDashboardPage() {
   const { user } = useAuth();
@@ -120,7 +119,7 @@ export default function DebugDashboardPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <Header />
+        {/* Header removed - using global layout */}
       
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-6xl mx-auto">

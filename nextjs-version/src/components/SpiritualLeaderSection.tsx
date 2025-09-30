@@ -51,7 +51,7 @@ export default function SpiritualLeaderSection() {
                 </p>
                 
                 <p className="text-lg text-temple-grey leading-relaxed">
-                  Inspired by Mataji's teachings, the <strong>Dharam Dham Paavan Nagari Trust</strong> was founded with a sacred mission to build Yamrajdham Temple:
+                  Inspired by Mataji's teachings, the <strong>DHARAM DHAM TRUST</strong> was founded with a sacred mission to build Yamrajdham Temple:
                 </p>
                 
                 <ul className="text-lg text-temple-grey leading-relaxed space-y-2 ml-4">

@@ -3,10 +3,12 @@
 import React, { createContext, useContext, useEffect, useState, useCallback, useMemo } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { User } from '@supabase/supabase-js';
+import { isUserAdmin } from '@/lib/admin-utils';
 
 interface AuthContextType {
   user: User | null;
   loading: boolean;
+  isAdmin: boolean;
   signUp: (email: string, password: string, userData: { name: string; phone?: string }) => Promise<{ success: boolean; error?: string }>;
   signIn: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
   signOut: () => Promise<void>;
@@ -17,6 +19,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   const getInitialSession = useCallback(async () => {
     try {
@@ -29,6 +32,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
       console.log('Initial session:', session);
       setUser(session?.user ?? null);
+      
+      // Check admin status if user exists
+      if (session?.user?.email) {
+        const adminStatus = await isUserAdmin(session.user.email);
+        setIsAdmin(adminStatus);
+      } else {
+        setIsAdmin(false);
+      }
+      
       setLoading(false);
     } catch (error) {
       console.error('Error in getInitialSession:', error);
@@ -54,6 +66,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             if (!mounted) return;
             console.log('Auth state changed:', event, session);
             setUser(session?.user ?? null);
+            
+            // Check admin status if user exists
+            if (session?.user?.email) {
+              const adminStatus = await isUserAdmin(session.user.email);
+              setIsAdmin(adminStatus);
+            } else {
+              setIsAdmin(false);
+            }
+            
             setLoading(false);
           }
         );
@@ -157,10 +178,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const value = useMemo(() => ({
     user,
     loading,
+    isAdmin,
     signUp,
     signIn,
     signOut,
-  }), [user, loading, signUp, signIn, signOut]);
+  }), [user, loading, isAdmin, signUp, signIn, signOut]);
 
   return (
     <AuthContext.Provider value={value}>

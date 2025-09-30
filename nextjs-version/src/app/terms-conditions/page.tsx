@@ -1,18 +1,13 @@
 import { Metadata } from 'next';
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
 
 export const metadata: Metadata = {
-  title: 'Terms & Conditions | Dharam Dham Paavan Nagari Trust',
-  description: 'Terms and Conditions for Dharam Dham Paavan Nagari Trust - Read our terms of service and conditions for using our website and making donations.',
+  title: 'Terms & Conditions | DHARAM DHAM TRUST',
+  description: 'Terms and Conditions for DHARAM DHAM TRUST - Read our terms of service and conditions for using our website and making donations.',
 };
 
 export default function TermsConditionsPage() {
   return (
-    <div className="min-h-screen bg-background">
-      <Header />
-      
-      <main className="w-full">
+    <div className="w-full">
       <div className="container mx-auto px-4 py-12">
         <div className="max-w-4xl mx-auto">
           {/* Header */}
@@ -22,7 +17,7 @@ export default function TermsConditionsPage() {
             </h1>
             <div className="flex items-center justify-center gap-2 mb-4">
               <span className="text-2xl">🕉️</span>
-              <span className="text-temple-gold text-lg">Dharam Dham Paavan Nagari Trust</span>
+              <span className="text-temple-gold text-lg">DHARAM DHAM TRUST</span>
             </div>
             <p className="text-muted-foreground text-lg">
               Last updated: January 15, 2025
@@ -40,7 +35,7 @@ export default function TermsConditionsPage() {
               </h2>
               <div className="text-foreground leading-relaxed space-y-4">
                 <p>
-                  Welcome to Dharam Dham Paavan Nagari Trust's website. These Terms and Conditions ("Terms") govern your use of our website and services. By accessing or using our website, you agree to be bound by these Terms.
+                  Welcome to DHARAM DHAM TRUST's website. These Terms and Conditions ("Terms") govern your use of our website and services. By accessing or using our website, you agree to be bound by these Terms.
                 </p>
                 <p>
                   If you do not agree to these Terms, please do not use our website or services.
@@ -56,7 +51,7 @@ export default function TermsConditionsPage() {
               </h2>
               <div className="text-foreground leading-relaxed space-y-4">
                 <p>
-                  By accessing, browsing, or using this website, you acknowledge that you have read, understood, and agree to be bound by these Terms and our Privacy Policy. These Terms constitute a legally binding agreement between you and Dharam Dham Paavan Nagari Trust.
+                  By accessing, browsing, or using this website, you acknowledge that you have read, understood, and agree to be bound by these Terms and our Privacy Policy. These Terms constitute a legally binding agreement between you and DHARAM DHAM TRUST.
                 </p>
                 <p>
                   You represent that you are at least 18 years old and have the legal capacity to enter into this agreement.
@@ -72,7 +67,7 @@ export default function TermsConditionsPage() {
               </h2>
               <div className="text-foreground leading-relaxed space-y-4">
                 <p>
-                  Dharam Dham Paavan Nagari Trust operates this website to:
+                  DHARAM DHAM TRUST operates this website to:
                 </p>
                 <ul className="list-disc list-inside space-y-2 ml-4">
                   <li>Provide information about Yamrajdham Temple and its construction</li>
@@ -141,7 +136,7 @@ export default function TermsConditionsPage() {
               </h2>
               <div className="text-foreground leading-relaxed space-y-4">
                 <p>
-                  All content on this website, including text, graphics, logos, images, and software, is the property of Dharam Dham Paavan Nagari Trust or its content suppliers and is protected by copyright and other intellectual property laws.
+                  All content on this website, including text, graphics, logos, images, and software, is the property of DHARAM DHAM TRUST or its content suppliers and is protected by copyright and other intellectual property laws.
                 </p>
                 <div>
                   <h3 className="text-lg font-medium text-temple-gold mb-2">Permitted Use:</h3>
@@ -215,7 +210,7 @@ export default function TermsConditionsPage() {
               </h2>
               <div className="text-foreground leading-relaxed space-y-4">
                 <p>
-                  To the maximum extent permitted by law, Dharam Dham Paavan Nagari Trust shall not be liable for any direct, indirect, incidental, special, or consequential damages arising from:
+                  To the maximum extent permitted by law, DHARAM DHAM TRUST shall not be liable for any direct, indirect, incidental, special, or consequential damages arising from:
                 </p>
                 <ul className="list-disc list-inside space-y-2 ml-4">
                   <li>Use or inability to use the website</li>
@@ -235,7 +230,7 @@ export default function TermsConditionsPage() {
               </h2>
               <div className="text-temple-sand/90 leading-relaxed">
                 <p>
-                  You agree to indemnify and hold harmless Dharam Dham Paavan Nagari Trust, its trustees, employees, and agents from any claims, damages, losses, or expenses (including attorney's fees) arising from your use of the website or violation of these Terms.
+                  You agree to indemnify and hold harmless DHARAM DHAM TRUST, its trustees, employees, and agents from any claims, damages, losses, or expenses (including attorney's fees) arising from your use of the website or violation of these Terms.
                 </p>
               </div>
             </section>
@@ -288,11 +283,11 @@ export default function TermsConditionsPage() {
               <div className="text-foreground leading-relaxed space-y-4">
                 <p>If you have any questions about these Terms, please contact us:</p>
                 <div className="bg-temple-charcoal/30 p-4 rounded-lg border border-temple-gold/20">
-                  <p><strong className="text-temple-gold">Dharam Dham Paavan Nagari Trust</strong></p>
+                  <p><strong className="text-temple-gold">DHARAM DHAM TRUST</strong></p>
                   <p>Email: info@dharamdhamtrust.org</p>
                   <p>Phone: +91 84273 83381</p>
                   <p>Address: Raju ki dhani, Yamrajdham Temple<br />
-                  On road NH-52, Rajgarh Churu<br />
+                  On road NH-52, Taranagar Churu<br />
                   Taranagar, Rajasthan 331304</p>
                 </div>
               </div>
@@ -308,9 +303,6 @@ export default function TermsConditionsPage() {
           </div>
         </div>
       </div>
-      </main>
-      
-      <Footer />
     </div>
   );
 }

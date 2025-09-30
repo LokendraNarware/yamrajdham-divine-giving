@@ -1,18 +1,13 @@
 import { Metadata } from 'next';
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
 
 export const metadata: Metadata = {
-  title: 'Disclaimer | Dharam Dham Paavan Nagari Trust',
-  description: 'Disclaimer for Dharam Dham Paavan Nagari Trust - Important information about the use of our website and services.',
+  title: 'Disclaimer | DHARAM DHAM TRUST',
+  description: 'Disclaimer for DHARAM DHAM TRUST - Important information about the use of our website and services.',
 };
 
 export default function DisclaimerPage() {
   return (
-    <div className="min-h-screen bg-background">
-      <Header />
-      
-      <main className="w-full">
+    <div className="w-full">
       <div className="container mx-auto px-4 py-12">
         <div className="max-w-4xl mx-auto">
           {/* Header */}
@@ -22,7 +17,7 @@ export default function DisclaimerPage() {
             </h1>
             <div className="flex items-center justify-center gap-2 mb-4">
               <span className="text-2xl">🕉️</span>
-              <span className="text-temple-gold text-lg">Dharam Dham Paavan Nagari Trust</span>
+              <span className="text-temple-gold text-lg">DHARAM DHAM TRUST</span>
             </div>
             <p className="text-muted-foreground text-lg">
               Last updated: January 15, 2025
@@ -40,7 +35,7 @@ export default function DisclaimerPage() {
               </h2>
               <div className="text-foreground leading-relaxed space-y-4">
                 <p>
-                  This disclaimer ("Disclaimer") is a legal statement that limits the liability of Dharam Dham Paavan Nagari Trust ("we," "our," or "us") regarding the use of our website and services. By accessing and using our website, you acknowledge and agree to the terms outlined in this Disclaimer.
+                  This disclaimer ("Disclaimer") is a legal statement that limits the liability of DHARAM DHAM TRUST ("we," "our," or "us") regarding the use of our website and services. By accessing and using our website, you acknowledge and agree to the terms outlined in this Disclaimer.
                 </p>
                 <p>
                   Please read this Disclaimer carefully before using our website or making any donations.
@@ -192,7 +187,7 @@ export default function DisclaimerPage() {
               </h2>
               <div className="text-foreground leading-relaxed space-y-4">
                 <p>
-                  To the maximum extent permitted by law, Dharam Dham Paavan Nagari Trust shall not be liable for:
+                  To the maximum extent permitted by law, DHARAM DHAM TRUST shall not be liable for:
                 </p>
                 <ul className="list-disc list-inside space-y-2 ml-4">
                   <li>Direct, indirect, incidental, or consequential damages</li>
@@ -241,7 +236,7 @@ export default function DisclaimerPage() {
               </h2>
               <div className="text-temple-sand/90 leading-relaxed">
                 <p>
-                  You agree to indemnify, defend, and hold harmless Dharam Dham Paavan Nagari Trust, its trustees, employees, and agents from any claims, damages, losses, or expenses (including reasonable attorney's fees) arising from:
+                  You agree to indemnify, defend, and hold harmless DHARAM DHAM TRUST, its trustees, employees, and agents from any claims, damages, losses, or expenses (including reasonable attorney's fees) arising from:
                 </p>
                 <ul className="list-disc list-inside space-y-2 ml-4 mt-4">
                   <li>Your use of the website or services</li>
@@ -295,11 +290,11 @@ export default function DisclaimerPage() {
               <div className="text-foreground leading-relaxed space-y-4">
                 <p>If you have any questions about this Disclaimer, please contact us:</p>
                 <div className="bg-temple-charcoal/30 p-4 rounded-lg border border-temple-gold/20">
-                  <p><strong className="text-temple-gold">Dharam Dham Paavan Nagari Trust</strong></p>
+                  <p><strong className="text-temple-gold">DHARAM DHAM TRUST</strong></p>
                   <p>Email: info@dharamdhamtrust.org</p>
                   <p>Phone: +91 84273 83381</p>
                   <p>Address: Raju ki dhani, Yamrajdham Temple<br />
-                  On road NH-52, Rajgarh Churu<br />
+                  On road NH-52, Taranagar Churu<br />
                   Taranagar, Rajasthan 331304</p>
                 </div>
               </div>
@@ -328,9 +323,6 @@ export default function DisclaimerPage() {
           </div>
         </div>
       </div>
-      </main>
-      
-      <Footer />
     </div>
   );
 }
