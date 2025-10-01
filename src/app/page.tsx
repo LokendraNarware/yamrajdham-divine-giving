@@ -1,3 +1,5 @@
+"use client";
+
 import HeroSection from "@/components/HeroSection";
 import DonationSection from "@/components/DonationSection";
 import ProgressTracker from "@/components/ProgressTracker";
@@ -8,8 +10,11 @@ import MissionVisionSection from "@/components/MissionVisionSection";
 import CommunitySection from "@/components/CommunitySection";
 import { Card, CardContent } from "@/components/ui/card";
 import { Heart, Phone, Mail, MapPin } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 export default function Home() {
+  const router = useRouter();
+
   return (
     <div className="w-full">
         <section id="home">
@@ -70,10 +75,16 @@ export default function Home() {
               </div>
               
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <button className="bg-white text-temple-gold hover:bg-temple-cream px-8 py-3 rounded-full font-semibold transition-colors">
+              <button 
+                onClick={() => router.push('/donate')}
+                className="bg-white text-temple-gold hover:bg-temple-cream px-8 py-3 rounded-full font-semibold transition-colors cursor-pointer"
+              >
                 Donate Now
               </button>
-              <button className="border-2 border-white text-white hover:bg-white hover:text-temple-gold px-8 py-3 rounded-full font-semibold transition-colors">
+              <button 
+                onClick={() => router.push('/contact')}
+                className="border-2 border-white text-white hover:bg-white hover:text-temple-gold px-8 py-3 rounded-full font-semibold transition-colors cursor-pointer"
+              >
                 Contact Us
               </button>
               </div>

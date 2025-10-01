@@ -1,8 +1,12 @@
+"use client";
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Heart, HandHeart, Users, Gift, Star, ArrowRight } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 const AboutSevaSection = () => {
+  const router = useRouter();
   const sevaOptions = [
     {
       icon: Heart,
@@ -84,7 +88,8 @@ const AboutSevaSection = () => {
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button 
                 size="xl" 
-                className="bg-white text-temple-gold hover:bg-white/90 px-8 py-4 text-lg font-semibold group"
+                className="bg-white text-temple-gold hover:bg-white/90 px-8 py-4 text-lg font-semibold group cursor-pointer"
+                onClick={() => router.push('/donate')}
               >
                 <Heart className="w-5 h-5 mr-2 group-hover:scale-110 transition-transform" />
                 Donate Now
@@ -93,7 +98,8 @@ const AboutSevaSection = () => {
               <Button 
                 variant="outline" 
                 size="xl"
-                className="border-2 border-white text-white hover:bg-white hover:text-temple-gold px-8 py-4 text-lg font-semibold"
+                className="border-2 border-white text-white hover:bg-white hover:text-temple-gold px-8 py-4 text-lg font-semibold cursor-pointer"
+                onClick={() => router.push('/about')}
               >
                 Learn About Seva
               </Button>

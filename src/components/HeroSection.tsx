@@ -1,7 +1,12 @@
+"use client";
+
 import { Button } from "@/components/ui/button";
 import { Heart, MapPin, Users } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 const HeroSection = () => {
+  const router = useRouter();
+
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
       {/* Background Image with Overlay */}
@@ -41,11 +46,20 @@ const HeroSection = () => {
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 mb-8">
-            <Button variant="divine" size="xl" className="group">
+            <Button 
+              variant="divine" 
+              size="xl" 
+              className="group"
+              onClick={() => router.push('/donate')}
+            >
               <Heart className="w-5 h-5 group-hover:scale-110 transition-transform" />
               Donate Now
             </Button>
-            <Button variant="outline" size="xl">
+            <Button 
+              variant="outline" 
+              size="xl"
+              onClick={() => router.push('/about')}
+            >
               Learn More
             </Button>
           </div>

@@ -1,46 +1,12 @@
-import type { Metadata } from "next";
+"use client";
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-
-export const metadata: Metadata = {
-  title: "About Us - DHARAM DHAM TRUST",
-  description: "Learn about DHARAM DHAM TRUST, our mission to build Yamrajdham Temple, and our spiritual leader Mataji's divine guidance in Taranagar, Churu, Rajasthan.",
-  keywords: [
-    "About DHARAM DHAM TRUST",
-    "Yamrajdham Temple Trust",
-    "Mataji Spiritual Leader",
-    "Temple Mission",
-    "Spiritual Guidance",
-    "Taranagar Churu Temple",
-    "Hindu Temple Trust",
-    "Divine Mission",
-    "Spiritual Education",
-    "Community Service"
-  ],
-  openGraph: {
-    title: "About Us - DHARAM DHAM TRUST",
-    description: "Learn about DHARAM DHAM TRUST, our mission to build Yamrajdham Temple, and our spiritual leader Mataji's divine guidance.",
-    images: [
-      {
-        url: '/mataji.png',
-        width: 1200,
-        height: 630,
-        alt: 'Mataji - Spiritual Leader of DHARAM DHAM TRUST',
-      },
-    ],
-  },
-  twitter: {
-    card: 'summary_large_image',
-    title: "About Us - DHARAM DHAM TRUST",
-    description: "Learn about our mission to build Yamrajdham Temple and Mataji's divine guidance.",
-    images: ['/mataji.png'],
-  },
-  alternates: {
-    canonical: '/about',
-  },
-};
+import { useRouter } from "next/navigation";
 
 export default function AboutPage() {
+  const router = useRouter();
+
   return (
     <div className="w-full">
         {/* Hero Section */}
@@ -139,14 +105,16 @@ export default function AboutPage() {
                   <Button 
                     variant="divine"
                     size="lg" 
-                    className="px-8 py-3 rounded-full font-semibold"
+                    className="px-8 py-3 rounded-full font-semibold cursor-pointer"
+                    onClick={() => router.push('/about')}
                   >
                     🙏 Learn More About Mataji
                   </Button>
                   <Button 
                     variant="outline" 
                     size="lg" 
-                    className="border-temple-gold text-temple-gold hover:bg-temple-cream px-8 py-3 rounded-full font-semibold"
+                    className="border-temple-gold text-temple-gold hover:bg-temple-cream px-8 py-3 rounded-full font-semibold cursor-pointer"
+                    onClick={() => router.push('/contact')}
                   >
                     🤝 Join Our Mission
                   </Button>
@@ -465,14 +433,16 @@ export default function AboutPage() {
                     <Button 
                       variant="divine" 
                       size="lg"
-                      className="shadow-temple hover:shadow-divine"
+                      className="shadow-temple hover:shadow-divine cursor-pointer"
+                      onClick={() => router.push('/donate')}
                     >
                       ❤️ Donate Now
                     </Button>
                     <Button 
                       variant="outline" 
                       size="lg"
-                      className="border-temple-gold text-temple-charcoal hover:bg-temple-soft-peach"
+                      className="border-temple-gold text-temple-charcoal hover:bg-temple-soft-peach cursor-pointer"
+                      onClick={() => router.push('/contact')}
                     >
                       👥 Volunteer
                     </Button>
@@ -677,21 +647,24 @@ export default function AboutPage() {
               <Button 
                 variant="divine" 
                 size="lg"
-                className="bg-white text-temple-gold hover:bg-temple-cream shadow-temple"
+                className="bg-white text-temple-gold hover:bg-temple-cream shadow-temple cursor-pointer"
+                onClick={() => router.push('/donate')}
               >
                 ❤️ Support the Temple
               </Button>
               <Button 
                 variant="outline" 
                 size="lg"
-                className="border-2 border-white text-white hover:bg-white hover:text-temple-gold"
+                className="border-2 border-white text-white hover:bg-white hover:text-temple-gold cursor-pointer"
+                onClick={() => router.push('/contact')}
               >
                 📧 Contact Us
               </Button>
               <Button 
                 variant="outline" 
                 size="lg"
-                className="border-2 border-white text-white hover:bg-white hover:text-temple-gold"
+                className="border-2 border-white text-white hover:bg-white hover:text-temple-gold cursor-pointer"
+                onClick={() => router.push('/contact')}
               >
                 🤝 Volunteer
               </Button>

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -28,7 +28,7 @@ declare global {
 const donationFormSchema = z.object({
   amount: z.string().min(1, "Amount is required"),
   name: z.string().min(1, "Name is required"),
-  email: z.string().email("Valid email is required"),
+  email: z.string().min(1, "Email is required").email("Valid email is required"),
   mobile: z.string()
     .min(10, "Mobile number must be at least 10 digits")
     .max(15, "Mobile number must be at most 15 digits")
@@ -107,6 +107,7 @@ export default function DonatePage() {
   const { toast } = useToast();
   const { user } = useAuth();
   const amount = searchParams.get("amount") || "";
+  const [isClient, setIsClient] = useState(false);
   
   // Removed unused donation state
 
@@ -188,15 +189,53 @@ export default function DonatePage() {
     }
   }, [searchParams, user, form]);
 
+  // Set client-side flag to prevent hydration mismatch
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
 
   const onSubmit = async (data: DonationFormData) => {
+    // Prevent multiple submissions
+    if (form.formState.isSubmitting) {
+      console.log('Form is already submitting, ignoring duplicate submission');
+      return;
+    }
+
     try {
-      console.log('Processing donation for:', data.email);
+      console.log('=== DONATION FORM SUBMISSION STARTED ===');
+      console.log('Form data:', data);
+      
+      // Validate required fields
+      if (!data.name || !data.email || !data.mobile || !data.amount) {
+        throw new Error('Please fill in all required fields (Name, Email, Mobile, Amount)');
+      }
+
+      // Validate email format
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(data.email)) {
+        throw new Error('Please enter a valid email address');
+      }
+
+      // Validate mobile number
+      const mobileRegex = /^(\+91|91)?[6-9]\d{9}$/;
+      if (!mobileRegex.test(data.mobile)) {
+        throw new Error('Please enter a valid Indian mobile number');
+      }
+
+      // Validate amount
+      const amount = parseInt(data.amount);
+      if (isNaN(amount) || amount <= 0) {
+        throw new Error('Please enter a valid donation amount');
+      }
+
+      console.log('Form validation passed, proceeding with donation...');
       
       // Auto account creation logic - no login required
       let userId: string | null = null;
 
       // Check if user already exists by email
+      console.log('Checking if user exists by email:', data.email);
       const userResult = await getUserByEmail(data.email);
       
       if (userResult.success && userResult.data) {
@@ -225,13 +264,15 @@ export default function DonatePage() {
           console.log('New user account created:', userId);
         } else {
           const errorMessage = createUserResult.error?.message || 'Failed to create user account';
+          console.error('User creation failed:', createUserResult.error);
           throw new Error(`Account creation failed: ${errorMessage}`);
         }
       }
 
       // Create donation
+      console.log('Creating donation record...');
       const donationData = {
-        amount: parseInt(data.amount),
+        amount: amount,
         donation_type: 'general',
         payment_status: 'pending' as const,
         dedication_message: data.message || undefined,
@@ -242,34 +283,42 @@ export default function DonatePage() {
       if (donationResult.success && donationResult.data) {
         // Use donation ID as order ID for Cashfree
         const orderId = donationResult.data.id;
+        console.log('Donation created successfully, order ID:', orderId);
         
         // Set up payment data
         const paymentData = {
-          amount: parseInt(data.amount),
+          amount: amount,
           donorName: data.name,
           donorEmail: data.email,
           donorPhone: data.mobile,
           orderId: orderId,
         };
 
-        // Removed unused setCurrentDonationId
+        console.log('Payment data prepared:', paymentData);
         
-      toast({
-        title: "Account & Donation Created",
-        description: "Account created automatically. Initiating payment...",
-      });
+        toast({
+          title: "Account & Donation Created",
+          description: "Account created automatically. Initiating payment...",
+        });
 
         // Directly initiate payment without modal
         await initiateDirectPayment(paymentData);
       } else {
         const errorMessage = donationResult.error?.message || 'Failed to create donation';
+        console.error('Donation creation failed:', donationResult.error);
         throw new Error(errorMessage);
       }
     } catch (error) {
-      console.error("Error submitting donation:", error);
+      console.error("=== DONATION FORM SUBMISSION ERROR ===");
+      console.error("Error details:", error);
+      console.error("Error message:", error instanceof Error ? error.message : 'Unknown error');
+      console.error("Error stack:", error instanceof Error ? error.stack : 'No stack trace');
+      
+      const errorMessage = error instanceof Error ? error.message : 'Failed to submit donation. Please try again.';
+      
       toast({
-        title: "Error",
-        description: "Failed to submit donation. Please try again.",
+        title: "Donation Failed",
+        description: errorMessage,
         variant: "destructive",
       });
     }
@@ -294,6 +343,9 @@ export default function DonatePage() {
     orderId: string;
   }) => {
     try {
+      console.log('=== PAYMENT INITIATION STARTED ===');
+      console.log('Payment data:', paymentData);
+      
       // Import the payment functions
       const { createPaymentSession, generateCustomerId } = await import('@/services/cashfree');
       
@@ -322,12 +374,16 @@ export default function DonatePage() {
         },
       };
 
+      console.log('Session data prepared:', sessionData);
+
       toast({
         title: "Creating Payment Session",
         description: "Setting up secure payment...",
       });
 
       const response = await createPaymentSession(sessionData);
+      
+      console.log('Payment session response:', response);
       
       if (!response.success) {
         throw new Error(response.message || 'Failed to create payment session');
@@ -338,9 +394,10 @@ export default function DonatePage() {
       const paymentUrl = response.data.payment_url;
       
       // Log all available data for debugging
-      console.log('Original session ID:', originalSessionId);
-      console.log('CF Order ID:', cfOrderId);
-      console.log('Payment URL from API:', paymentUrl);
+      console.log('Payment session created successfully:');
+      console.log('- Session ID:', originalSessionId);
+      console.log('- CF Order ID:', cfOrderId);
+      console.log('- Payment URL:', paymentUrl);
       
       toast({
         title: "Payment Session Created",
@@ -352,7 +409,11 @@ export default function DonatePage() {
       await initializeCashfreeAndCheckout(originalSessionId);
 
     } catch (error) {
-      console.error('Direct payment initiation error:', error);
+      console.error('=== PAYMENT INITIATION ERROR ===');
+      console.error('Error details:', error);
+      console.error('Error message:', error instanceof Error ? error.message : 'Unknown error');
+      console.error('Error stack:', error instanceof Error ? error.stack : 'No stack trace');
+      
       const errorMessage = error instanceof Error ? error.message : 'Failed to initiate payment';
       handlePaymentFailure(errorMessage);
     }
@@ -364,6 +425,9 @@ export default function DonatePage() {
   // Initialize Cashfree SDK and open checkout
   const initializeCashfreeAndCheckout = async (sessionId: string) => {
     return new Promise((resolve, reject) => {
+      console.log('=== CASHFREE SDK INITIALIZATION ===');
+      console.log('Session ID:', sessionId);
+      
       // Check if SDK is already loaded
       if (window.Cashfree) {
         console.log('Cashfree SDK already loaded');
@@ -372,16 +436,28 @@ export default function DonatePage() {
       }
 
       // Load Cashfree SDK
+      console.log('Loading Cashfree SDK from:', 'https://sdk.cashfree.com/js/v3/cashfree.js');
       const script = document.createElement('script');
       script.src = 'https://sdk.cashfree.com/js/v3/cashfree.js';
+      
       script.onload = () => {
-        console.log('Cashfree SDK loaded successfully');
+        console.log('Cashfree SDK script loaded successfully');
+        console.log('Window.Cashfree available:', !!window.Cashfree);
+        console.log('Type of window.Cashfree:', typeof window.Cashfree);
+        
+        if (!window.Cashfree) {
+          reject(new Error('Cashfree SDK loaded but window.Cashfree is not available'));
+          return;
+        }
+        
         openCheckout(sessionId).then(resolve).catch(reject);
       };
-      script.onerror = () => {
-        console.error('Failed to load Cashfree SDK');
-        reject(new Error('Failed to load Cashfree SDK'));
+      
+      script.onerror = (error) => {
+        console.error('Failed to load Cashfree SDK:', error);
+        reject(new Error('Failed to load Cashfree SDK - check network connection'));
       };
+      
       document.head.appendChild(script);
     });
   };
@@ -389,14 +465,22 @@ export default function DonatePage() {
   // Open Cashfree checkout using SDK
   const openCheckout = async (sessionId: string) => {
     try {
-      console.log("Using Cashfree SDK checkout...");
+      console.log("=== OPENING CASHFREE CHECKOUT ===");
+      console.log("Session ID:", sessionId);
+      console.log("Window.Cashfree available:", !!window.Cashfree);
+      
+      if (!window.Cashfree) {
+        throw new Error('Cashfree SDK not available');
+      }
       
       // Create Cashfree instance
+      console.log("Creating Cashfree instance...");
       const cashfreeInstance = new window.Cashfree({
         mode: 'SANDBOX'
       });
       
       console.log("Cashfree instance created:", cashfreeInstance);
+      console.log("Available methods:", Object.keys(cashfreeInstance || {}));
       
       // Try different checkout options
       const checkoutOptionsList = [
@@ -421,33 +505,35 @@ export default function DonatePage() {
         const checkoutOptions = checkoutOptionsList[i];
         console.log(`Trying checkout options ${i + 1}:`, checkoutOptions);
         
-          try {
-            // Call checkout method
-            const result = await cashfreeInstance.checkout(checkoutOptions);
-            console.log("Checkout result:", result);
+        try {
+          // Call checkout method
+          const result = await cashfreeInstance.checkout(checkoutOptions);
+          console.log("Checkout result:", result);
 
-            // Check if result contains an error
-            if (result && typeof result === 'object' && 'error' in result) {
-              const errorResult = result as { error: { message?: string } };
-              console.error('Checkout returned error:', errorResult.error);
-              if (i === checkoutOptionsList.length - 1) {
-                throw new Error(errorResult.error.message || 'Checkout failed');
-              }
-              continue; // Try next option
-            } else {
-              console.log("Checkout successful with options:", checkoutOptions);
-              return; // Success, exit the function
-            }
-          } catch (checkoutError) {
-            console.error(`Checkout attempt ${i + 1} failed:`, checkoutError);
+          // Check if result contains an error
+          if (result && typeof result === 'object' && 'error' in result) {
+            const errorResult = result as { error: { message?: string } };
+            console.error('Checkout returned error:', errorResult.error);
             if (i === checkoutOptionsList.length - 1) {
-              throw checkoutError; // Re-throw if this was the last attempt
+              throw new Error(errorResult.error.message || 'Checkout failed');
             }
+            continue; // Try next option
+          } else {
+            console.log("Checkout successful with options:", checkoutOptions);
+            return; // Success, exit the function
           }
+        } catch (checkoutError) {
+          console.error(`Checkout attempt ${i + 1} failed:`, checkoutError);
+          if (i === checkoutOptionsList.length - 1) {
+            throw checkoutError; // Re-throw if this was the last attempt
+          }
+        }
       }
       
     } catch (error) {
-      console.error('SDK checkout error:', error);
+      console.error('=== SDK CHECKOUT ERROR ===');
+      console.error('Error details:', error);
+      console.error('Error message:', error instanceof Error ? error.message : 'Unknown error');
       
       // Fallback: Try direct URL with different formats
       console.log("SDK failed, trying direct URL fallback...");
@@ -466,6 +552,12 @@ export default function DonatePage() {
           if (newWindow) {
             console.log("Successfully opened payment window with URL:", url);
             newWindow.focus();
+            
+            toast({
+              title: "Payment Window Opened",
+              description: "Please complete your payment in the new window",
+            });
+            
             return; // Success, exit the function
           }
         } catch (urlError) {
@@ -476,6 +568,11 @@ export default function DonatePage() {
       // If all URLs fail, redirect in same window
       console.log("All popup attempts failed, redirecting in same window...");
       window.location.href = urlFormats[0];
+      
+      toast({
+        title: "Redirecting to Payment",
+        description: "Opening payment page in current window",
+      });
     }
   };
 
@@ -755,10 +852,144 @@ export default function DonatePage() {
                   </div>
 
                   <div className="pt-6">
-                    <Button type="submit" variant="divine" size="lg" className="w-full h-12 text-lg font-semibold">
+                    <Button 
+                      type="submit" 
+                      variant="divine" 
+                      size="lg" 
+                      className="w-full h-12 text-lg font-semibold"
+                      disabled={form.formState.isSubmitting}
+                    >
                       <Heart className="w-5 h-5 mr-2" />
-                      Donate Now
+                      {form.formState.isSubmitting ? "Processing..." : "Donate Now"}
                     </Button>
+                    
+                    {/* Debug buttons - only show on client side to prevent hydration mismatch */}
+                    {isClient && process.env.NODE_ENV === 'development' && (
+                      <div className="mt-4 space-y-2">
+                        <Button 
+                          type="button" 
+                          variant="outline" 
+                          size="sm" 
+                          className="w-full"
+                          onClick={() => {
+                            console.log('=== FORM DEBUG INFO ===');
+                            console.log('Form values:', form.getValues());
+                            console.log('Form errors:', form.formState.errors);
+                            console.log('Form is valid:', form.formState.isValid);
+                            console.log('Form is dirty:', form.formState.isDirty);
+                            console.log('Form is submitting:', form.formState.isSubmitting);
+                            
+                            // Show specific validation errors
+                            const errors = form.formState.errors;
+                            Object.keys(errors).forEach(field => {
+                              console.log(`Field ${field}:`, errors[field as keyof typeof errors]);
+                            });
+                            
+                            toast({
+                              title: "Debug Info",
+                              description: "Check browser console for form details",
+                            });
+                          }}
+                        >
+                          Debug Form (Check Console)
+                        </Button>
+                        
+                        <Button 
+                          type="button" 
+                          variant="outline" 
+                          size="sm" 
+                          className="w-full"
+                          onClick={async () => {
+                            console.log('=== TESTING CASHFREE SDK ===');
+                            console.log('Window.Cashfree available:', !!window.Cashfree);
+                            
+                            if (window.Cashfree) {
+                              console.log('Cashfree SDK is already loaded');
+                              toast({
+                                title: "Cashfree SDK Status",
+                                description: "SDK is loaded and available",
+                              });
+                            } else {
+                              console.log('Loading Cashfree SDK...');
+                              try {
+                                await initializeCashfreeAndCheckout('test-session-id');
+                                toast({
+                                  title: "Cashfree SDK Test",
+                                  description: "SDK loading test completed - check console",
+                                });
+                              } catch (error) {
+                                console.error('Cashfree SDK test failed:', error);
+                                toast({
+                                  title: "Cashfree SDK Test Failed",
+                                  description: error instanceof Error ? error.message : 'Unknown error',
+                                  variant: "destructive",
+                                });
+                              }
+                            }
+                          }}
+                        >
+                          Test Cashfree SDK
+                        </Button>
+                        
+                        <Button 
+                          type="button" 
+                          variant="secondary" 
+                          size="sm" 
+                          className="w-full"
+                          onClick={() => {
+                            console.log('=== SANDBOX TEST INFORMATION ===');
+                            console.log('Test Card Details for Sandbox:');
+                            console.log('Visa Debit: 4706131211212123');
+                            console.log('Visa Credit: 4576238912771450');
+                            console.log('Mastercard Debit: 5409162669381034');
+                            console.log('Mastercard Credit: 5105105105105100');
+                            console.log('Expiry: 03/2028');
+                            console.log('CVV: 123');
+                            console.log('Name: Test');
+                            console.log('OTP: 111000');
+                            console.log('');
+                            console.log('Test UPI:');
+                            console.log('Success: testsuccess@gocash');
+                            console.log('Failure: testfailure@gocash');
+                            console.log('Invalid: testinvalid@gocash');
+                            
+                            toast({
+                              title: "Sandbox Test Data",
+                              description: "Check console for test card details",
+                            });
+                          }}
+                        >
+                          Show Sandbox Test Data
+                        </Button>
+                        
+                        <Button 
+                          type="button" 
+                          variant="secondary" 
+                          size="sm" 
+                          className="w-full"
+                          onClick={() => {
+                            // Fill form with test data
+                            form.setValue('name', 'Test User');
+                            form.setValue('email', 'test@example.com');
+                            form.setValue('mobile', '9876543210');
+                            form.setValue('amount', '1101');
+                            form.setValue('country', 'India');
+                            form.setValue('state', 'Maharashtra');
+                            form.setValue('city', 'Mumbai');
+                            form.setValue('pinCode', '400001');
+                            form.setValue('address', 'Test Address, Mumbai');
+                            form.setValue('message', 'Test donation');
+                            
+                            toast({
+                              title: "Test Data Loaded",
+                              description: "Form filled with test data for easy testing",
+                            });
+                          }}
+                        >
+                          Fill Test Data
+                        </Button>
+                      </div>
+                    )}
                   </div>
                 </form>
               </Form>
