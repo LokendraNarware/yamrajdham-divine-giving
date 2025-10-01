@@ -115,13 +115,26 @@ export async function POST(request: NextRequest) {
       paymentUrl: data.payment_url
     });
 
+    // Clean up session ID (remove any duplicate text at the end)
+    let cleanSessionId = data.payment_session_id;
+    if (cleanSessionId && cleanSessionId.endsWith('paymentpayment')) {
+      cleanSessionId = cleanSessionId.replace('paymentpayment', '');
+      console.log('Cleaned session ID:', cleanSessionId);
+    }
+    
+    // Construct payment URL if not provided by Cashfree
+    const paymentUrl = data.payment_url || `${CASHFREE_CONFIG.BASE_URL}/pg/view/sessions/checkout/${cleanSessionId}`;
+    
+    console.log('Constructed payment URL:', paymentUrl);
+    console.log('Final session ID:', cleanSessionId);
+
     return NextResponse.json({
       success: true,
       message: "Order created successfully!",
       data: {
-        payment_session_id: data.payment_session_id,
+        payment_session_id: cleanSessionId,
         order_id: data.order_id,
-        payment_url: data.payment_url,
+        payment_url: paymentUrl,
         cf_order_id: data.cf_order_id,
       }
     });

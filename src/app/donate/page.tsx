@@ -205,6 +205,11 @@ export default function DonatePage() {
     try {
       console.log('=== DONATION FORM SUBMISSION STARTED ===');
       console.log('Form data:', data);
+      console.log('Form validation state:', {
+        isValid: form.formState.isValid,
+        errors: form.formState.errors,
+        isDirty: form.formState.isDirty
+      });
       
       // Validate required fields
       if (!data.name || !data.email || !data.mobile || !data.amount) {
@@ -237,6 +242,7 @@ export default function DonatePage() {
       // Check if user already exists by email
       console.log('Checking if user exists by email:', data.email);
       const userResult = await getUserByEmail(data.email);
+      console.log('User lookup result:', userResult);
       
       if (userResult.success && userResult.data) {
         // User exists, use their ID
@@ -258,7 +264,10 @@ export default function DonatePage() {
           pan_no: data.panNo || undefined,
         };
 
+        console.log('User data to create:', userData);
         const createUserResult = await createUser(userData);
+        console.log('User creation result:', createUserResult);
+        
         if (createUserResult.success && createUserResult.data) {
           userId = createUserResult.data.id;
           console.log('New user account created:', userId);
@@ -278,7 +287,11 @@ export default function DonatePage() {
         dedication_message: data.message || undefined,
       };
 
+      console.log('Donation data to create:', donationData);
+      console.log('User ID for donation:', userId);
+      
       const donationResult = await createDonation(donationData, userId || undefined);
+      console.log('Donation creation result:', donationResult);
       
       if (donationResult.success && donationResult.data) {
         // Use donation ID as order ID for Cashfree
@@ -302,7 +315,9 @@ export default function DonatePage() {
         });
 
         // Directly initiate payment without modal
+        console.log('Starting payment initiation...');
         await initiateDirectPayment(paymentData);
+        console.log('Payment initiation completed');
       } else {
         const errorMessage = donationResult.error?.message || 'Failed to create donation';
         console.error('Donation creation failed:', donationResult.error);
@@ -384,14 +399,21 @@ export default function DonatePage() {
       const response = await createPaymentSession(sessionData);
       
       console.log('Payment session response:', response);
+      console.log('Response success:', response.success);
+      console.log('Response data:', response.data);
       
       if (!response.success) {
+        console.error('Payment session creation failed:', response);
         throw new Error(response.message || 'Failed to create payment session');
       }
 
       const originalSessionId = response.data.payment_session_id;
       const cfOrderId = response.data.cf_order_id;
       const paymentUrl = response.data.payment_url;
+      
+      console.log('Extracted session ID:', originalSessionId);
+      console.log('Session ID type:', typeof originalSessionId);
+      console.log('Session ID length:', originalSessionId?.length);
       
       // Log all available data for debugging
       console.log('Payment session created successfully:');
@@ -406,6 +428,27 @@ export default function DonatePage() {
 
       // Use Cashfree SDK checkout method (most reliable approach)
       console.log('Using Cashfree SDK checkout method...');
+      
+      // If we have a payment URL, try that first as fallback
+      if (paymentUrl) {
+        console.log('Payment URL available, trying direct URL approach first...');
+        try {
+          const newWindow = window.open(paymentUrl, '_blank', 'width=800,height=600,scrollbars=yes,resizable=yes');
+          if (newWindow) {
+            console.log('Successfully opened payment window with direct URL');
+            newWindow.focus();
+            toast({
+              title: "Payment Window Opened",
+              description: "Please complete your payment in the new window",
+            });
+            return; // Success, exit the function
+          }
+        } catch (urlError) {
+          console.error('Failed to open direct payment URL:', urlError);
+        }
+      }
+      
+      // Fallback to SDK method
       await initializeCashfreeAndCheckout(originalSessionId);
 
     } catch (error) {
@@ -858,6 +901,31 @@ export default function DonatePage() {
                       size="lg" 
                       className="w-full h-12 text-lg font-semibold"
                       disabled={form.formState.isSubmitting}
+                      onClick={async (e) => {
+                        e.preventDefault();
+                        console.log('=== DONATE NOW BUTTON CLICKED ===');
+                        console.log('Form state before validation:', {
+                          isValid: form.formState.isValid,
+                          errors: form.formState.errors,
+                          isDirty: form.formState.isDirty
+                        });
+                        
+                        // Trigger validation
+                        const isValid = await form.trigger();
+                        console.log('Form validation result:', isValid);
+                        
+                        if (isValid) {
+                          console.log('Form is valid, submitting...');
+                          form.handleSubmit(onSubmit)();
+                        } else {
+                          console.log('Form validation failed:', form.formState.errors);
+                          toast({
+                            title: "Form Validation Failed",
+                            description: "Please fill in all required fields correctly",
+                            variant: "destructive",
+                          });
+                        }
+                      }}
                     >
                       <Heart className="w-5 h-5 mr-2" />
                       {form.formState.isSubmitting ? "Processing..." : "Donate Now"}
@@ -881,8 +949,20 @@ export default function DonatePage() {
                             
                             // Show specific validation errors
                             const errors = form.formState.errors;
+                            console.log('Form validation errors:', errors);
                             Object.keys(errors).forEach(field => {
                               console.log(`Field ${field}:`, errors[field as keyof typeof errors]);
+                            });
+                            
+                            // Show form values for debugging
+                            const formValues = form.getValues();
+                            console.log('Form values:', formValues);
+                            
+                            // Check if required fields are filled
+                            const requiredFields = ['name', 'email', 'mobile', 'amount'];
+                            requiredFields.forEach(field => {
+                              const value = formValues[field as keyof typeof formValues];
+                              console.log(`${field}: "${value}" (${value ? 'filled' : 'empty'})`);
                             });
                             
                             toast({
@@ -987,6 +1067,72 @@ export default function DonatePage() {
                           }}
                         >
                           Fill Test Data
+                        </Button>
+                        
+                        <Button 
+                          type="button" 
+                          variant="destructive" 
+                          size="sm" 
+                          className="w-full"
+                          onClick={async () => {
+                            console.log('=== TESTING PAYMENT API ENDPOINT ===');
+                            try {
+                              const testData = {
+                                order_id: 'test-order-' + Date.now(),
+                                order_amount: 501,
+                                order_currency: 'INR',
+                                customer_details: {
+                                  customer_id: 'test-customer-' + Date.now(),
+                                  customer_name: 'Test User',
+                                  customer_email: 'test@example.com',
+                                  customer_phone: '+919876543210',
+                                },
+                                order_meta: {
+                                  return_url: 'http://localhost:3001/donate/success',
+                                  notify_url: 'http://localhost:3001/api/webhook/cashfree',
+                                },
+                              };
+                              
+                              console.log('Testing with data:', testData);
+                              
+                              const response = await fetch('/api/payment/create-session', {
+                                method: 'POST',
+                                headers: {
+                                  'Content-Type': 'application/json',
+                                },
+                                body: JSON.stringify(testData),
+                              });
+                              
+                              console.log('API Response status:', response.status);
+                              const result = await response.json();
+                              console.log('API Response data:', result);
+                              console.log('Payment session ID:', result.data?.payment_session_id);
+                              console.log('Order ID:', result.data?.order_id);
+                              console.log('Payment URL:', result.data?.payment_url);
+                              
+                              if (response.ok) {
+                                toast({
+                                  title: "API Test Success",
+                                  description: "Payment API endpoint is working",
+                                });
+                              } else {
+                                toast({
+                                  title: "API Test Failed",
+                                  description: result.error || 'Unknown error',
+                                  variant: "destructive",
+                                });
+                              }
+                            } catch (error) {
+                              console.error('API test error:', error);
+                              toast({
+                                title: "API Test Error",
+                                description: error instanceof Error ? error.message : 'Unknown error',
+                                variant: "destructive",
+                              });
+                            }
+                          }}
+                        >
+                          Test Payment API
                         </Button>
                       </div>
                     )}

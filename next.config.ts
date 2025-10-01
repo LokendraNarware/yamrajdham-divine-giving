@@ -3,7 +3,10 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   // Configure allowed development origins to prevent cross-origin warnings
   experimental: {
-    // Disable turbopack for better HMR stability with React 19
+    // Enable turbopack for faster builds and HMR
+    turbo: {
+      // Turbopack configuration
+    },
   },
   
   // Temporarily disable TypeScript checking for build
