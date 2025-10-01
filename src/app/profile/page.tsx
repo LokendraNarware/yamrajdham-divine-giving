@@ -237,7 +237,7 @@ export default function ProfilePage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="bg-background">
         {/* Header removed - using global layout */}
         <main className="container mx-auto py-8 px-4">
           <div className="max-w-4xl mx-auto">
@@ -254,7 +254,7 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="bg-background">
         {/* Header removed - using global layout */}
 
       <main className="container mx-auto py-8 px-4">

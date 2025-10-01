@@ -177,7 +177,7 @@ export default function RootLayout({
       >
         <AuthProvider>
           <Header />
-          <main className="min-h-screen">
+          <main>
             {children}
           </main>
           <Footer />

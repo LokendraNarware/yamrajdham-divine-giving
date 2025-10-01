@@ -68,7 +68,7 @@ export default function RegisterPage() {
 
   if (success) {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="bg-background">
         {/* Header removed - using global layout */}
         <div className="container mx-auto px-4 py-8">
           <div className="max-w-md mx-auto">
@@ -95,7 +95,7 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="bg-background">
         {/* Header removed - using global layout */}
       
       <div className="container mx-auto px-4 py-8">

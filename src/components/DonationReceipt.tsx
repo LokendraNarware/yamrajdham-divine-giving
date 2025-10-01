@@ -20,6 +20,7 @@ export default function DonationReceipt({
   purpose = "Temple Construction",
   paymentMethod = "Online Payment"
 }: DonationReceiptProps) {
+  console.log('DonationReceipt rendered with new design');
   const formatAmount = (amount: number) => {
     if (!amount || isNaN(amount)) return '₹0';
     return new Intl.NumberFormat('en-IN', {
@@ -44,15 +45,15 @@ export default function DonationReceipt({
 
   return (
     <div className="w-full max-w-4xl mx-auto bg-[#F5F5DC] p-8 relative">
-      {/* Decorative top border */}
-      <div className="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-[#8B0000] via-[#DAA520] to-[#8B0000]"></div>
-      
       {/* Hindi banner at top */}
       <div className="text-center mb-6">
         <div className="inline-block bg-[#8B0000] text-[#DAA520] px-6 py-2 rounded-t-lg border-2 border-[#DAA520]">
           <span className="text-lg font-bold">धर्म धाम पावन नगरी ट्रस्ट</span>
         </div>
       </div>
+
+      {/* Decorative top border */}
+      <div className="h-2 bg-gradient-to-r from-[#8B0000] via-[#DAA520] to-[#8B0000] mb-6"></div>
 
       {/* Header with logos and title */}
       <div className="text-center mb-8">
@@ -94,7 +95,7 @@ export default function DonationReceipt({
       </div>
 
       {/* Receipt Content */}
-      <Card className="bg-white border-2 border-[#8B0000] shadow-lg">
+      <Card className="bg-white border-2 border-[#8B0000] shadow-lg mb-6">
         <CardContent className="p-8">
           <div className="space-y-6">
             {/* Receipt Number and Date */}
@@ -123,7 +124,7 @@ export default function DonationReceipt({
 
             {/* Amount */}
             <div className="space-y-2">
-              <p className="text-black font-semibold">Amount (in words):</p>
+              <p className="text-black font-semibold">the sum of Rupees</p>
               <div className="border-b-2 border-dotted border-black min-h-[40px] flex items-center">
                 <span className="text-lg font-medium">
                   {formatAmount(amount)} ({amount ? amount.toLocaleString('en-IN') : '0'} Rupees Only)
@@ -131,39 +132,68 @@ export default function DonationReceipt({
               </div>
             </div>
 
-            {/* Purpose */}
-            <div className="space-y-2">
-              <p className="text-black font-semibold">Purpose:</p>
-              <div className="border-b-2 border-dotted border-black min-h-[40px] flex items-center">
-                <span className="text-lg font-medium">{purpose || 'Temple Construction'}</span>
-              </div>
-            </div>
-
             {/* Payment Method */}
             <div className="space-y-2">
-              <p className="text-black font-semibold">Payment Method:</p>
+              <p className="text-black font-semibold">Only by Cash/Cheque/UPI/DD No.</p>
               <div className="border-b-2 border-dotted border-black min-h-[40px] flex items-center">
                 <span className="text-lg font-medium">{paymentMethod || 'Online Payment'}</span>
               </div>
             </div>
 
-            {/* Signature Section */}
-            <div className="mt-8 flex justify-between">
-              <div className="text-center">
-                <div className="border-b-2 border-dotted border-black min-h-[40px] w-48"></div>
-                <p className="text-sm text-black mt-2">Trustee Signature</p>
+            {/* Date fields */}
+            <div className="flex justify-between items-center">
+              <div className="flex items-center">
+                <span className="text-black font-semibold mr-2">Dated</span>
+                <span className="border-b-2 border-dotted border-black min-w-[150px] text-center">
+                  {formatDate(date)}
+                </span>
               </div>
-              <div className="text-center">
-                <div className="border-b-2 border-dotted border-black min-h-[40px] w-48"></div>
-                <p className="text-sm text-black mt-2">Seal</p>
+              <div className="flex items-center">
+                <span className="text-black font-semibold mr-2">on</span>
+                <span className="border-b-2 border-dotted border-black min-w-[150px] text-center">
+                  {formatDate(date)}
+                </span>
               </div>
             </div>
           </div>
         </CardContent>
       </Card>
 
+      {/* Bottom Section with Bank Details, QR Code, and Signature */}
+      <div className="flex justify-between items-end">
+        {/* Bank Details */}
+        <div className="w-1/3">
+          <div className="flex items-center mb-4">
+            <span className="text-black font-semibold mr-2">₹</span>
+            <div className="border-2 border-black w-32 h-8 bg-white"></div>
+            <span className="text-black font-semibold ml-2">For Dharam Dham Trust.</span>
+          </div>
+          <div className="text-sm text-black space-y-1">
+            <p><span className="font-semibold">NAME:</span> DHARAM DHAM TRUST</p>
+            <p><span className="font-semibold">ACCOUNT NO:</span> 50200106804890</p>
+            <p><span className="font-semibold">IFSC CODE:</span> HDFC0002795</p>
+            <p><span className="font-semibold">BRANCH:</span> RAJGARH, RAJASTHAN</p>
+          </div>
+        </div>
+
+        {/* QR Code */}
+        <div className="w-1/3 flex justify-center">
+          <div className="w-32 h-32 bg-white border-2 border-black flex items-center justify-center">
+            <div className="text-xs text-gray-500 text-center">
+              QR CODE<br/>PLACEHOLDER
+            </div>
+          </div>
+        </div>
+
+        {/* Signature */}
+        <div className="w-1/3 text-center">
+          <div className="border-b-2 border-dotted border-black min-h-[40px] w-48 mx-auto"></div>
+          <p className="text-sm text-black mt-2">Authorized Signature</p>
+        </div>
+      </div>
+
       {/* Decorative bottom border */}
-      <div className="absolute bottom-0 left-0 right-0 h-2 bg-gradient-to-r from-[#8B0000] via-[#DAA520] to-[#8B0000]"></div>
+      <div className="h-2 bg-gradient-to-r from-[#8B0000] via-[#DAA520] to-[#8B0000] mt-8"></div>
     </div>
   );
 }

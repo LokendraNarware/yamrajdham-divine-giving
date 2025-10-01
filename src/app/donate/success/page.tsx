@@ -8,6 +8,8 @@ import { CheckCircle, Download, Mail, Heart } from "lucide-react";
 import { verifyPayment } from "@/services/cashfree";
 import { useToast } from "@/hooks/use-toast";
 import DonationReceipt from "@/components/DonationReceipt";
+import ModernDonationReceipt from "@/components/ModernDonationReceipt";
+import PDFModernDonationReceipt from "@/components/PDFModernDonationReceipt";
 import { generateReceiptPDF } from "@/lib/receipt-utils";
 
 export default function PaymentSuccessPage() {
@@ -48,6 +50,7 @@ export default function PaymentSuccessPage() {
   } | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [receiptRef, setReceiptRef] = useState<HTMLDivElement | null>(null);
+  const [receiptType, setReceiptType] = useState<'traditional' | 'modern'>('modern');
   
   const orderId = searchParams.get("order_id");
 
@@ -112,7 +115,7 @@ export default function PaymentSuccessPage() {
   }, [orderId, toast]);
 
   const handleDownloadReceipt = async () => {
-    if (!receiptRef || !paymentDetails || !donationData) {
+    if (!paymentDetails || !donationData) {
       toast({
         title: "Error",
         description: "Receipt data not available",
@@ -122,7 +125,45 @@ export default function PaymentSuccessPage() {
     }
 
     try {
-      await generateReceiptPDF(receiptRef, {
+      console.log('Starting modern receipt download...');
+      console.log('Payment details:', paymentDetails);
+      console.log('Donation data:', donationData);
+
+      // Create a temporary container for the modern receipt
+      const tempContainer = document.createElement('div');
+      tempContainer.style.position = 'absolute';
+      tempContainer.style.left = '-9999px';
+      tempContainer.style.top = '-9999px';
+      tempContainer.style.width = '900px'; // Increased width for PDF generation
+      tempContainer.style.height = 'auto'; // Auto height to fit content
+      tempContainer.style.backgroundColor = '#F5F5DC';
+      tempContainer.style.padding = '32px'; // Match the component padding
+      tempContainer.style.fontFamily = 'Arial, sans-serif';
+      tempContainer.style.boxSizing = 'border-box';
+      document.body.appendChild(tempContainer);
+
+      // Render the modern receipt in the temporary container
+      const { createRoot } = await import('react-dom/client');
+      const root = createRoot(tempContainer);
+      
+      const ModernReceiptElement = (
+        <PDFModernDonationReceipt
+          donationId={paymentDetails.order_id || 'N/A'}
+          donorName={donationData.donor?.name || "Devotee"}
+          amount={paymentDetails.order_amount || 0}
+          date={paymentDetails.payment_time || donationData.createdAt || new Date().toISOString()}
+          purpose={donationData.donationType === 'general' ? 'Temple Construction' : donationData.donationType || 'Temple Construction'}
+          paymentMethod={paymentDetails.payment_method || "Online Payment"}
+        />
+      );
+
+      root.render(ModernReceiptElement);
+
+      // Wait for the component to render and images to load
+      await new Promise(resolve => setTimeout(resolve, 3000));
+
+      // Generate PDF from the temporary container
+      await generateReceiptPDF(tempContainer, {
         donationId: paymentDetails.order_id || 'N/A',
         donorName: donationData.donor?.name || "Devotee",
         amount: paymentDetails.order_amount || 0,
@@ -131,15 +172,20 @@ export default function PaymentSuccessPage() {
         paymentMethod: paymentDetails.payment_method || "Online Payment"
       });
 
+      // Clean up
+      root.unmount();
+      document.body.removeChild(tempContainer);
+
       toast({
-        title: "Donation Receipt Downloaded",
-        description: "Your donation receipt has been downloaded successfully.",
+        title: "Modern Donation Receipt Downloaded",
+        description: "Your modern donation receipt has been downloaded successfully.",
       });
     } catch (error) {
-      console.error('Error downloading receipt:', error);
+      console.error('Error downloading modern receipt:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
       toast({
         title: "Error",
-        description: "Failed to download receipt. Please try again.",
+        description: `Failed to download modern receipt: ${errorMessage}`,
         variant: "destructive",
       });
     }
@@ -155,7 +201,7 @@ export default function PaymentSuccessPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
+      <div className="bg-background flex items-center justify-center py-20">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
           <p className="text-muted-foreground">Loading payment details...</p>
@@ -249,7 +295,7 @@ export default function PaymentSuccessPage() {
                 <div className="flex gap-3">
                   <Button onClick={handleDownloadReceipt} variant="outline" className="flex-1">
                     <Download className="w-4 h-4 mr-2" />
-                    Download Donation Receipt
+                    Download Modern Receipt
                   </Button>
                   <Button onClick={handleEmailReceipt} variant="outline" className="flex-1">
                     <Mail className="w-4 h-4 mr-2" />
@@ -264,21 +310,54 @@ export default function PaymentSuccessPage() {
           {paymentDetails && (
             <Card className="mb-6">
               <CardHeader>
-                <CardTitle>Receipt Preview</CardTitle>
-                <CardDescription>
-                  Preview of your donation receipt
-                </CardDescription>
+                <div className="flex justify-between items-center">
+                  <div>
+                    <CardTitle>Receipt Preview</CardTitle>
+                    <CardDescription>
+                      Choose your preferred receipt style
+                    </CardDescription>
+                  </div>
+                  <div className="flex gap-2">
+                    <Button
+                      variant={receiptType === 'modern' ? 'default' : 'outline'}
+                      size="sm"
+                      onClick={() => setReceiptType('modern')}
+                    >
+                      Modern
+                    </Button>
+                    <Button
+                      variant={receiptType === 'traditional' ? 'default' : 'outline'}
+                      size="sm"
+                      onClick={() => setReceiptType('traditional')}
+                    >
+                      Traditional
+                    </Button>
+                  </div>
+                </div>
               </CardHeader>
               <CardContent>
                 <div ref={setReceiptRef}>
-                  <DonationReceipt
-                    donationId={paymentDetails.order_id || 'N/A'}
-                    donorName={donationData?.donor?.name || "Devotee"}
-                    amount={paymentDetails.order_amount || 0}
-                    date={paymentDetails.payment_time || donationData?.createdAt || new Date().toISOString()}
-                    purpose={donationData?.donationType === 'general' ? 'Temple Construction' : donationData?.donationType || 'Temple Construction'}
-                    paymentMethod={paymentDetails.payment_method || "Online Payment"}
-                  />
+                  {receiptType === 'modern' ? (
+                    <ModernDonationReceipt
+                      key={`modern-receipt-${Date.now()}`}
+                      donationId={paymentDetails.order_id || 'N/A'}
+                      donorName={donationData?.donor?.name || "Devotee"}
+                      amount={paymentDetails.order_amount || 0}
+                      date={paymentDetails.payment_time || donationData?.createdAt || new Date().toISOString()}
+                      purpose={donationData?.donationType === 'general' ? 'Temple Construction' : donationData?.donationType || 'Temple Construction'}
+                      paymentMethod={paymentDetails.payment_method || "Online Payment"}
+                    />
+                  ) : (
+                    <DonationReceipt
+                      key={`traditional-receipt-${Date.now()}`}
+                      donationId={paymentDetails.order_id || 'N/A'}
+                      donorName={donationData?.donor?.name || "Devotee"}
+                      amount={paymentDetails.order_amount || 0}
+                      date={paymentDetails.payment_time || donationData?.createdAt || new Date().toISOString()}
+                      purpose={donationData?.donationType === 'general' ? 'Temple Construction' : donationData?.donationType || 'Temple Construction'}
+                      paymentMethod={paymentDetails.payment_method || "Online Payment"}
+                    />
+                  )}
                 </div>
               </CardContent>
             </Card>
