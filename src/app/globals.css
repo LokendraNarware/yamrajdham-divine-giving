@@ -77,23 +77,23 @@
 }
 
 .shadow-temple {
-  box-shadow: 0 10px 30px -10px rgba(255, 169, 104, 0.25);
+  box-shadow: 0 4px 12px -4px rgba(255, 169, 104, 0.12);
 }
 
 .shadow-gold {
-  box-shadow: 0 5px 20px -5px rgba(212, 165, 116, 0.3);
+  box-shadow: 0 2px 8px -2px rgba(212, 165, 116, 0.15);
 }
 
 .shadow-divine {
-  box-shadow: 0 0 40px rgba(255, 169, 104, 0.2);
+  box-shadow: 0 0 20px rgba(255, 169, 104, 0.08);
 }
 
 .shadow-coral {
-  box-shadow: 0 5px 20px -5px rgba(255, 140, 66, 0.25);
+  box-shadow: 0 2px 8px -2px rgba(255, 140, 66, 0.12);
 }
 
 .shadow-brown {
-  box-shadow: 0 5px 20px -5px rgba(139, 115, 85, 0.2);
+  box-shadow: 0 2px 8px -2px rgba(139, 115, 85, 0.1);
 }
 
 /* Temple-themed utility classes (New Scheme) */
