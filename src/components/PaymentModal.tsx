@@ -6,8 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Loader2, CreditCard, Smartphone, Building } from "lucide-react";
-import { createPaymentSession, PaymentSessionData, generateCustomerId, generateOrderId } from "@/services/cashfree";
-import { CASHFREE_CONFIG } from "@/config/cashfree";
+import { createPaymentSession, PaymentSessionData, generateCustomerId } from "@/services/cashfree";
 import { useToast } from "@/hooks/use-toast";
 
 // Format phone number for Cashfree API
@@ -34,15 +33,6 @@ const formatPhoneForCashfree = (phone: string): string => {
   return cleaned;
 };
 
-// Declare Cashfree SDK types
-declare global {
-  interface Window {
-    Cashfree: new (config: { mode: string }) => {
-      checkout: (options: { paymentSessionId: string; redirectTarget: string }) => Promise<void>;
-    };
-  }
-}
-
 interface PaymentModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -67,14 +57,29 @@ const PaymentModal = ({
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
+  // Debug logging
+  console.log('PaymentModal rendered with props:', {
+    isOpen,
+    donationData,
+    hasOnClose: !!onClose,
+    hasOnPaymentSuccess: !!onPaymentSuccess,
+    hasOnPaymentFailure: !!onPaymentFailure
+  });
+
   const handlePayment = async () => {
     setIsLoading(true);
     try {
-      // Generate a new unique order ID for each payment attempt
-      const uniqueOrderId = generateOrderId('YAMRAJ');
+      console.log('Initiating payment with data:', donationData);
+      console.log('PaymentModal version:', '2024-01-25-v5-direct-link');
+      
+      // Show loading message
+      toast({
+        title: "Creating Payment Session",
+        description: "Setting up secure payment...",
+      });
       
       const sessionData: PaymentSessionData = {
-        order_id: uniqueOrderId,
+        order_id: donationData.orderId,
         order_amount: donationData.amount,
         order_currency: 'INR',
         customer_details: {
@@ -84,43 +89,72 @@ const PaymentModal = ({
           customer_phone: formatPhoneForCashfree(donationData.donorPhone),
         },
         order_meta: {
-          return_url: `${window.location.origin}/donate/success?order_id=${uniqueOrderId}`,
+          return_url: `${window.location.origin}/donate/success?order_id=${donationData.orderId}`,
           notify_url: `${window.location.origin}/api/webhook/cashfree`,
         },
       };
 
-      console.log('Initiating payment with data:', sessionData);
-      console.log('Generated customer_id:', generateCustomerId(donationData.donorEmail));
-      console.log('Original phone:', donationData.donorPhone);
-      console.log('Formatted phone:', formatPhoneForCashfree(donationData.donorPhone));
-      console.log('PaymentModal version:', '2024-01-25-v4-popup');
-      
-      // Show loading message
-      toast({
-        title: "Initializing Payment",
-        description: "Setting up secure payment session...",
-      });
+      console.log('Session data prepared:', sessionData);
       
       const response = await createPaymentSession(sessionData);
       
       console.log('Payment session response:', response);
+      console.log('Response validation:', {
+        success: response.success,
+        hasData: !!response.data,
+        hasPaymentUrl: !!response.data?.payment_url,
+        hasSessionId: !!response.data?.payment_session_id
+      });
       
       if (!response.success) {
         throw new Error(response.message || 'Failed to create payment session');
       }
       
-      const sessionId = response.data.payment_session_id;
-      console.log('Session ID:', sessionId);
-      console.log('CF Order ID:', response.data.cf_order_id);
+      if (!response.data) {
+        throw new Error('No payment data received from server');
+      }
       
-      // Show success message before opening checkout
+      const paymentUrl = response.data.payment_url;
+      const sessionId = response.data.payment_session_id;
+      
+      console.log('Payment URL:', paymentUrl);
+      console.log('Session ID:', sessionId);
+      
+      // Show success message
       toast({
         title: "Payment Session Created",
-        description: "Opening Cashfree payment checkout...",
+        description: "Redirecting to secure payment page...",
       });
       
-      // Use Cashfree SDK checkout method as per Medium article
-      await initiatePayment(sessionId);
+      // Direct redirection to Cashfree payment page
+      if (paymentUrl) {
+        console.log('Redirecting to payment URL:', paymentUrl);
+        console.log('Payment URL validation:', {
+          isValid: paymentUrl.startsWith('http'),
+          length: paymentUrl.length,
+          containsSessionId: paymentUrl.includes(sessionId)
+        });
+        
+        // Show success message
+        toast({
+          title: "Redirecting to Payment",
+          description: "Opening secure payment page...",
+        });
+        
+        // Small delay to show the toast message, then redirect
+        setTimeout(() => {
+          console.log('Executing redirect to:', paymentUrl);
+          try {
+            window.location.href = paymentUrl;
+          } catch (redirectError) {
+            console.error('Redirect error:', redirectError);
+            // Fallback: try opening in new window
+            window.open(paymentUrl, '_blank');
+          }
+        }, 1500);
+      } else {
+        throw new Error('Payment URL not received from Cashfree');
+      }
 
     } catch (error) {
       console.error('Payment error:', error);
@@ -135,68 +169,6 @@ const PaymentModal = ({
     }
   };
 
-  // Initialize Cashfree SDK as per Medium article
-  const initializeSDK = async () => {
-    return new Promise((resolve, reject) => {
-      // Check if SDK is already loaded
-      if (window.Cashfree) {
-        console.log('Cashfree SDK already loaded');
-        resolve(window.Cashfree);
-        return;
-      }
-
-      // Load Cashfree SDK from the correct URL
-      const script = document.createElement('script');
-      script.src = 'https://sdk.cashfree.com/js/v3/cashfree.js';
-      script.onload = () => {
-        console.log('Cashfree SDK loaded successfully');
-        console.log('Window.Cashfree:', window.Cashfree);
-        console.log('Type of window.Cashfree:', typeof window.Cashfree);
-        
-        try {
-          // window.Cashfree is a constructor function, so we need to instantiate it
-          const cashfreeInstance = new window.Cashfree({
-            mode: CASHFREE_CONFIG.ENVIRONMENT === 'production' ? 'PRODUCTION' : 'SANDBOX'
-          });
-          
-          console.log('Cashfree instance created:', cashfreeInstance);
-          console.log('Available methods on instance:', Object.keys(cashfreeInstance || {}));
-          
-          // Check if the instance has the checkout method
-          if (cashfreeInstance && typeof cashfreeInstance.checkout === 'function') {
-            console.log('Found checkout function on instance');
-            resolve(cashfreeInstance);
-          } else {
-            reject(new Error('Cashfree instance created but checkout function not available. Available: ' + Object.keys(cashfreeInstance || {})));
-          }
-        } catch (error) {
-          console.error('Error creating Cashfree instance:', error);
-          reject(new Error('Failed to create Cashfree instance: ' + error.message));
-        }
-      };
-      script.onerror = () => {
-        console.error('Failed to load Cashfree SDK');
-        reject(new Error('Failed to load Cashfree SDK'));
-      };
-      document.head.appendChild(script);
-    });
-  };
-
-  // Initiate payment as per Medium article
-  const initiatePayment = async (sessionId: string) => {
-    try {
-      const cashfree = await initializeSDK() as Window['Cashfree'];
-      const checkoutOptions = {
-        paymentSessionId: sessionId,
-        redirectTarget: "_self",  // Redirects to the target URL after payment
-      };
-      console.log("Starting checkout with options:", checkoutOptions);
-      cashfree.checkout(checkoutOptions);
-    } catch (error) {
-      console.error('Payment initiation error:', error);
-      throw error;
-    }
-  };
 
   const paymentMethods = [
     {
@@ -307,6 +279,17 @@ const PaymentModal = ({
               Cancel
             </Button>
           </div>
+
+          {/* Debug Info (Development Only) */}
+          {typeof window !== 'undefined' && process.env.NODE_ENV === 'development' && (
+            <div className="mt-4 p-3 bg-gray-100 rounded-lg text-xs">
+              <div className="font-semibold mb-2">Debug Info:</div>
+              <div>Order ID: {donationData.orderId}</div>
+              <div>Amount: ₹{donationData.amount}</div>
+              <div>Environment: {process.env.NODE_ENV}</div>
+              <div>Origin: {typeof window !== 'undefined' ? window.location.origin : 'N/A'}</div>
+            </div>
+          )}
 
           {/* Security Badge */}
           <div className="text-center space-y-2">

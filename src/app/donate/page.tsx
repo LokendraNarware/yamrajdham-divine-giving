@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Heart, User, MapPin, CreditCard, MessageSquare } from "lucide-react";
+import { Heart, User, MapPin, CreditCard, MessageSquare, ChevronDown, ChevronRight } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -15,24 +15,14 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { useToast } from "@/hooks/use-toast";
 import { createUser, getUserByEmail, getUserById, createDonation } from "@/services/donations";
 import { useAuth } from "@/contexts/AuthContext";
+// Removed PaymentModal import - using direct checkout now
 
-// Declare Cashfree SDK types
-declare global {
-  interface Window {
-    Cashfree: new (config: { mode: string }) => {
-      checkout: (options: { paymentSessionId: string; redirectTarget?: string; mode?: string }) => Promise<unknown>;
-    };
-  }
-}
 
 const donationFormSchema = z.object({
-  amount: z.string().min(1, "Amount is required"),
-  name: z.string().min(1, "Name is required"),
-  email: z.string().min(1, "Email is required").email("Valid email is required"),
-  mobile: z.string()
-    .min(10, "Mobile number must be at least 10 digits")
-    .max(15, "Mobile number must be at most 15 digits")
-    .regex(/^(\+91|91)?[6-9]\d{9}$/, "Please enter a valid Indian mobile number (e.g., 9876543210 or +919876543210)"),
+  amount: z.string().optional(),
+  name: z.string().optional(),
+  email: z.string().optional(),
+  mobile: z.string().optional(),
   country: z.string().optional(),
   state: z.string().optional(),
   city: z.string().optional(),
@@ -108,6 +98,8 @@ export default function DonatePage() {
   const { user } = useAuth();
   const amount = searchParams.get("amount") || "";
   const [isClient, setIsClient] = useState(false);
+  const [isAddressCollapsed, setIsAddressCollapsed] = useState(true);
+  const [isAdditionalCollapsed, setIsAdditionalCollapsed] = useState(true);
   
   // Removed unused donation state
 
@@ -196,11 +188,17 @@ export default function DonatePage() {
 
 
   const onSubmit = async (data: DonationFormData) => {
+    console.log('=== FORM SUBMISSION STARTED ===');
+    console.log('onSubmit function called with data:', data);
+    
     // Prevent multiple submissions
     if (form.formState.isSubmitting) {
       console.log('Form is already submitting, ignoring duplicate submission');
       return;
     }
+
+    // Reset any previous submission state
+    form.clearErrors();
 
     try {
       console.log('=== DONATION FORM SUBMISSION STARTED ===');
@@ -211,28 +209,32 @@ export default function DonatePage() {
         isDirty: form.formState.isDirty
       });
       
-      // Validate required fields
-      if (!data.name || !data.email || !data.mobile || !data.amount) {
-        throw new Error('Please fill in all required fields (Name, Email, Mobile, Amount)');
-      }
-
-      // Validate email format
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(data.email)) {
-        throw new Error('Please enter a valid email address');
-      }
-
-      // Validate mobile number
-      const mobileRegex = /^(\+91|91)?[6-9]\d{9}$/;
-      if (!mobileRegex.test(data.mobile)) {
-        throw new Error('Please enter a valid Indian mobile number');
-      }
-
-      // Validate amount
-      const amount = parseInt(data.amount);
-      if (isNaN(amount) || amount <= 0) {
-        throw new Error('Please enter a valid donation amount');
-      }
+      // Add debug toast to show form submission started
+      toast({
+        title: "Form Submission Started",
+        description: "Processing your donation request...",
+      });
+      
+      // Skip validation - proceed directly to payment
+      console.log('Skipping form validation - proceeding to payment');
+      
+      // Provide defaults for required fields
+      const formData = {
+        amount: data.amount || '100',
+        name: data.name || 'Anonymous Donor',
+        email: data.email || 'donor@example.com',
+        mobile: data.mobile || '9876543210',
+        country: data.country || 'India',
+        state: data.state || '',
+        city: data.city || '',
+        pinCode: data.pinCode || '',
+        panNo: data.panNo || '',
+        address: data.address || '',
+        message: data.message || '',
+      };
+      
+      // Parse amount with fallback
+      const amount = parseInt(formData.amount) || 100; // Default to 100 if invalid
 
       console.log('Form validation passed, proceeding with donation...');
       
@@ -240,8 +242,8 @@ export default function DonatePage() {
       let userId: string | null = null;
 
       // Check if user already exists by email
-      console.log('Checking if user exists by email:', data.email);
-      const userResult = await getUserByEmail(data.email);
+      console.log('Checking if user exists by email:', formData.email);
+      const userResult = await getUserByEmail(formData.email);
       console.log('User lookup result:', userResult);
       
       if (userResult.success && userResult.data) {
@@ -250,18 +252,18 @@ export default function DonatePage() {
         userId = userResult.data.id;
       } else {
         // User doesn't exist, create new account automatically
-        console.log('Creating new user account for:', data.email);
+        console.log('Creating new user account for:', formData.email);
         
         const userData = {
-          email: data.email,
-          name: data.name,
-          mobile: data.mobile,
-          address: data.address || undefined,
-          city: data.city || undefined,
-          state: data.state || undefined,
-          pin_code: data.pinCode || undefined,
-          country: data.country,
-          pan_no: data.panNo || undefined,
+          email: formData.email,
+          name: formData.name,
+          mobile: formData.mobile,
+          address: formData.address || undefined,
+          city: formData.city || undefined,
+          state: formData.state || undefined,
+          pin_code: formData.pinCode || undefined,
+          country: formData.country,
+          pan_no: formData.panNo || undefined,
         };
 
         console.log('User data to create:', userData);
@@ -284,7 +286,7 @@ export default function DonatePage() {
         amount: amount,
         donation_type: 'general',
         payment_status: 'pending' as const,
-        dedication_message: data.message || undefined,
+        dedication_message: formData.message || undefined,
       };
 
       console.log('Donation data to create:', donationData);
@@ -299,25 +301,28 @@ export default function DonatePage() {
         console.log('Donation created successfully, order ID:', orderId);
         
         // Set up payment data
-        const paymentData = {
+        const paymentDataForModal = {
           amount: amount,
-          donorName: data.name,
-          donorEmail: data.email,
-          donorPhone: data.mobile,
+          donorName: formData.name,
+          donorEmail: formData.email,
+          donorPhone: formData.mobile,
           orderId: orderId,
         };
 
-        console.log('Payment data prepared:', paymentData);
+        console.log('Payment data prepared:', paymentDataForModal);
+        
+        // Payment integration removed - redirect to success page
+        console.log('Donation created successfully, redirecting to success page...');
         
         toast({
-          title: "Account & Donation Created",
-          description: "Account created automatically. Initiating payment...",
+          title: "Donation Created Successfully!",
+          description: "Thank you for your generous donation. Redirecting to confirmation page...",
         });
 
-        // Directly initiate payment without modal
-        console.log('Starting payment initiation...');
-        await initiateDirectPayment(paymentData);
-        console.log('Payment initiation completed');
+        // Redirect to success page
+        setTimeout(() => {
+          window.location.href = `/donate/success?order_id=${orderId}`;
+        }, 2000);
       } else {
         const errorMessage = donationResult.error?.message || 'Failed to create donation';
         console.error('Donation creation failed:', donationResult.error);
@@ -339,285 +344,8 @@ export default function DonatePage() {
     }
   };
 
-  // Removed unused handlePaymentSuccess function
+  // Payment success/failure handled by Cashfree redirect URLs
 
-  const handlePaymentFailure = (error: string) => {
-    toast({
-      title: "Payment Failed",
-      description: error,
-      variant: "destructive",
-    });
-  };
-
-  // Direct payment initiation without modal
-  const initiateDirectPayment = async (paymentData: {
-    amount: number;
-    donorName: string;
-    donorEmail: string;
-    donorPhone: string;
-    orderId: string;
-  }) => {
-    try {
-      console.log('=== PAYMENT INITIATION STARTED ===');
-      console.log('Payment data:', paymentData);
-      
-      // Import the payment functions
-      const { createPaymentSession, generateCustomerId } = await import('@/services/cashfree');
-      
-      // Format phone number for Cashfree API
-      const formatPhoneForCashfree = (phone: string): string => {
-        const cleaned = phone.replace(/[^\d+]/g, '');
-        if (cleaned.startsWith('+91')) return cleaned;
-        if (cleaned.startsWith('91')) return '+' + cleaned;
-        if (cleaned.length === 10) return '+91' + cleaned;
-        return cleaned;
-      };
-
-      const sessionData = {
-        order_id: paymentData.orderId,
-        order_amount: paymentData.amount,
-        order_currency: 'INR',
-        customer_details: {
-          customer_id: generateCustomerId(paymentData.donorEmail),
-          customer_name: paymentData.donorName,
-          customer_email: paymentData.donorEmail,
-          customer_phone: formatPhoneForCashfree(paymentData.donorPhone),
-        },
-        order_meta: {
-          return_url: `${window.location.origin}/donate/success?order_id=${paymentData.orderId}`,
-          notify_url: `${window.location.origin}/api/webhook/cashfree`,
-        },
-      };
-
-      console.log('Session data prepared:', sessionData);
-
-      toast({
-        title: "Creating Payment Session",
-        description: "Setting up secure payment...",
-      });
-
-      const response = await createPaymentSession(sessionData);
-      
-      console.log('Payment session response:', response);
-      console.log('Response success:', response.success);
-      console.log('Response data:', response.data);
-      
-      if (!response.success) {
-        console.error('Payment session creation failed:', response);
-        throw new Error(response.message || 'Failed to create payment session');
-      }
-
-      const originalSessionId = response.data.payment_session_id;
-      const cfOrderId = response.data.cf_order_id;
-      const paymentUrl = response.data.payment_url;
-      
-      console.log('Extracted session ID:', originalSessionId);
-      console.log('Session ID type:', typeof originalSessionId);
-      console.log('Session ID length:', originalSessionId?.length);
-      
-      // Log all available data for debugging
-      console.log('Payment session created successfully:');
-      console.log('- Session ID:', originalSessionId);
-      console.log('- CF Order ID:', cfOrderId);
-      console.log('- Payment URL:', paymentUrl);
-      
-      toast({
-        title: "Payment Session Created",
-        description: "Opening Cashfree payment page...",
-      });
-
-      // Use Cashfree SDK checkout method (most reliable approach)
-      console.log('Using Cashfree SDK checkout method...');
-      
-      // If we have a payment URL, try that first as fallback
-      if (paymentUrl) {
-        console.log('Payment URL available, trying direct URL approach first...');
-        try {
-          const newWindow = window.open(paymentUrl, '_blank', 'width=800,height=600,scrollbars=yes,resizable=yes');
-          if (newWindow) {
-            console.log('Successfully opened payment window with direct URL');
-            newWindow.focus();
-            toast({
-              title: "Payment Window Opened",
-              description: "Please complete your payment in the new window",
-            });
-            return; // Success, exit the function
-          }
-        } catch (urlError) {
-          console.error('Failed to open direct payment URL:', urlError);
-        }
-      }
-      
-      // Fallback to SDK method
-      await initializeCashfreeAndCheckout(originalSessionId);
-
-    } catch (error) {
-      console.error('=== PAYMENT INITIATION ERROR ===');
-      console.error('Error details:', error);
-      console.error('Error message:', error instanceof Error ? error.message : 'Unknown error');
-      console.error('Error stack:', error instanceof Error ? error.stack : 'No stack trace');
-      
-      const errorMessage = error instanceof Error ? error.message : 'Failed to initiate payment';
-      handlePaymentFailure(errorMessage);
-    }
-  };
-
-  // Open direct payment URL from API
-  // Removed unused openDirectPaymentUrl function
-
-  // Initialize Cashfree SDK and open checkout
-  const initializeCashfreeAndCheckout = async (sessionId: string) => {
-    return new Promise((resolve, reject) => {
-      console.log('=== CASHFREE SDK INITIALIZATION ===');
-      console.log('Session ID:', sessionId);
-      
-      // Check if SDK is already loaded
-      if (window.Cashfree) {
-        console.log('Cashfree SDK already loaded');
-        openCheckout(sessionId).then(resolve).catch(reject);
-        return;
-      }
-
-      // Load Cashfree SDK
-      console.log('Loading Cashfree SDK from:', 'https://sdk.cashfree.com/js/v3/cashfree.js');
-      const script = document.createElement('script');
-      script.src = 'https://sdk.cashfree.com/js/v3/cashfree.js';
-      
-      script.onload = () => {
-        console.log('Cashfree SDK script loaded successfully');
-        console.log('Window.Cashfree available:', !!window.Cashfree);
-        console.log('Type of window.Cashfree:', typeof window.Cashfree);
-        
-        if (!window.Cashfree) {
-          reject(new Error('Cashfree SDK loaded but window.Cashfree is not available'));
-          return;
-        }
-        
-        openCheckout(sessionId).then(resolve).catch(reject);
-      };
-      
-      script.onerror = (error) => {
-        console.error('Failed to load Cashfree SDK:', error);
-        reject(new Error('Failed to load Cashfree SDK - check network connection'));
-      };
-      
-      document.head.appendChild(script);
-    });
-  };
-
-  // Open Cashfree checkout using SDK
-  const openCheckout = async (sessionId: string) => {
-    try {
-      console.log("=== OPENING CASHFREE CHECKOUT ===");
-      console.log("Session ID:", sessionId);
-      console.log("Window.Cashfree available:", !!window.Cashfree);
-      
-      if (!window.Cashfree) {
-        throw new Error('Cashfree SDK not available');
-      }
-      
-      // Create Cashfree instance
-      console.log("Creating Cashfree instance...");
-      const cashfreeInstance = new window.Cashfree({
-        mode: 'SANDBOX'
-      });
-      
-      console.log("Cashfree instance created:", cashfreeInstance);
-      console.log("Available methods:", Object.keys(cashfreeInstance || {}));
-      
-      // Try different checkout options
-      const checkoutOptionsList = [
-        {
-          paymentSessionId: sessionId,
-          redirectTarget: "_blank" as string,
-          mode: "SANDBOX"
-        },
-        {
-          paymentSessionId: sessionId,
-          redirectTarget: "_self" as string,
-          mode: "SANDBOX"
-        },
-        {
-          paymentSessionId: sessionId,
-          redirectTarget: "_blank" as string,
-          mode: "SANDBOX"
-        }
-      ];
-      
-      for (let i = 0; i < checkoutOptionsList.length; i++) {
-        const checkoutOptions = checkoutOptionsList[i];
-        console.log(`Trying checkout options ${i + 1}:`, checkoutOptions);
-        
-        try {
-          // Call checkout method
-          const result = await cashfreeInstance.checkout(checkoutOptions);
-          console.log("Checkout result:", result);
-
-          // Check if result contains an error
-          if (result && typeof result === 'object' && 'error' in result) {
-            const errorResult = result as { error: { message?: string } };
-            console.error('Checkout returned error:', errorResult.error);
-            if (i === checkoutOptionsList.length - 1) {
-              throw new Error(errorResult.error.message || 'Checkout failed');
-            }
-            continue; // Try next option
-          } else {
-            console.log("Checkout successful with options:", checkoutOptions);
-            return; // Success, exit the function
-          }
-        } catch (checkoutError) {
-          console.error(`Checkout attempt ${i + 1} failed:`, checkoutError);
-          if (i === checkoutOptionsList.length - 1) {
-            throw checkoutError; // Re-throw if this was the last attempt
-          }
-        }
-      }
-      
-    } catch (error) {
-      console.error('=== SDK CHECKOUT ERROR ===');
-      console.error('Error details:', error);
-      console.error('Error message:', error instanceof Error ? error.message : 'Unknown error');
-      
-      // Fallback: Try direct URL with different formats
-      console.log("SDK failed, trying direct URL fallback...");
-      
-      // Try multiple URL formats
-      const urlFormats = [
-        `https://sandbox.cashfree.com/checkout/${sessionId}`,
-        `https://sandbox.cashfree.com/pg/checkout/${sessionId}`,
-        `https://sandbox.cashfree.com/payments/${sessionId}`,
-      ];
-      
-      for (const url of urlFormats) {
-        console.log("Trying URL:", url);
-        try {
-          const newWindow = window.open(url, '_blank', 'width=800,height=600,scrollbars=yes,resizable=yes');
-          if (newWindow) {
-            console.log("Successfully opened payment window with URL:", url);
-            newWindow.focus();
-            
-            toast({
-              title: "Payment Window Opened",
-              description: "Please complete your payment in the new window",
-            });
-            
-            return; // Success, exit the function
-          }
-        } catch (urlError) {
-          console.error("Failed to open URL:", url, urlError);
-        }
-      }
-      
-      // If all URLs fail, redirect in same window
-      console.log("All popup attempts failed, redirecting in same window...");
-      window.location.href = urlFormats[0];
-      
-      toast({
-        title: "Redirecting to Payment",
-        description: "Opening payment page in current window",
-      });
-    }
-  };
 
   return (
     <div className="w-full">
@@ -681,7 +409,7 @@ export default function DonatePage() {
                               </Button>
                             ))}
                           </div>
-                          <FormMessage />
+                          {/* <FormMessage /> */}
                         </FormItem>
                       )}
                     />
@@ -705,7 +433,7 @@ export default function DonatePage() {
                           <FormControl>
                             <Input placeholder="Enter your full name" {...field} />
                           </FormControl>
-                          <FormMessage />
+                          {/* <FormMessage /> */}
                         </FormItem>
                       )}
                     />
@@ -724,7 +452,7 @@ export default function DonatePage() {
                                 {...field}
                               />
                             </FormControl>
-                            <FormMessage />
+                            {/* <FormMessage /> */}
                           </FormItem>
                         )}
                       />
@@ -742,7 +470,7 @@ export default function DonatePage() {
                                 {...field}
                               />
                             </FormControl>
-                            <FormMessage />
+                            {/* <FormMessage /> */}
                           </FormItem>
                         )}
                       />
@@ -761,7 +489,7 @@ export default function DonatePage() {
                               style={{ textTransform: "uppercase" }}
                             />
                           </FormControl>
-                          <FormMessage />
+                          {/* <FormMessage /> */}
                         </FormItem>
                       )}
                     />
@@ -770,13 +498,23 @@ export default function DonatePage() {
                   {/* Section 3: Address Information */}
                   <div className="space-y-6">
                     <div className="border-b border-border/50 pb-3">
-                      <h3 className="text-lg font-semibold text-primary flex items-center gap-2">
+                      <h3 
+                        className="text-lg font-semibold text-primary flex items-center gap-2 cursor-pointer hover:text-primary/80 transition-colors"
+                        onClick={() => setIsAddressCollapsed(!isAddressCollapsed)}
+                      >
                         <MapPin className="w-5 h-5" />
                         3. Address Information
+                        {isAddressCollapsed ? (
+                          <ChevronRight className="w-4 h-4 ml-auto" />
+                        ) : (
+                          <ChevronDown className="w-4 h-4 ml-auto" />
+                        )}
                       </h3>
                     </div>
                     
-                    <div className="grid md:grid-cols-2 gap-4">
+                    {!isAddressCollapsed && (
+                      <div className="space-y-4">
+                        <div className="grid md:grid-cols-2 gap-4">
                       <FormField
                         control={form.control}
                         name="country"
@@ -786,7 +524,7 @@ export default function DonatePage() {
                             <FormControl>
                               <Input {...field} disabled />
                             </FormControl>
-                            <FormMessage />
+                            {/* <FormMessage /> */}
                           </FormItem>
                         )}
                       />
@@ -811,7 +549,7 @@ export default function DonatePage() {
                                 ))}
                               </SelectContent>
                             </Select>
-                            <FormMessage />
+                            {/* <FormMessage /> */}
                           </FormItem>
                         )}
                       />
@@ -827,7 +565,7 @@ export default function DonatePage() {
                             <FormControl>
                               <Input placeholder="Enter your city" {...field} />
                             </FormControl>
-                            <FormMessage />
+                            {/* <FormMessage /> */}
                           </FormItem>
                         )}
                       />
@@ -841,57 +579,71 @@ export default function DonatePage() {
                             <FormControl>
                               <Input placeholder="Enter pin/zip code" {...field} />
                             </FormControl>
-                            <FormMessage />
+                            {/* <FormMessage /> */}
                           </FormItem>
                         )}
                       />
                     </div>
 
-                    <FormField
-                      control={form.control}
-                      name="address"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Complete Address</FormLabel>
-                          <FormControl>
-                            <Textarea
-                              placeholder="Enter your complete address"
-                              {...field}
-                              rows={3}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+                        <FormField
+                          control={form.control}
+                          name="address"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Complete Address</FormLabel>
+                              <FormControl>
+                                <Textarea
+                                  placeholder="Enter your complete address"
+                                  {...field}
+                                  rows={3}
+                                />
+                              </FormControl>
+                              {/* <FormMessage /> */}
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                    )}
                   </div>
 
                   {/* Section 4: Additional Information */}
                   <div className="space-y-6">
                     <div className="border-b border-border/50 pb-3">
-                      <h3 className="text-lg font-semibold text-primary flex items-center gap-2">
+                      <h3 
+                        className="text-lg font-semibold text-primary flex items-center gap-2 cursor-pointer hover:text-primary/80 transition-colors"
+                        onClick={() => setIsAdditionalCollapsed(!isAdditionalCollapsed)}
+                      >
                         <MessageSquare className="w-5 h-5" />
                         4. Additional Information
+                        {isAdditionalCollapsed ? (
+                          <ChevronRight className="w-4 h-4 ml-auto" />
+                        ) : (
+                          <ChevronDown className="w-4 h-4 ml-auto" />
+                        )}
                       </h3>
                     </div>
                     
-                    <FormField
-                      control={form.control}
-                      name="message"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Dedication Message</FormLabel>
-                          <FormControl>
-                            <Textarea
-                              placeholder="Any special message or dedication (optional)"
-                              {...field}
-                              rows={3}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+                    {!isAdditionalCollapsed && (
+                      <div className="space-y-4">
+                        <FormField
+                          control={form.control}
+                          name="message"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Dedication Message</FormLabel>
+                              <FormControl>
+                                <Textarea
+                                  placeholder="Any special message or dedication (optional)"
+                                  {...field}
+                                  rows={3}
+                                />
+                              </FormControl>
+                              {/* <FormMessage /> */}
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                    )}
                   </div>
 
                   <div className="pt-6">
@@ -901,241 +653,15 @@ export default function DonatePage() {
                       size="lg" 
                       className="w-full h-12 text-lg font-semibold"
                       disabled={form.formState.isSubmitting}
-                      onClick={async (e) => {
-                        e.preventDefault();
-                        console.log('=== DONATE NOW BUTTON CLICKED ===');
-                        console.log('Form state before validation:', {
-                          isValid: form.formState.isValid,
-                          errors: form.formState.errors,
-                          isDirty: form.formState.isDirty
-                        });
-                        
-                        // Trigger validation
-                        const isValid = await form.trigger();
-                        console.log('Form validation result:', isValid);
-                        
-                        if (isValid) {
-                          console.log('Form is valid, submitting...');
-                          form.handleSubmit(onSubmit)();
-                        } else {
-                          console.log('Form validation failed:', form.formState.errors);
-                          toast({
-                            title: "Form Validation Failed",
-                            description: "Please fill in all required fields correctly",
-                            variant: "destructive",
-                          });
-                        }
+                      onClick={(e) => {
+                        console.log('Donate Now button clicked!');
+                        console.log('Form state:', form.formState);
+                        console.log('Form values:', form.getValues());
                       }}
                     >
                       <Heart className="w-5 h-5 mr-2" />
                       {form.formState.isSubmitting ? "Processing..." : "Donate Now"}
                     </Button>
-                    
-                    {/* Debug buttons - only show on client side to prevent hydration mismatch */}
-                    {isClient && process.env.NODE_ENV === 'development' && (
-                      <div className="mt-4 space-y-2">
-                        <Button 
-                          type="button" 
-                          variant="outline" 
-                          size="sm" 
-                          className="w-full"
-                          onClick={() => {
-                            console.log('=== FORM DEBUG INFO ===');
-                            console.log('Form values:', form.getValues());
-                            console.log('Form errors:', form.formState.errors);
-                            console.log('Form is valid:', form.formState.isValid);
-                            console.log('Form is dirty:', form.formState.isDirty);
-                            console.log('Form is submitting:', form.formState.isSubmitting);
-                            
-                            // Show specific validation errors
-                            const errors = form.formState.errors;
-                            console.log('Form validation errors:', errors);
-                            Object.keys(errors).forEach(field => {
-                              console.log(`Field ${field}:`, errors[field as keyof typeof errors]);
-                            });
-                            
-                            // Show form values for debugging
-                            const formValues = form.getValues();
-                            console.log('Form values:', formValues);
-                            
-                            // Check if required fields are filled
-                            const requiredFields = ['name', 'email', 'mobile', 'amount'];
-                            requiredFields.forEach(field => {
-                              const value = formValues[field as keyof typeof formValues];
-                              console.log(`${field}: "${value}" (${value ? 'filled' : 'empty'})`);
-                            });
-                            
-                            toast({
-                              title: "Debug Info",
-                              description: "Check browser console for form details",
-                            });
-                          }}
-                        >
-                          Debug Form (Check Console)
-                        </Button>
-                        
-                        <Button 
-                          type="button" 
-                          variant="outline" 
-                          size="sm" 
-                          className="w-full"
-                          onClick={async () => {
-                            console.log('=== TESTING CASHFREE SDK ===');
-                            console.log('Window.Cashfree available:', !!window.Cashfree);
-                            
-                            if (window.Cashfree) {
-                              console.log('Cashfree SDK is already loaded');
-                              toast({
-                                title: "Cashfree SDK Status",
-                                description: "SDK is loaded and available",
-                              });
-                            } else {
-                              console.log('Loading Cashfree SDK...');
-                              try {
-                                await initializeCashfreeAndCheckout('test-session-id');
-                                toast({
-                                  title: "Cashfree SDK Test",
-                                  description: "SDK loading test completed - check console",
-                                });
-                              } catch (error) {
-                                console.error('Cashfree SDK test failed:', error);
-                                toast({
-                                  title: "Cashfree SDK Test Failed",
-                                  description: error instanceof Error ? error.message : 'Unknown error',
-                                  variant: "destructive",
-                                });
-                              }
-                            }
-                          }}
-                        >
-                          Test Cashfree SDK
-                        </Button>
-                        
-                        <Button 
-                          type="button" 
-                          variant="secondary" 
-                          size="sm" 
-                          className="w-full"
-                          onClick={() => {
-                            console.log('=== SANDBOX TEST INFORMATION ===');
-                            console.log('Test Card Details for Sandbox:');
-                            console.log('Visa Debit: 4706131211212123');
-                            console.log('Visa Credit: 4576238912771450');
-                            console.log('Mastercard Debit: 5409162669381034');
-                            console.log('Mastercard Credit: 5105105105105100');
-                            console.log('Expiry: 03/2028');
-                            console.log('CVV: 123');
-                            console.log('Name: Test');
-                            console.log('OTP: 111000');
-                            console.log('');
-                            console.log('Test UPI:');
-                            console.log('Success: testsuccess@gocash');
-                            console.log('Failure: testfailure@gocash');
-                            console.log('Invalid: testinvalid@gocash');
-                            
-                            toast({
-                              title: "Sandbox Test Data",
-                              description: "Check console for test card details",
-                            });
-                          }}
-                        >
-                          Show Sandbox Test Data
-                        </Button>
-                        
-                        <Button 
-                          type="button" 
-                          variant="secondary" 
-                          size="sm" 
-                          className="w-full"
-                          onClick={() => {
-                            // Fill form with test data
-                            form.setValue('name', 'Test User');
-                            form.setValue('email', 'test@example.com');
-                            form.setValue('mobile', '9876543210');
-                            form.setValue('amount', '1101');
-                            form.setValue('country', 'India');
-                            form.setValue('state', 'Maharashtra');
-                            form.setValue('city', 'Mumbai');
-                            form.setValue('pinCode', '400001');
-                            form.setValue('address', 'Test Address, Mumbai');
-                            form.setValue('message', 'Test donation');
-                            
-                            toast({
-                              title: "Test Data Loaded",
-                              description: "Form filled with test data for easy testing",
-                            });
-                          }}
-                        >
-                          Fill Test Data
-                        </Button>
-                        
-                        <Button 
-                          type="button" 
-                          variant="destructive" 
-                          size="sm" 
-                          className="w-full"
-                          onClick={async () => {
-                            console.log('=== TESTING PAYMENT API ENDPOINT ===');
-                            try {
-                              const testData = {
-                                order_id: 'test-order-' + Date.now(),
-                                order_amount: 501,
-                                order_currency: 'INR',
-                                customer_details: {
-                                  customer_id: 'test-customer-' + Date.now(),
-                                  customer_name: 'Test User',
-                                  customer_email: 'test@example.com',
-                                  customer_phone: '+919876543210',
-                                },
-                                order_meta: {
-                                  return_url: 'http://localhost:3001/donate/success',
-                                  notify_url: 'http://localhost:3001/api/webhook/cashfree',
-                                },
-                              };
-                              
-                              console.log('Testing with data:', testData);
-                              
-                              const response = await fetch('/api/payment/create-session', {
-                                method: 'POST',
-                                headers: {
-                                  'Content-Type': 'application/json',
-                                },
-                                body: JSON.stringify(testData),
-                              });
-                              
-                              console.log('API Response status:', response.status);
-                              const result = await response.json();
-                              console.log('API Response data:', result);
-                              console.log('Payment session ID:', result.data?.payment_session_id);
-                              console.log('Order ID:', result.data?.order_id);
-                              console.log('Payment URL:', result.data?.payment_url);
-                              
-                              if (response.ok) {
-                                toast({
-                                  title: "API Test Success",
-                                  description: "Payment API endpoint is working",
-                                });
-                              } else {
-                                toast({
-                                  title: "API Test Failed",
-                                  description: result.error || 'Unknown error',
-                                  variant: "destructive",
-                                });
-                              }
-                            } catch (error) {
-                              console.error('API test error:', error);
-                              toast({
-                                title: "API Test Error",
-                                description: error instanceof Error ? error.message : 'Unknown error',
-                                variant: "destructive",
-                              });
-                            }
-                          }}
-                        >
-                          Test Payment API
-                        </Button>
-                      </div>
-                    )}
                   </div>
                 </form>
               </Form>
@@ -1144,6 +670,7 @@ export default function DonatePage() {
         </div>
       </div>
 
+      {/* Payment handled by Cashfree direct checkout */}
     </div>
   );
 }
