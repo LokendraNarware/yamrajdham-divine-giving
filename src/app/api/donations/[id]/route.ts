@@ -28,7 +28,7 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
           pan_no
         )
       `)
-      .eq('id', orderId)
+      .eq('payment_id', orderId)
       .single();
 
     if (error) {
@@ -51,24 +51,24 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
       id: donation.id,
       amount: donation.amount,
       donationType: donation.donation_type,
-      paymentStatus: donation.status,
+      paymentStatus: donation.payment_status,
       paymentId: donation.payment_id,
-      paymentGateway: donation.payment_method,
+      paymentGateway: donation.payment_gateway,
       receiptNumber: donation.receipt_number,
       isAnonymous: donation.is_anonymous,
-      dedicationMessage: donation.message,
-      preacherName: donation.donors?.preacher_name,
+      dedicationMessage: donation.dedication_message,
+      preacherName: donation.preacher_name,
       createdAt: donation.created_at,
       updatedAt: donation.updated_at,
-      donor: donation.donors ? {
-        name: donation.donors.name,
-        email: donation.donors.email,
-        mobile: donation.donors.mobile,
-        address: donation.donors.address,
-        city: donation.donors.city,
-        state: donation.donors.state,
-        pinCode: donation.donors.pin_code,
-        panNo: donation.donors.pan_no
+      donor: donation.users ? {
+        name: donation.users.name,
+        email: donation.users.email,
+        mobile: donation.users.mobile,
+        address: donation.users.address,
+        city: donation.users.city,
+        state: donation.users.state,
+        pinCode: donation.users.pin_code,
+        panNo: donation.users.pan_no
       } : null
     };
 

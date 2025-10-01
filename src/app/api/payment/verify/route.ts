@@ -18,9 +18,9 @@ export async function GET(request: NextRequest) {
     
     // Check if donation exists in database
     const { data: donation, error } = await supabase
-      .from('donations')
+      .from('user_donations')
       .select('*')
-      .eq('id', orderId)
+      .eq('payment_id', orderId)
       .single();
 
     if (error || !donation) {
@@ -36,9 +36,9 @@ export async function GET(request: NextRequest) {
     const verificationResponse = {
       order_id: orderId,
       order_amount: donation.amount,
-      order_status: donation.status === 'completed' ? 'PAID' : 'ACTIVE',
-      payment_status: donation.status === 'completed' ? 'SUCCESS' : 'PENDING',
-      payment_method: donation.payment_method || 'Online Payment',
+      order_status: donation.payment_status === 'completed' ? 'PAID' : 'ACTIVE',
+      payment_status: donation.payment_status === 'completed' ? 'SUCCESS' : 'PENDING',
+      payment_method: donation.payment_gateway || 'Online Payment',
       payment_time: donation.updated_at,
       success: true
     };
