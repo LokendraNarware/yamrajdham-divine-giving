@@ -75,18 +75,18 @@ export default function PaymentSuccessPage() {
           }
           
           // Update donation status in database if payment was successful
-          if (details.order_status === 'PAID' || details.payment_status === 'SUCCESS') {
+          if (details && (details.order_status === 'PAID' || details.payment_status === 'SUCCESS')) {
             toast({
               title: "Donation Successful!",
               description: "Thank you for your generous donation.",
             });
-          } else if (details.order_status === 'ACTIVE' || details.payment_status === 'PENDING') {
+          } else if (details && (details.order_status === 'ACTIVE' || details.payment_status === 'PENDING')) {
             toast({
               title: "Payment Pending",
               description: "Your payment is being processed. Please wait.",
               variant: "default",
             });
-          } else {
+          } else if (details) {
             toast({
               title: "Payment Status Unknown",
               description: "Please contact support for payment status.",
@@ -123,11 +123,11 @@ export default function PaymentSuccessPage() {
 
     try {
       await generateReceiptPDF(receiptRef, {
-        donationId: paymentDetails.order_id,
+        donationId: paymentDetails.order_id || 'N/A',
         donorName: donationData.donor?.name || "Devotee",
-        amount: paymentDetails.order_amount,
-        date: paymentDetails.payment_time || donationData.createdAt,
-        purpose: donationData.donationType === 'general' ? 'Temple Construction' : donationData.donationType,
+        amount: paymentDetails.order_amount || 0,
+        date: paymentDetails.payment_time || donationData.createdAt || new Date().toISOString(),
+        purpose: donationData.donationType === 'general' ? 'Temple Construction' : donationData.donationType || 'Temple Construction',
         paymentMethod: paymentDetails.payment_method || "Online Payment"
       });
 
@@ -197,12 +197,12 @@ export default function PaymentSuccessPage() {
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="text-sm font-medium text-muted-foreground">Donation ID</label>
-                    <p className="font-mono text-sm">{paymentDetails.order_id}</p>
+                    <p className="font-mono text-sm">{paymentDetails.order_id || 'N/A'}</p>
                   </div>
                   <div>
                     <label className="text-sm font-medium text-muted-foreground">Amount</label>
                     <p className="font-semibold text-lg text-primary">
-                      ₹{paymentDetails.order_amount}
+                      ₹{paymentDetails.order_amount || 0}
                     </p>
                   </div>
                   <div>
@@ -272,9 +272,9 @@ export default function PaymentSuccessPage() {
               <CardContent>
                 <div ref={setReceiptRef}>
                   <DonationReceipt
-                    donationId={paymentDetails.order_id}
+                    donationId={paymentDetails.order_id || 'N/A'}
                     donorName={donationData?.donor?.name || "Devotee"}
-                    amount={paymentDetails.order_amount}
+                    amount={paymentDetails.order_amount || 0}
                     date={paymentDetails.payment_time || donationData?.createdAt || new Date().toISOString()}
                     purpose={donationData?.donationType === 'general' ? 'Temple Construction' : donationData?.donationType || 'Temple Construction'}
                     paymentMethod={paymentDetails.payment_method || "Online Payment"}

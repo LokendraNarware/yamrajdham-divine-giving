@@ -7,6 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Loader2, CreditCard, Smartphone, Building } from "lucide-react";
 import { createPaymentSession, PaymentSessionData, generateCustomerId } from "@/services/cashfree";
+import { initializeCashfree, openCashfreeCheckout, getCashfreeConfig, waitForCashfree } from "@/lib/cashfree-client";
 import { useToast } from "@/hooks/use-toast";
 
 // Format phone number for Cashfree API
@@ -69,8 +70,8 @@ const PaymentModal = ({
   const handlePayment = async () => {
     setIsLoading(true);
     try {
-      console.log('Initiating payment with data:', donationData);
-      console.log('PaymentModal version:', '2024-01-25-v5-direct-link');
+      console.log('Initiating hosted checkout payment with data:', donationData);
+      console.log('PaymentModal version:', '2024-01-25-v6-hosted-checkout');
       
       // Show loading message
       toast({
@@ -96,6 +97,7 @@ const PaymentModal = ({
 
       console.log('Session data prepared:', sessionData);
       
+      // Create payment session
       const response = await createPaymentSession(sessionData);
       
       console.log('Payment session response:', response);
@@ -114,46 +116,77 @@ const PaymentModal = ({
         throw new Error('No payment data received from server');
       }
       
-      const paymentUrl = response.data.payment_url;
-      const sessionId = response.data.payment_session_id;
+      const paymentSessionId = response.data.payment_session_id;
       
-      console.log('Payment URL:', paymentUrl);
-      console.log('Session ID:', sessionId);
+      if (!paymentSessionId) {
+        throw new Error('Payment session ID not received from Cashfree');
+      }
+      
+      console.log('Payment Session ID:', paymentSessionId);
+      
+      // Wait for Cashfree SDK to load
+      toast({
+        title: "Loading Payment Gateway",
+        description: "Initializing secure checkout...",
+      });
+      
+      const sdkReady = await waitForCashfree(5000);
+      if (!sdkReady) {
+        console.error('Cashfree SDK not available, falling back to direct redirect');
+        // Fallback: direct redirect to payment URL
+        if (response.data?.payment_url) {
+          window.location.href = response.data.payment_url;
+          onClose();
+          return;
+        } else {
+          throw new Error('Payment gateway failed to load. Please refresh the page and try again.');
+        }
+      }
+      
+      // Initialize Cashfree SDK
+      const config = getCashfreeConfig();
+      const cashfree = initializeCashfree(config);
+      
+      if (!cashfree) {
+        console.error('Failed to initialize Cashfree SDK, falling back to direct redirect');
+        // Fallback: direct redirect to payment URL
+        if (response.data?.payment_url) {
+          window.location.href = response.data.payment_url;
+          onClose();
+          return;
+        } else {
+          throw new Error('Failed to initialize payment gateway');
+        }
+      }
       
       // Show success message
       toast({
-        title: "Payment Session Created",
+        title: "Opening Payment Gateway",
         description: "Redirecting to secure payment page...",
       });
       
-      // Direct redirection to Cashfree payment page
-      if (paymentUrl) {
-        console.log('Redirecting to payment URL:', paymentUrl);
-        console.log('Payment URL validation:', {
-          isValid: paymentUrl.startsWith('http'),
-          length: paymentUrl.length,
-          containsSessionId: paymentUrl.includes(sessionId)
+      // Open hosted checkout
+      try {
+        await openCashfreeCheckout(cashfree, {
+          paymentSessionId,
+          redirectTarget: '_self' // Opens in same tab
         });
         
-        // Show success message
-        toast({
-          title: "Redirecting to Payment",
-          description: "Opening secure payment page...",
-        });
+        console.log('Hosted checkout opened successfully');
         
-        // Small delay to show the toast message, then redirect
-        setTimeout(() => {
-          console.log('Executing redirect to:', paymentUrl);
-          try {
-            window.location.href = paymentUrl;
-          } catch (redirectError) {
-            console.error('Redirect error:', redirectError);
-            // Fallback: try opening in new window
-            window.open(paymentUrl, '_blank');
-          }
-        }, 1500);
-      } else {
-        throw new Error('Payment URL not received from Cashfree');
+        // Close the modal since we're redirecting
+        onClose();
+        
+      } catch (checkoutError) {
+        console.error('Checkout error:', checkoutError);
+        console.log('Falling back to direct redirect');
+        // Fallback: direct redirect to payment URL
+        if (response.data?.payment_url) {
+          window.location.href = response.data.payment_url;
+          onClose();
+        } else {
+          throw new Error('Failed to open payment gateway. Please try again.');
+        }
       }
 
     } catch (error) {
@@ -174,17 +207,22 @@ const PaymentModal = ({
     {
       name: "Credit/Debit Cards",
       icon: <CreditCard className="w-5 h-5" />,
-      description: "Visa, Mastercard, RuPay"
+      description: "Visa, Mastercard, RuPay, Amex"
     },
     {
       name: "UPI",
       icon: <Smartphone className="w-5 h-5" />,
-      description: "PhonePe, Google Pay, Paytm"
+      description: "PhonePe, Google Pay, Paytm, BHIM"
     },
     {
       name: "Net Banking",
       icon: <Building className="w-5 h-5" />,
       description: "All major banks"
+    },
+    {
+      name: "Wallets",
+      icon: <Smartphone className="w-5 h-5" />,
+      description: "Paytm, PhonePe, Mobikwik"
     }
   ];
 
@@ -229,7 +267,7 @@ const PaymentModal = ({
             <CardHeader className="pb-3">
               <CardTitle className="text-lg">Payment Methods</CardTitle>
               <CardDescription>
-                Choose your preferred payment method
+                Secure payment gateway with 120+ payment options
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -260,7 +298,7 @@ const PaymentModal = ({
               {isLoading ? (
                 <>
                   <Loader2 className="w-4 h-4 animate-spin" />
-                  Processing...
+                  Opening Payment Gateway...
                 </>
               ) : (
                 <>
@@ -294,7 +332,7 @@ const PaymentModal = ({
           {/* Security Badge */}
           <div className="text-center space-y-2">
             <Badge variant="secondary" className="text-xs">
-              Secure Payment • SSL Encrypted
+              Secure Payment • PCI Compliant • 120+ Payment Methods
             </Badge>
           </div>
         </div>

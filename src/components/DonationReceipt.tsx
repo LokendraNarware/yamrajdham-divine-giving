@@ -21,6 +21,7 @@ export default function DonationReceipt({
   paymentMethod = "Online Payment"
 }: DonationReceiptProps) {
   const formatAmount = (amount: number) => {
+    if (!amount || isNaN(amount)) return '₹0';
     return new Intl.NumberFormat('en-IN', {
       style: 'currency',
       currency: 'INR',
@@ -29,6 +30,11 @@ export default function DonationReceipt({
   };
 
   const formatDate = (dateString: string) => {
+    if (!dateString) return new Date().toLocaleDateString('en-IN', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
     return new Date(dateString).toLocaleDateString('en-IN', {
       year: 'numeric',
       month: 'long',
@@ -96,7 +102,7 @@ export default function DonationReceipt({
               <div className="flex items-center">
                 <span className="text-black font-semibold mr-2">No.:</span>
                 <span className="border-b-2 border-dotted border-black min-w-[200px] text-center">
-                  {donationId}
+                  {donationId || 'N/A'}
                 </span>
               </div>
               <div className="flex items-center">
@@ -111,7 +117,7 @@ export default function DonationReceipt({
             <div className="space-y-2">
               <p className="text-black font-semibold">Received with Thanks from Smt/Sri</p>
               <div className="border-b-2 border-dotted border-black min-h-[40px] flex items-center">
-                <span className="text-lg font-medium">{donorName}</span>
+                <span className="text-lg font-medium">{donorName || 'Devotee'}</span>
               </div>
             </div>
 
@@ -120,7 +126,7 @@ export default function DonationReceipt({
               <p className="text-black font-semibold">Amount (in words):</p>
               <div className="border-b-2 border-dotted border-black min-h-[40px] flex items-center">
                 <span className="text-lg font-medium">
-                  {formatAmount(amount)} ({amount.toLocaleString('en-IN')} Rupees Only)
+                  {formatAmount(amount)} ({amount ? amount.toLocaleString('en-IN') : '0'} Rupees Only)
                 </span>
               </div>
             </div>
@@ -129,7 +135,7 @@ export default function DonationReceipt({
             <div className="space-y-2">
               <p className="text-black font-semibold">Purpose:</p>
               <div className="border-b-2 border-dotted border-black min-h-[40px] flex items-center">
-                <span className="text-lg font-medium">{purpose}</span>
+                <span className="text-lg font-medium">{purpose || 'Temple Construction'}</span>
               </div>
             </div>
 
@@ -137,7 +143,7 @@ export default function DonationReceipt({
             <div className="space-y-2">
               <p className="text-black font-semibold">Payment Method:</p>
               <div className="border-b-2 border-dotted border-black min-h-[40px] flex items-center">
-                <span className="text-lg font-medium">{paymentMethod}</span>
+                <span className="text-lg font-medium">{paymentMethod || 'Online Payment'}</span>
               </div>
             </div>
 

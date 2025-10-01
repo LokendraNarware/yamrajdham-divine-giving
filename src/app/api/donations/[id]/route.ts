@@ -1,10 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabase } from '@/integrations/supabase/client';
 
-export async function GET(request: NextRequest) {
+export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
   try {
-    const { searchParams } = new URL(request.url);
-    const orderId = searchParams.get('order_id');
+    const orderId = params.id;
 
     if (!orderId) {
       return NextResponse.json(
@@ -52,24 +51,24 @@ export async function GET(request: NextRequest) {
       id: donation.id,
       amount: donation.amount,
       donationType: donation.donation_type,
-      paymentStatus: donation.payment_status,
+      paymentStatus: donation.status,
       paymentId: donation.payment_id,
-      paymentGateway: donation.payment_gateway,
+      paymentGateway: donation.payment_method,
       receiptNumber: donation.receipt_number,
       isAnonymous: donation.is_anonymous,
-      dedicationMessage: donation.dedication_message,
-      preacherName: donation.preacher_name,
+      dedicationMessage: donation.message,
+      preacherName: donation.donors?.preacher_name,
       createdAt: donation.created_at,
       updatedAt: donation.updated_at,
-      donor: donation.users ? {
-        name: donation.users.name,
-        email: donation.users.email,
-        mobile: donation.users.mobile,
-        address: donation.users.address,
-        city: donation.users.city,
-        state: donation.users.state,
-        pinCode: donation.users.pin_code,
-        panNo: donation.users.pan_no
+      donor: donation.donors ? {
+        name: donation.donors.name,
+        email: donation.donors.email,
+        mobile: donation.donors.mobile,
+        address: donation.donors.address,
+        city: donation.donors.city,
+        state: donation.donors.state,
+        pinCode: donation.donors.pin_code,
+        panNo: donation.donors.pan_no
       } : null
     };
 

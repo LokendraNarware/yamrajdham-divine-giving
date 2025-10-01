@@ -504,15 +504,15 @@ export default function DonatePage() {
                       >
                         <MapPin className="w-5 h-5" />
                         3. Address Information
-                        {isAddressCollapsed ? (
+                        {isClient && (isAddressCollapsed ? (
                           <ChevronRight className="w-4 h-4 ml-auto" />
                         ) : (
                           <ChevronDown className="w-4 h-4 ml-auto" />
-                        )}
+                        ))}
                       </h3>
                     </div>
                     
-                    {!isAddressCollapsed && (
+                    {isClient && !isAddressCollapsed && (
                       <div className="space-y-4">
                         <div className="grid md:grid-cols-2 gap-4">
                       <FormField
@@ -615,15 +615,15 @@ export default function DonatePage() {
                       >
                         <MessageSquare className="w-5 h-5" />
                         4. Additional Information
-                        {isAdditionalCollapsed ? (
+                        {isClient && (isAdditionalCollapsed ? (
                           <ChevronRight className="w-4 h-4 ml-auto" />
                         ) : (
                           <ChevronDown className="w-4 h-4 ml-auto" />
-                        )}
+                        ))}
                       </h3>
                     </div>
                     
-                    {!isAdditionalCollapsed && (
+                    {isClient && !isAdditionalCollapsed && (
                       <div className="space-y-4">
                         <FormField
                           control={form.control}
