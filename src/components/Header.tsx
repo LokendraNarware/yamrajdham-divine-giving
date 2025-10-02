@@ -98,7 +98,7 @@ const Header = () => {
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" size="sm" className="flex items-center gap-2 hover:bg-temple-soft-peach">
                     <User className="w-4 h-4" />
-                    <span className="hidden sm:inline">My Account</span>
+                    <span className="hidden sm:inline">My Donations</span>
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="bg-temple-cream border-temple-gold shadow-temple">

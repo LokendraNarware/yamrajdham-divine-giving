@@ -73,7 +73,7 @@ export async function POST(request: NextRequest) {
         data: {
           order_id: validatedData.order_id,
           payment_session_id: `mock_session_${Date.now()}`,
-          payment_url: `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3001'}/donate/success?order_id=${validatedData.order_id}`,
+          payment_url: `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/donate/success?order_id=${validatedData.order_id}`,
           order_amount: validatedData.order_amount,
           order_currency: validatedData.order_currency,
           customer_details: validatedData.customer_details,

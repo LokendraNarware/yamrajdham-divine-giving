@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { CheckCircle, Download, Mail, Heart } from "lucide-react";
+import { CheckCircle, Download, Mail, Heart, Loader2 } from "lucide-react";
 import { verifyPayment } from "@/services/cashfree";
 import { useToast } from "@/hooks/use-toast";
 import DonationReceipt from "@/components/DonationReceipt";
@@ -61,6 +61,7 @@ export default function PaymentSuccessPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [receiptType, setReceiptType] = useState<'traditional' | 'modern'>('modern');
   const [receiptRef, setReceiptRef] = useState<HTMLDivElement | null>(null);
+  const [isDownloading, setIsDownloading] = useState(false);
   
   const orderId = searchParams.get("order_id");
 
@@ -89,10 +90,13 @@ export default function PaymentSuccessPage() {
           
           // Update donation status in database if payment was successful
           if (details && (details.order_status === 'PAID' || details.payment_status === 'SUCCESS')) {
-            toast({
-              title: "Donation Successful!",
-              description: "Thank you for your generous donation.",
-            });
+            // Only show success toast if payment is truly completed
+            if (!details.payment_status || details.payment_status !== 'PENDING') {
+              toast({
+                title: "Donation Successful!",
+                description: "Thank you for your generous donation.",
+              });
+            }
           } else if (details && (details.order_status === 'ACTIVE' || details.payment_status === 'PENDING')) {
             toast({
               title: "Payment Pending",
@@ -125,12 +129,15 @@ export default function PaymentSuccessPage() {
   }, [orderId, toast]);
 
   const handleDownloadReceipt = async () => {
+    if (isDownloading) return;
+    setIsDownloading(true);
     if (!paymentDetails || !donationData || !isClient) {
       toast({
         title: "Error",
         description: "Receipt data not available",
         variant: "destructive",
       });
+      setIsDownloading(false);
       return;
     }
 
@@ -198,6 +205,8 @@ export default function PaymentSuccessPage() {
         description: `Failed to download modern receipt: ${errorMessage}`,
         variant: "destructive",
       });
+    } finally {
+      setIsDownloading(false);
     }
   };
 
@@ -215,31 +224,144 @@ export default function PaymentSuccessPage() {
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
           <p className="text-muted-foreground">
-            {isLoading ? "Loading payment details..." : "Loading..."}
+            {isLoading ? "Verifying payment..." : "Loading..."}
           </p>
         </div>
       </div>
     );
   }
 
+  // Determine payment status for UI with strict checking
+  const isPaymentSuccessful = paymentDetails && (
+    (paymentDetails.order_status === 'PAID') || 
+    (paymentDetails.payment_status === 'SUCCESS')
+  );
+  
+  const isPaymentPending = paymentDetails && (
+    (paymentDetails.order_status === 'ACTIVE') || 
+    (paymentDetails.payment_status === 'PENDING') ||
+    (paymentDetails.order_status === 'MOCK_UNPAID') ||
+    (paymentDetails.payment_status === 'MOCK_UNPAID')
+  );
+  
+  const isMockOrder = paymentDetails && (
+    (paymentDetails.order_status === 'MOCK_UNPAID') || 
+    (paymentDetails.payment_status === 'MOCK_UNPAID') ||
+    (paymentDetails.is_mock === true)
+  );
+  
+  const isPaymentFailed = paymentDetails && !isPaymentSuccessful && !isPaymentPending && !isMockOrder;
+
+  // Additional safety check - never show success components if payment is pending
+  const shouldShowSuccessComponents = isPaymentSuccessful && !isPaymentPending && paymentDetails && (
+    paymentDetails.order_status === 'PAID' || paymentDetails.payment_status === 'SUCCESS'
+  );
+
+  // Debug logging
+  if (paymentDetails && typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
+    console.log('Payment Details Debug:', {
+      order_status: paymentDetails.order_status,
+      payment_status: paymentDetails.payment_status,
+      is_mock: paymentDetails.is_mock,
+      isPaymentSuccessful,
+      isPaymentPending,
+      isMockOrder,
+      isPaymentFailed,
+      shouldShowSuccessComponents
+    });
+  }
+
   return (
     <div className="min-h-screen bg-background">
       <main className="container py-8 px-4">
         <div className="max-w-2xl mx-auto">
-          {/* Success Message */}
-          <Card className="border-green-200 bg-green-50 mb-6">
-            <CardContent className="pt-6">
-              <div className="text-center">
-                <CheckCircle className="w-16 h-16 text-green-600 mx-auto mb-4" />
-                <h1 className="text-2xl font-bold text-green-800 mb-2">
-                  Donation Successful!
-                </h1>
-                <p className="text-green-700">
-                  Thank you for your generous donation to Yamrajdham Temple.
-                </p>
-              </div>
-            </CardContent>
-          </Card>
+          {/* Status Message */}
+          {shouldShowSuccessComponents && (
+            <Card className="border-green-200 bg-green-50 mb-6">
+              <CardContent className="pt-6">
+                <div className="text-center">
+                  <CheckCircle className="w-16 h-16 text-green-600 mx-auto mb-4" />
+                  <h1 className="text-2xl font-bold text-green-800 mb-2">
+                    Donation Successful!
+                  </h1>
+                  <p className="text-green-700">
+                    Thank you for your generous donation to Yamrajdham Temple.
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {isPaymentPending && (
+            <Card className="border-yellow-200 bg-yellow-50 mb-6">
+              <CardContent className="pt-6">
+                <div className="text-center">
+                  <Loader2 className="w-16 h-16 text-yellow-600 mx-auto mb-4 animate-spin" />
+                  <h1 className="text-2xl font-bold text-yellow-800 mb-2">
+                    Payment Processing
+                  </h1>
+                  <p className="text-yellow-700">
+                    Your payment is being processed. Please wait or refresh the page in a few minutes.
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {isMockOrder && (
+            <Card className="border-blue-200 bg-blue-50 mb-6">
+              <CardContent className="pt-6">
+                <div className="text-center">
+                  <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <span className="text-3xl text-blue-600">⚠</span>
+                  </div>
+                  <h1 className="text-2xl font-bold text-blue-800 mb-2">
+                    Test Order - Payment Not Processed
+                  </h1>
+                  <p className="text-blue-700">
+                    This is a test order in development mode. No actual payment has been processed. 
+                    To make real donations, please use the production environment.
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {isPaymentFailed && (
+            <Card className="border-red-200 bg-red-50 mb-6">
+              <CardContent className="pt-6">
+                <div className="text-center">
+                  <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <span className="text-3xl text-red-600">✕</span>
+                  </div>
+                  <h1 className="text-2xl font-bold text-red-800 mb-2">
+                    Payment Failed
+                  </h1>
+                  <p className="text-red-700">
+                    There was an issue processing your payment. Please try again or contact support.
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {!paymentDetails && (
+            <Card className="border-gray-200 bg-gray-50 mb-6">
+              <CardContent className="pt-6">
+                <div className="text-center">
+                  <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <span className="text-3xl text-gray-600">?</span>
+                  </div>
+                  <h1 className="text-2xl font-bold text-gray-800 mb-2">
+                    Payment Status Unknown
+                  </h1>
+                  <p className="text-gray-700">
+                    We couldn't verify your payment status. Please contact support with your order ID.
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+          )}
 
           {/* Payment Details */}
           {paymentDetails && (
@@ -247,7 +369,11 @@ export default function PaymentSuccessPage() {
               <CardHeader>
                 <CardTitle>Payment Details</CardTitle>
                 <CardDescription>
-                  Your donation has been processed successfully
+                  {shouldShowSuccessComponents 
+                    ? "Your donation has been processed successfully"
+                    : isPaymentPending
+                    ? "Your donation is being processed"
+                    : "Payment details"}
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -305,8 +431,8 @@ export default function PaymentSuccessPage() {
             </Card>
           )}
 
-          {/* Donation Receipt */}
-          {paymentDetails && (
+          {/* Donation Receipt - Only show for successful payments */}
+          {shouldShowSuccessComponents && (
             <Card className="mb-6">
               <CardHeader>
                 <div className="flex justify-between items-center">
@@ -338,9 +464,18 @@ export default function PaymentSuccessPage() {
                 <div className="space-y-6">
                   {/* Download Actions */}
                   <div className="flex gap-3">
-                    <Button onClick={handleDownloadReceipt} variant="outline" className="flex-1">
-                      <Download className="w-4 h-4 mr-2" />
-                      Download Modern Receipt
+                    <Button onClick={handleDownloadReceipt} variant="outline" className="flex-1" disabled={isDownloading} aria-busy={isDownloading}>
+                      {isDownloading ? (
+                        <>
+                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                          Processing...
+                        </>
+                      ) : (
+                        <>
+                          <Download className="w-4 h-4 mr-2" />
+                          Download Modern Receipt
+                        </>
+                      )}
                     </Button>
                     <Button onClick={handleEmailReceipt} variant="outline" className="flex-1">
                       <Mail className="w-4 h-4 mr-2" />
@@ -377,74 +512,103 @@ export default function PaymentSuccessPage() {
             </Card>
           )}
 
-          {/* Next Steps */}
-          <Card>
-            <CardHeader>
-              <CardTitle>What&apos;s Next?</CardTitle>
-              <CardDescription>
-                Your contribution will help us build the temple
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div className="flex items-start space-x-3">
-                  <div className="w-6 h-6 bg-primary rounded-full flex items-center justify-center text-white text-sm font-bold">
-                    1
+          {/* Next Steps - Only show for successful payments */}
+          {shouldShowSuccessComponents && (
+            <Card>
+              <CardHeader>
+                <CardTitle>What&apos;s Next?</CardTitle>
+                <CardDescription>
+                  Your contribution will help us build the temple
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="flex items-start space-x-3">
+                    <div className="w-6 h-6 bg-primary rounded-full flex items-center justify-center text-white text-sm font-bold">
+                      1
+                    </div>
+                    <div>
+                      <h4 className="font-semibold">Donation Receipt Processing</h4>
+                      <p className="text-sm text-muted-foreground">
+                        Your official donation receipt will be processed and sent to your email within 24 hours.
+                      </p>
+                    </div>
                   </div>
-                  <div>
-                    <h4 className="font-semibold">Donation Receipt Processing</h4>
-                    <p className="text-sm text-muted-foreground">
-                      Your official donation receipt will be processed and sent to your email within 24 hours.
-                    </p>
+                  
+                  <div className="flex items-start space-x-3">
+                    <div className="w-6 h-6 bg-primary rounded-full flex items-center justify-center text-white text-sm font-bold">
+                      2
+                    </div>
+                    <div>
+                      <h4 className="font-semibold">Progress Updates</h4>
+                      <p className="text-sm text-muted-foreground">
+                        You&apos;ll receive regular updates about the temple construction progress.
+                      </p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-start space-x-3">
+                    <div className="w-6 h-6 bg-primary rounded-full flex items-center justify-center text-white text-sm font-bold">
+                      3
+                    </div>
+                    <div>
+                      <h4 className="font-semibold">Invitation to Inauguration</h4>
+                      <p className="text-sm text-muted-foreground">
+                        You&apos;ll be invited to the temple inauguration ceremony.
+                      </p>
+                    </div>
                   </div>
                 </div>
-                
-                <div className="flex items-start space-x-3">
-                  <div className="w-6 h-6 bg-primary rounded-full flex items-center justify-center text-white text-sm font-bold">
-                    2
-                  </div>
-                  <div>
-                    <h4 className="font-semibold">Progress Updates</h4>
-                    <p className="text-sm text-muted-foreground">
-                      You&apos;ll receive regular updates about the temple construction progress.
-                    </p>
-                  </div>
-                </div>
-                
-                <div className="flex items-start space-x-3">
-                  <div className="w-6 h-6 bg-primary rounded-full flex items-center justify-center text-white text-sm font-bold">
-                    3
-                  </div>
-                  <div>
-                    <h4 className="font-semibold">Invitation to Inauguration</h4>
-                    <p className="text-sm text-muted-foreground">
-                      You&apos;ll be invited to the temple inauguration ceremony.
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          )}
 
           {/* Action Buttons */}
           <div className="flex gap-4 mt-6">
             <Button 
               onClick={() => router.push("/")} 
-              variant="divine" 
+              variant="outline" 
               size="lg" 
               className="flex-1"
             >
               <Heart className="w-4 h-4 mr-2" />
               Back to Home
             </Button>
-            <Button 
-              onClick={() => router.push("/donate")} 
-              variant="outline" 
-              size="lg" 
-              className="flex-1"
-            >
-              Make Another Donation
-            </Button>
+            
+            {shouldShowSuccessComponents && (
+              <Button 
+                onClick={() => router.push("/donate")} 
+                variant="divine" 
+                size="lg" 
+                className="flex-1"
+              >
+                Make Another Donation
+              </Button>
+            )}
+            
+            {(isPaymentFailed || isPaymentPending || isMockOrder) && (
+              <Button 
+                onClick={() => router.push("/donate")} 
+                variant="default" 
+                size="lg" 
+                className="flex-1"
+              >
+                {isPaymentFailed ? "Try Again" : 
+                 isMockOrder ? "Make Real Donation" : 
+                 "Check Status Later"}
+              </Button>
+            )}
+            
+            {!paymentDetails && (
+              <Button 
+                onClick={() => window.location.reload()} 
+                variant="default" 
+                size="lg" 
+                className="flex-1"
+              >
+                Refresh Status
+              </Button>
+            )}
           </div>
         </div>
       </main>

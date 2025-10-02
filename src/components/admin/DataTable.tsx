@@ -51,6 +51,7 @@ interface DataTableProps {
   onStatusChange?: (id: string, status: string) => void;
   onExport?: () => void;
   loading?: boolean;
+  showActions?: boolean;
 }
 
 export default function DataTable({
@@ -61,7 +62,8 @@ export default function DataTable({
   onRowClick,
   onStatusChange,
   onExport,
-  loading = false
+  loading = false,
+  showActions = true
 }: DataTableProps) {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
@@ -220,13 +222,13 @@ export default function DataTable({
                     </div>
                   </TableHead>
                 ))}
-                <TableHead className="w-12"></TableHead>
+                {showActions && <TableHead className="w-12"></TableHead>}
               </TableRow>
             </TableHeader>
             <TableBody>
               {paginatedData.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={columns.length + 1} className="text-center py-8">
+                  <TableCell colSpan={columns.length + (showActions ? 1 : 0)} className="text-center py-8">
                     <div className="text-gray-500">
                       <Filter className="w-8 h-8 mx-auto mb-2" />
                       <p>No donations found</p>
@@ -249,35 +251,37 @@ export default function DataTable({
                         }
                       </TableCell>
                     ))}
-                    <TableCell>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="sm">
-                            <MoreHorizontal className="w-4 h-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem onClick={() => onRowClick?.(row)}>
-                            <Eye className="w-4 h-4 mr-2" />
-                            View Details
-                          </DropdownMenuItem>
-                          {onStatusChange && row.payment_status === 'pending' && (
-                            <>
-                              <DropdownMenuItem 
-                                onClick={() => onStatusChange(row.id, 'completed')}
-                              >
-                                Mark Completed
-                              </DropdownMenuItem>
-                              <DropdownMenuItem 
-                                onClick={() => onStatusChange(row.id, 'failed')}
-                              >
-                                Mark Failed
-                              </DropdownMenuItem>
-                            </>
-                          )}
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </TableCell>
+                    {showActions && (
+                      <TableCell>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="sm">
+                              <MoreHorizontal className="w-4 h-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem onClick={() => onRowClick?.(row)}>
+                              <Eye className="w-4 h-4 mr-2" />
+                              View Details
+                            </DropdownMenuItem>
+                            {onStatusChange && row.payment_status === 'pending' && (
+                              <>
+                                <DropdownMenuItem 
+                                  onClick={() => onStatusChange(row.id, 'completed')}
+                                >
+                                  Mark Completed
+                                </DropdownMenuItem>
+                                <DropdownMenuItem 
+                                  onClick={() => onStatusChange(row.id, 'failed')}
+                                >
+                                  Mark Failed
+                                </DropdownMenuItem>
+                              </>
+                            )}
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </TableCell>
+                    )}
                   </TableRow>
                 ))
               )}

@@ -14,7 +14,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
-import { getUserById, updateUser, getDonations } from "@/services/donations";
+import { getUserById, updateUser } from "@/services/donations";
 
 const profileFormSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -42,22 +42,12 @@ const indianStates = [
   "Andaman and Nicobar Islands", "Dadra and Nagar Haveli and Daman and Diu", "Lakshadweep"
 ];
 
-interface DonationRecord {
-  id: string;
-  user_id: string;
-  amount: number;
-  donation_type: string;
-  payment_status: string;
-  dedication_message: string | null;
-  created_at: string;
-}
 
 export default function ProfilePage() {
   const { user, signOut } = useAuth();
   const router = useRouter();
   const { toast } = useToast();
   const [isEditing, setIsEditing] = useState(false);
-  const [donations, setDonations] = useState<DonationRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [actualUserId, setActualUserId] = useState<string | null>(null);
 
@@ -129,18 +119,6 @@ export default function ProfilePage() {
             });
           }
 
-          // Now fetch donations using the correct user ID
-          console.log('Fetching donations for user ID:', actualUserId);
-          const donationsResult = await getDonations();
-
-          if (donationsResult.success && donationsResult.data) {
-            // Filter donations for current user using the actual database user ID
-            const userDonations = donationsResult.data.filter((donation: DonationRecord) => 
-              donation.user_id === actualUserId
-            );
-            console.log(`Found ${userDonations.length} donations for user ${actualUserId}`);
-            setDonations(userDonations);
-          }
         } catch (error) {
           console.error('Error fetching user data:', error);
           console.error('Error details:', {
@@ -263,7 +241,7 @@ export default function ProfilePage() {
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-3xl font-bold">My Profile</h1>
-              <p className="text-muted-foreground">Manage your account information and view donation history</p>
+              <p className="text-muted-foreground">Manage your account information</p>
             </div>
             <div className="flex gap-2">
               {!isEditing ? (
@@ -490,63 +468,6 @@ export default function ProfilePage() {
             </Card>
           </div>
 
-          {/* Donation History */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Donation History</CardTitle>
-              <CardDescription>
-                View your past donations and their status
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              {donations.length > 0 ? (
-                <div className="space-y-4">
-                  {donations.map((donation) => (
-                    <div key={donation.id} className="flex items-center justify-between p-4 border rounded-lg">
-                      <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
-                          <span className="text-primary font-semibold">₹</span>
-                        </div>
-                        <div>
-                          <p className="font-semibold">₹{donation.amount.toLocaleString()}</p>
-                          <p className="text-sm text-muted-foreground">
-                            {new Date(donation.created_at).toLocaleDateString()}
-                          </p>
-                          {donation.dedication_message && (
-                            <p className="text-sm text-muted-foreground italic">
-                              &ldquo;{donation.dedication_message}&rdquo;
-                            </p>
-                          )}
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                          donation.payment_status === 'completed' 
-                            ? 'bg-green-100 text-green-800' 
-                            : donation.payment_status === 'pending'
-                            ? 'bg-yellow-100 text-yellow-800'
-                            : 'bg-red-100 text-red-800'
-                        }`}>
-                          {donation.payment_status}
-                        </span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="text-center py-8">
-                  <p className="text-muted-foreground">No donations yet</p>
-                  <Button 
-                    onClick={() => router.push('/donate')} 
-                    variant="divine" 
-                    className="mt-4"
-                  >
-                    Make Your First Donation
-                  </Button>
-                </div>
-              )}
-            </CardContent>
-          </Card>
         </div>
       </main>
     </div>

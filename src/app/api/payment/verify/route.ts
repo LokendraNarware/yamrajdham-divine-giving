@@ -15,21 +15,23 @@ export async function GET(request: NextRequest) {
 
     // Check if donation exists in database
     // We pass donation.id as orderId in our flow; fall back to payment_id if needed
-    let { data: donation, error } = await supabase
+    let donation: any;
+    let error: any;
+    ({ data: donation, error } = await (supabase
       .from('user_donations')
       .select('*')
       .eq('id', orderId)
-      .single();
+      .single() as any));
 
     if ((error || !donation)) {
       // Try by payment_id as a fallback
-      const fallback = await supabase
+      const fallback = await (supabase
         .from('user_donations')
         .select('*')
         .eq('payment_id', orderId)
-        .single();
-      donation = fallback.data as any;
-      error = fallback.error as any;
+        .single() as any);
+      donation = fallback.data;
+      error = fallback.error;
     }
 
     if (error || !donation) {
@@ -46,7 +48,7 @@ export async function GET(request: NextRequest) {
     const ENVIRONMENT = (process.env.CASHFREE_ENVIRONMENT || 'sandbox').toLowerCase();
 
     let orderStatus: 'PAID' | 'ACTIVE' | 'EXPIRED' | 'FAILED' | 'UNKNOWN' = 'UNKNOWN';
-    let paymentStatus: 'SUCCESS' | 'PENDING' | 'FAILED' | 'UNKNOWN' = 'UNKNOWN';
+    let paymentStatus: 'SUCCESS' | 'PENDING' | 'FAILED' | 'NOT_ATTEMPTED' | 'CANCELLED' | 'VOID' | 'UNKNOWN' = 'UNKNOWN';
     let paymentMethod: string | undefined;
     let paymentTime: string | undefined;
 
@@ -85,7 +87,16 @@ export async function GET(request: NextRequest) {
           const latest = Array.isArray(paymentsJson) ? paymentsJson[0] : undefined;
           if (latest) {
             paymentStatus = (latest.payment_status as typeof paymentStatus) || 'UNKNOWN';
-            paymentMethod = latest.payment_method || latest.payment_group;
+            // Normalize payment_method which can be an object like { upi: {...} }
+            const rawMethod = latest.payment_method || latest.payment_group;
+            if (rawMethod && typeof rawMethod === 'object') {
+              const keys = Object.keys(rawMethod);
+              paymentMethod = keys.length ? keys[0] : 'Online Payment';
+            } else if (typeof rawMethod === 'string') {
+              paymentMethod = rawMethod;
+            } else {
+              paymentMethod = 'Online Payment';
+            }
             paymentTime = latest.payment_time || latest.created_at;
           }
         }
@@ -94,27 +105,71 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    // Determine final status: prefer Cashfree if available, otherwise DB
-    const isPaid = orderStatus === 'PAID' || paymentStatus === 'SUCCESS' || donation.payment_status === 'completed';
+    // Map gateway statuses to DB enum: pending | completed | failed | refunded
+    const mapToDbStatus = (
+      pgPaymentStatus: typeof paymentStatus,
+      pgOrderStatus: typeof orderStatus,
+      currentDb: string
+    ): 'pending' | 'completed' | 'failed' | 'refunded' => {
+      // Primary mapping from payment status
+      switch (pgPaymentStatus) {
+        case 'SUCCESS':
+          return 'completed';
+        case 'FAILED':
+        case 'CANCELLED':
+        case 'VOID':
+          return 'failed';
+        case 'NOT_ATTEMPTED':
+        case 'PENDING':
+        case 'UNKNOWN':
+          break; // fall back to order status / current DB
+      }
+      // Fallback mapping from order status
+      switch (pgOrderStatus) {
+        case 'PAID':
+          return 'completed';
+        case 'ACTIVE':
+          return 'pending';
+        case 'EXPIRED':
+        case 'FAILED':
+          return 'failed';
+        default:
+          break;
+      }
+      // If nothing conclusive, keep current DB value
+      if (currentDb === 'completed' || currentDb === 'failed' || currentDb === 'refunded') {
+        return currentDb as any;
+      }
+      return 'pending';
+    };
+
+    const dbStatus = mapToDbStatus(paymentStatus, orderStatus, donation.payment_status);
+    const isPaid = dbStatus === 'completed';
 
     // Persist status if changed
-    if (isPaid && donation.payment_status !== 'completed') {
-      await supabase
-        .from('user_donations')
-        .update({ payment_status: 'completed' })
+    if (dbStatus !== donation.payment_status) {
+      await (supabase
+        .from('user_donations') as any)
+        .update({ payment_status: dbStatus })
         .eq('id', donation.id);
-      donation.payment_status = 'completed';
+      donation.payment_status = dbStatus;
     }
+
+    // Determine if this is a mock/test order (when credentials not configured)
+    const isMockOrder = !APP_ID || !SECRET_KEY || 
+                       APP_ID === 'your_app_id_here' || 
+                       SECRET_KEY === 'your_secret_key_here';
 
     // Return verification response (prefer Cashfree data when present)
     const verificationResponse = {
       order_id: orderId,
       order_amount: donation.amount,
-      order_status: isPaid ? 'PAID' : (orderStatus === 'UNKNOWN' ? 'ACTIVE' : orderStatus),
-      payment_status: isPaid ? 'SUCCESS' : (paymentStatus === 'UNKNOWN' ? 'PENDING' : paymentStatus),
+      order_status: isPaid ? 'PAID' : (isMockOrder ? 'MOCK_UNPAID' : (orderStatus === 'UNKNOWN' ? 'ACTIVE' : orderStatus)),
+      payment_status: isPaid ? 'SUCCESS' : (isMockOrder ? 'MOCK_UNPAID' : (paymentStatus === 'UNKNOWN' ? 'PENDING' : paymentStatus)),
       payment_method: paymentMethod || donation.payment_gateway || 'Online Payment',
       payment_time: paymentTime || donation.updated_at,
-      success: true
+      success: true,
+      is_mock: isMockOrder
     };
 
     return NextResponse.json(verificationResponse);
