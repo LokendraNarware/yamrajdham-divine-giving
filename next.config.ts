@@ -7,6 +7,10 @@ const nextConfig: NextConfig = {
     turbo: {
       // Turbopack configuration
     },
+    // Allow dev-time requests initiated from these origins (e.g., Cashfree SDK redirects)
+    allowedDevOrigins: [
+      'https://sandbox.cashfree.com'
+    ],
   },
   
   // Temporarily disable TypeScript checking for build

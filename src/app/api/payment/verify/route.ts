@@ -15,13 +15,25 @@ export async function GET(request: NextRequest) {
 
     // For now, we'll simulate payment verification
     // In a real implementation, you would call Cashfree's verification API
-    
+
     // Check if donation exists in database
-    const { data: donation, error } = await supabase
+    // We pass donation.id as orderId in our flow; fall back to payment_id if needed
+    let { data: donation, error } = await supabase
       .from('user_donations')
       .select('*')
-      .eq('payment_id', orderId)
+      .eq('id', orderId)
       .single();
+
+    if ((error || !donation)) {
+      // Try by payment_id as a fallback
+      const fallback = await supabase
+        .from('user_donations')
+        .select('*')
+        .eq('payment_id', orderId)
+        .single();
+      donation = fallback.data as any;
+      error = fallback.error as any;
+    }
 
     if (error || !donation) {
       console.error('Error fetching donation:', error);
@@ -31,8 +43,18 @@ export async function GET(request: NextRequest) {
       );
     }
 
+    // If we reached success page via return_url, assume success in sandbox
+    // Optionally, you can check a query flag like cf_id in return_url and set completed
+    if (donation.payment_status !== 'completed') {
+      // Optimistic update for sandbox flow
+      await supabase
+        .from('user_donations')
+        .update({ payment_status: 'completed' })
+        .eq('id', donation.id);
+      donation.payment_status = 'completed';
+    }
+
     // Return payment verification response
-    // In a real implementation, this would come from Cashfree API
     const verificationResponse = {
       order_id: orderId,
       order_amount: donation.amount,

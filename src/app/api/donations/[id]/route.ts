@@ -13,7 +13,8 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     }
 
     // Fetch donation data with user information
-    const { data: donation, error } = await supabase
+    // First try by donation primary id (we use this as order_id in the flow)
+    let { data: donation, error } = await supabase
       .from('user_donations')
       .select(`
         *,
@@ -28,8 +29,31 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
           pan_no
         )
       `)
-      .eq('payment_id', orderId)
+      .eq('id', orderId)
       .single();
+
+    if (error || !donation) {
+      // Fallback by payment_id if available
+      const fallback = await supabase
+        .from('user_donations')
+        .select(`
+          *,
+          users (
+            name,
+            email,
+            mobile,
+            address,
+            city,
+            state,
+            pin_code,
+            pan_no
+          )
+        `)
+        .eq('payment_id', orderId)
+        .single();
+      donation = fallback.data as any;
+      error = fallback.error as any;
+    }
 
     if (error) {
       console.error('Error fetching donation:', error);
