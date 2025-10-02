@@ -16,6 +16,16 @@ export default function PaymentSuccessPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const { toast } = useToast();
+  
+  // Stable date fallback to prevent hydration issues
+  const stableDateFallback = '2025-01-01T00:00:00.000Z';
+  
+  // Add a client-side only flag to prevent hydration mismatches
+  const [isClient, setIsClient] = useState(false);
+  
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
   const [paymentDetails, setPaymentDetails] = useState<{
     order_id: string;
     order_amount: number;
@@ -49,8 +59,8 @@ export default function PaymentSuccessPage() {
     } | null;
   } | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [receiptRef, setReceiptRef] = useState<HTMLDivElement | null>(null);
   const [receiptType, setReceiptType] = useState<'traditional' | 'modern'>('modern');
+  const [receiptRef, setReceiptRef] = useState<HTMLDivElement | null>(null);
   
   const orderId = searchParams.get("order_id");
 
@@ -115,7 +125,7 @@ export default function PaymentSuccessPage() {
   }, [orderId, toast]);
 
   const handleDownloadReceipt = async () => {
-    if (!paymentDetails || !donationData) {
+    if (!paymentDetails || !donationData || !isClient) {
       toast({
         title: "Error",
         description: "Receipt data not available",
@@ -151,7 +161,7 @@ export default function PaymentSuccessPage() {
           donationId={paymentDetails.order_id || 'N/A'}
           donorName={donationData.donor?.name || "Devotee"}
           amount={paymentDetails.order_amount || 0}
-          date={paymentDetails.payment_time || donationData.createdAt || new Date().toISOString()}
+          date={paymentDetails.payment_time || donationData.createdAt || stableDateFallback}
           purpose={donationData.donationType === 'general' ? 'Temple Construction' : donationData.donationType || 'Temple Construction'}
           paymentMethod={paymentDetails.payment_method || "Online Payment"}
         />
@@ -167,7 +177,7 @@ export default function PaymentSuccessPage() {
         donationId: paymentDetails.order_id || 'N/A',
         donorName: donationData.donor?.name || "Devotee",
         amount: paymentDetails.order_amount || 0,
-        date: paymentDetails.payment_time || donationData.createdAt || new Date().toISOString(),
+        date: paymentDetails.payment_time || donationData.createdAt || stableDateFallback,
         purpose: donationData.donationType === 'general' ? 'Temple Construction' : donationData.donationType || 'Temple Construction',
         paymentMethod: paymentDetails.payment_method || "Online Payment"
       });
@@ -199,20 +209,21 @@ export default function PaymentSuccessPage() {
     });
   };
 
-  if (isLoading) {
+  if (isLoading || !isClient) {
     return (
-      <div className="bg-background flex items-center justify-center py-20">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-muted-foreground">Loading payment details...</p>
+          <p className="text-muted-foreground">
+            {isLoading ? "Loading payment details..." : "Loading..."}
+          </p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="w-full">
-
+    <div className="min-h-screen bg-background">
       <main className="container py-8 px-4">
         <div className="max-w-2xl mx-auto">
           {/* Success Message */}
@@ -275,46 +286,34 @@ export default function PaymentSuccessPage() {
                 {paymentDetails.payment_time && (
                   <div>
                     <label className="text-sm font-medium text-muted-foreground">Payment Time</label>
-                    <p>{new Date(paymentDetails.payment_time).toLocaleString()}</p>
+                    <p>
+                      {isClient 
+                        ? new Date(paymentDetails.payment_time).toLocaleString('en-IN', {
+                            year: 'numeric',
+                            month: '2-digit',
+                            day: '2-digit',
+                            hour: '2-digit',
+                            minute: '2-digit',
+                            timeZone: 'Asia/Kolkata'
+                          })
+                        : paymentDetails.payment_time
+                      }
+                    </p>
                   </div>
                 )}
               </CardContent>
             </Card>
           )}
 
-          {/* Receipt Actions */}
-          <Card className="mb-6">
-            <CardHeader>
-              <CardTitle>Donation Receipt</CardTitle>
-              <CardDescription>
-                Download your donation receipt for your records
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div className="flex gap-3">
-                  <Button onClick={handleDownloadReceipt} variant="outline" className="flex-1">
-                    <Download className="w-4 h-4 mr-2" />
-                    Download Modern Receipt
-                  </Button>
-                  <Button onClick={handleEmailReceipt} variant="outline" className="flex-1">
-                    <Mail className="w-4 h-4 mr-2" />
-                    Email Donation Receipt
-                  </Button>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Donation Receipt Preview */}
+          {/* Donation Receipt */}
           {paymentDetails && (
             <Card className="mb-6">
               <CardHeader>
                 <div className="flex justify-between items-center">
                   <div>
-                    <CardTitle>Receipt Preview</CardTitle>
+                    <CardTitle>Donation Receipt</CardTitle>
                     <CardDescription>
-                      Choose your preferred receipt style
+                      Download your donation receipt for your records
                     </CardDescription>
                   </div>
                   <div className="flex gap-2">
@@ -336,28 +335,43 @@ export default function PaymentSuccessPage() {
                 </div>
               </CardHeader>
               <CardContent>
-                <div ref={setReceiptRef}>
-                  {receiptType === 'modern' ? (
-                    <ModernDonationReceipt
-                      key={`modern-receipt-${Date.now()}`}
-                      donationId={paymentDetails.order_id || 'N/A'}
-                      donorName={donationData?.donor?.name || "Devotee"}
-                      amount={paymentDetails.order_amount || 0}
-                      date={paymentDetails.payment_time || donationData?.createdAt || new Date().toISOString()}
-                      purpose={donationData?.donationType === 'general' ? 'Temple Construction' : donationData?.donationType || 'Temple Construction'}
-                      paymentMethod={paymentDetails.payment_method || "Online Payment"}
-                    />
-                  ) : (
-                    <DonationReceipt
-                      key={`traditional-receipt-${Date.now()}`}
-                      donationId={paymentDetails.order_id || 'N/A'}
-                      donorName={donationData?.donor?.name || "Devotee"}
-                      amount={paymentDetails.order_amount || 0}
-                      date={paymentDetails.payment_time || donationData?.createdAt || new Date().toISOString()}
-                      purpose={donationData?.donationType === 'general' ? 'Temple Construction' : donationData?.donationType || 'Temple Construction'}
-                      paymentMethod={paymentDetails.payment_method || "Online Payment"}
-                    />
-                  )}
+                <div className="space-y-6">
+                  {/* Download Actions */}
+                  <div className="flex gap-3">
+                    <Button onClick={handleDownloadReceipt} variant="outline" className="flex-1">
+                      <Download className="w-4 h-4 mr-2" />
+                      Download Modern Receipt
+                    </Button>
+                    <Button onClick={handleEmailReceipt} variant="outline" className="flex-1">
+                      <Mail className="w-4 h-4 mr-2" />
+                      Email Donation Receipt
+                    </Button>
+                  </div>
+
+                  {/* Receipt Preview */}
+                  <div ref={setReceiptRef}>
+                    {receiptType === 'modern' ? (
+                      <ModernDonationReceipt
+                        key={`modern-receipt-${paymentDetails.order_id}`}
+                        donationId={paymentDetails.order_id || 'N/A'}
+                        donorName={donationData?.donor?.name || "Devotee"}
+                        amount={paymentDetails.order_amount || 0}
+                        date={paymentDetails.payment_time || donationData?.createdAt || stableDateFallback}
+                        purpose={donationData?.donationType === 'general' ? 'Temple Construction' : donationData?.donationType || 'Temple Construction'}
+                        paymentMethod={paymentDetails.payment_method || "Online Payment"}
+                      />
+                    ) : (
+                      <DonationReceipt
+                        key={`traditional-receipt-${paymentDetails.order_id}`}
+                        donationId={paymentDetails.order_id || 'N/A'}
+                        donorName={donationData?.donor?.name || "Devotee"}
+                        amount={paymentDetails.order_amount || 0}
+                        date={paymentDetails.payment_time || donationData?.createdAt || stableDateFallback}
+                        purpose={donationData?.donationType === 'general' ? 'Temple Construction' : donationData?.donationType || 'Temple Construction'}
+                        paymentMethod={paymentDetails.payment_method || "Online Payment"}
+                      />
+                    )}
+                  </div>
                 </div>
               </CardContent>
             </Card>

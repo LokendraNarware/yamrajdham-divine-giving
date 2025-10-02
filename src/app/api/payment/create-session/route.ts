@@ -50,6 +50,41 @@ export async function POST(request: NextRequest) {
   try {
     console.log('Creating payment session for hosted checkout...');
     
+    // Check if Cashfree credentials are configured
+    if (!CASHFREE_CONFIG.APP_ID || !CASHFREE_CONFIG.SECRET_KEY || 
+        CASHFREE_CONFIG.APP_ID === 'your_app_id_here' || 
+        CASHFREE_CONFIG.SECRET_KEY === 'your_secret_key_here') {
+      console.log('Cashfree credentials not configured, returning mock response');
+      console.log('Config check:', {
+        hasAppId: !!CASHFREE_CONFIG.APP_ID,
+        hasSecretKey: !!CASHFREE_CONFIG.SECRET_KEY,
+        appIdValue: CASHFREE_CONFIG.APP_ID,
+        secretKeyValue: CASHFREE_CONFIG.SECRET_KEY?.substring(0, 10) + '...'
+      });
+      
+      // Parse and validate request body
+      const body = await request.json();
+      console.log('Mock request body:', body);
+      const validatedData = PaymentSessionDataSchema.parse(body);
+      console.log('Mock validated data:', validatedData);
+      
+      const mockResponse = {
+        success: true,
+        data: {
+          order_id: validatedData.order_id,
+          payment_session_id: `mock_session_${Date.now()}`,
+          payment_url: `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3001'}/donate/success?order_id=${validatedData.order_id}`,
+          order_amount: validatedData.order_amount,
+          order_currency: validatedData.order_currency,
+          customer_details: validatedData.customer_details,
+        },
+        message: 'Mock payment session created (credentials not configured)'
+      };
+      
+      console.log('Mock response:', mockResponse);
+      return NextResponse.json(mockResponse);
+    }
+    
     // Parse and validate request body
     const body = await request.json();
     console.log('Request body:', body);
@@ -101,7 +136,11 @@ export async function POST(request: NextRequest) {
       throw new Error('Payment session ID not received from Cashfree');
     }
 
-    // Return success response
+    console.log('Session ID from Cashfree:', paymentSessionId);
+    console.log('Session ID length:', paymentSessionId.length);
+    console.log('Payment Link from Cashfree:', paymentLink);
+
+    // Return success response with cleaned payment session ID
     return NextResponse.json({
       success: true,
       data: {

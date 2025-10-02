@@ -15,14 +15,24 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { useToast } from "@/hooks/use-toast";
 import { createUser, getUserByEmail, getUserById, createDonation } from "@/services/donations";
 import { useAuth } from "@/contexts/AuthContext";
-// Removed PaymentModal import - using direct checkout now
+import { createPaymentSession, generateCustomerId, formatPhoneForCashfree } from "@/services/cashfree";
+// Removed PaymentModal import - using direct payment gateway redirect
+
+// Declare Cashfree SDK types
+declare global {
+  interface Window {
+    Cashfree: (config: { mode: string }) => {
+      checkout: (options: { paymentSessionId: string; redirectTarget: string }) => void;
+    };
+  }
+}
 
 
 const donationFormSchema = z.object({
   amount: z.string().optional(),
   name: z.string().optional(),
-  email: z.string().optional(),
-  mobile: z.string().optional(),
+  email: z.string().optional(), // Made optional
+  mobile: z.string().min(1, "Mobile number is required"), // Made required
   country: z.string().optional(),
   state: z.string().optional(),
   city: z.string().optional(),
@@ -97,11 +107,10 @@ export default function DonatePage() {
   const { toast } = useToast();
   const { user } = useAuth();
   const amount = searchParams.get("amount") || "";
-  const [isClient, setIsClient] = useState(false);
+  // Removed isClient state to fix hydration issues
   const [isAddressCollapsed, setIsAddressCollapsed] = useState(true);
   const [isAdditionalCollapsed, setIsAdditionalCollapsed] = useState(true);
-  
-  // Removed unused donation state
+  // Removed payment modal state - using direct redirect
 
   const form = useForm<DonationFormData>({
     resolver: zodResolver(donationFormSchema),
@@ -181,22 +190,21 @@ export default function DonatePage() {
     }
   }, [searchParams, user, form]);
 
-  // Set client-side flag to prevent hydration mismatch
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
+  // Removed client-side flag to fix hydration issues
 
 
   const onSubmit = async (data: DonationFormData) => {
     console.log('=== FORM SUBMISSION STARTED ===');
     console.log('onSubmit function called with data:', data);
     
-    // Prevent multiple submissions
-    if (form.formState.isSubmitting) {
-      console.log('Form is already submitting, ignoring duplicate submission');
-      return;
-    }
-
+    // Show immediate feedback to user
+    toast({
+      title: "Processing Donation",
+      description: "Starting payment process...",
+    });
+    
+    
+    
     // Reset any previous submission state
     form.clearErrors();
 
@@ -222,7 +230,7 @@ export default function DonatePage() {
       const formData = {
         amount: data.amount || '100',
         name: data.name || 'Anonymous Donor',
-        email: data.email || 'donor@example.com',
+        email: data.email || `${data.mobile || 'donor'}@donor.local`,
         mobile: data.mobile || '9876543210',
         country: data.country || 'India',
         state: data.state || '',
@@ -276,7 +284,21 @@ export default function DonatePage() {
         } else {
           const errorMessage = createUserResult.error?.message || 'Failed to create user account';
           console.error('User creation failed:', createUserResult.error);
-          throw new Error(`Account creation failed: ${errorMessage}`);
+          console.error('User creation error details:', JSON.stringify(createUserResult.error, null, 2));
+          
+          // If it's a duplicate email error, try to get the existing user
+          if (errorMessage.includes('duplicate') || errorMessage.includes('unique')) {
+            console.log('User already exists, trying to get existing user...');
+            const existingUserResult = await getUserByEmail(formData.email);
+            if (existingUserResult.success && existingUserResult.data) {
+              userId = existingUserResult.data.id;
+              console.log('Found existing user:', userId);
+            } else {
+              throw new Error(`Account creation failed: ${errorMessage}`);
+            }
+          } else {
+            throw new Error(`Account creation failed: ${errorMessage}`);
+          }
         }
       }
 
@@ -300,29 +322,185 @@ export default function DonatePage() {
         const orderId = donationResult.data.id;
         console.log('Donation created successfully, order ID:', orderId);
         
-        // Set up payment data
-        const paymentDataForModal = {
-          amount: amount,
-          donorName: formData.name,
-          donorEmail: formData.email,
-          donorPhone: formData.mobile,
-          orderId: orderId,
-        };
-
-        console.log('Payment data prepared:', paymentDataForModal);
+        console.log('Donation created successfully, proceeding to payment...');
         
-        // Payment integration removed - redirect to success page
-        console.log('Donation created successfully, redirecting to success page...');
-        
-        toast({
-          title: "Donation Created Successfully!",
-          description: "Thank you for your generous donation. Redirecting to confirmation page...",
-        });
+        // Create payment session and redirect to payment gateway
+        try {
+          console.log('Creating payment session for direct redirect...');
+          
+          const sessionData = {
+            order_id: orderId,
+            order_amount: amount,
+            order_currency: 'INR',
+            customer_details: {
+              customer_id: generateCustomerId(formData.mobile),
+              customer_name: formData.name,
+              customer_email: formData.email || `${formData.mobile}@donor.local`, // Use mobile-based email if no email provided
+              customer_phone: formatPhoneForCashfree(formData.mobile),
+            },
+            order_meta: {
+              return_url: `${window.location.origin}/donate/success?order_id=${orderId}`,
+              notify_url: `${window.location.origin}/api/webhook/cashfree`,
+            },
+          };
 
-        // Redirect to success page
-        setTimeout(() => {
-          window.location.href = `/donate/success?order_id=${orderId}`;
-        }, 2000);
+          console.log('Session data:', sessionData);
+          console.log('Customer ID generated:', generateCustomerId(formData.mobile));
+          console.log('Phone formatted:', formatPhoneForCashfree(formData.mobile));
+          
+          toast({
+            title: "Creating Payment Session",
+            description: "Redirecting to secure payment gateway...",
+          });
+
+          const paymentResponse = await createPaymentSession(sessionData);
+          console.log('Payment session response:', paymentResponse);
+          console.log('Payment response success:', paymentResponse.success);
+          console.log('Payment response data:', paymentResponse.data);
+          
+          
+          
+          
+          if (paymentResponse.success && paymentResponse.data) {
+            // Check if this is a mock response (credentials not configured)
+            if (paymentResponse.message?.includes('Mock payment session')) {
+              console.log('Mock payment session detected, redirecting to success page');
+              toast({
+                title: "Test Mode",
+                description: "Payment gateway not configured. Redirecting to success page for testing...",
+              });
+              
+              setTimeout(() => {
+                if (paymentResponse.data?.payment_url) {
+                  window.location.href = paymentResponse.data.payment_url;
+                }
+              }, 2000);
+            } else {
+              // For now, use manual redirect approach since SDK has browser compatibility issues
+              console.log('Payment response data:', paymentResponse.data);
+              console.log('Payment session ID:', paymentResponse.data.payment_session_id);
+              
+              if (!paymentResponse.data.payment_session_id) {
+                throw new Error('Payment session ID not received from server');
+              }
+              
+              toast({
+                title: "Payment Gateway",
+                description: "Redirecting to secure payment gateway...",
+              });
+              
+              // Use Cashfree JavaScript SDK for hosted checkout
+              console.log('=== INITIALIZING CASHFREE CHECKOUT ===');
+              
+              const sessionId = paymentResponse.data.payment_session_id;
+              console.log('Payment Session ID:', sessionId);
+              
+              // Debug: Check what's available on window
+              console.log('Window object keys:', Object.keys(window).filter(key => key.toLowerCase().includes('cashfree')));
+              console.log('window.Cashfree available:', typeof window.Cashfree);
+              console.log('window.cashfree available:', typeof window.cashfree);
+              
+              // Wait a bit for SDK to load if not immediately available
+              const waitForCashfreeSDK = async (maxAttempts = 15) => {
+                for (let i = 0; i < maxAttempts; i++) {
+                  if (window.Cashfree) {
+                    console.log('Cashfree SDK found after', i + 1, 'attempts');
+                    return true;
+                  }
+                  console.log('Waiting for Cashfree SDK... attempt', i + 1);
+                  await new Promise(resolve => setTimeout(resolve, 300));
+                }
+                
+                // If SDK still not found, try to load it dynamically
+                console.log('SDK not found, attempting to load dynamically...');
+                try {
+                  await new Promise((resolve, reject) => {
+                    const script = document.createElement('script');
+                    script.src = 'https://sdk.cashfree.com/js/v3/cashfree.js';
+                    script.onload = () => {
+                      console.log('Cashfree SDK loaded dynamically');
+                      resolve(true);
+                    };
+                    script.onerror = () => {
+                      console.error('Failed to load Cashfree SDK dynamically');
+                      reject(new Error('SDK load failed'));
+                    };
+                    document.head.appendChild(script);
+                  });
+                  
+                  // Wait a bit more for the SDK to initialize
+                  await new Promise(resolve => setTimeout(resolve, 500));
+                  return !!window.Cashfree;
+                } catch (error) {
+                  console.error('Failed to load Cashfree SDK:', error);
+                  return false;
+                }
+              };
+              
+              try {
+                const sdkReady = await waitForCashfreeSDK();
+                
+                if (sdkReady) {
+                  console.log('Cashfree SDK ready, initializing checkout...');
+                  
+                  // Initialize Cashfree SDK
+                  const cashfree = window.Cashfree({
+                    mode: "sandbox" // Use "production" for live environment
+                  });
+                  
+                  // Show user what's happening
+                  toast({
+                    title: "Opening Payment Gateway",
+                    description: "Redirecting to Cashfree's secure payment page...",
+                  });
+                  
+                  // Open Cashfree checkout
+                  const checkoutOptions = {
+                    paymentSessionId: sessionId,
+                    redirectTarget: "_self" // Opens in same tab
+                  };
+                  
+                  console.log('Opening checkout with options:', checkoutOptions);
+                  cashfree.checkout(checkoutOptions);
+                  
+                } else {
+                  console.error('Cashfree SDK not found after waiting, falling back to manual redirect');
+                  throw new Error('SDK not available');
+                }
+                
+              } catch (error) {
+                console.error('Error with Cashfree SDK:', error);
+                console.log('Falling back to manual redirect...');
+                
+                // Fallback: Manual redirect using documented hosted checkout URL
+                const environment = 'sandbox';
+                const paymentUrl = `https://${environment}.cashfree.com/pg/view/checkout?payment_session_id=${encodeURIComponent(sessionId)}`;
+                
+                console.log('Fallback - Manual redirect to:', paymentUrl);
+                
+                toast({
+                  title: "Redirecting to Payment Gateway",
+                  description: "Opening Cashfree payment page...",
+                });
+                
+                window.location.href = paymentUrl;
+              }
+            }
+          } else {
+            console.log('Payment session creation failed:', paymentResponse);
+            console.log('Success:', paymentResponse.success);
+            console.log('Data:', paymentResponse.data);
+            console.log('Message:', paymentResponse.message);
+            throw new Error(paymentResponse.message || 'Failed to create payment session');
+          }
+        } catch (paymentError) {
+          console.error('Payment session creation failed:', paymentError);
+          toast({
+            title: "Payment Error",
+            description: "Failed to create payment session. Please try again.",
+            variant: "destructive",
+          });
+        }
       } else {
         const errorMessage = donationResult.error?.message || 'Failed to create donation';
         console.error('Donation creation failed:', donationResult.error);
@@ -344,7 +522,7 @@ export default function DonatePage() {
     }
   };
 
-  // Payment success/failure handled by Cashfree redirect URLs
+  // Payment modal handlers removed - using direct redirect now
 
 
   return (
@@ -444,10 +622,10 @@ export default function DonatePage() {
                         name="email"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Email *</FormLabel>
+                            <FormLabel>Email (Optional)</FormLabel>
                             <FormControl>
                               <Input
-                                placeholder="Enter your email"
+                                placeholder="Enter your email (optional)"
                                 type="email"
                                 {...field}
                               />
@@ -462,10 +640,10 @@ export default function DonatePage() {
                         name="mobile"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Mobile/Phone *</FormLabel>
+                            <FormLabel>Mobile/Phone * (Required)</FormLabel>
                             <FormControl>
                               <Input
-                                placeholder="Enter your mobile number"
+                                placeholder="Enter your mobile number (required)"
                                 type="tel"
                                 {...field}
                               />
@@ -504,15 +682,15 @@ export default function DonatePage() {
                       >
                         <MapPin className="w-5 h-5" />
                         3. Address Information
-                        {isClient && (isAddressCollapsed ? (
+                        {isAddressCollapsed ? (
                           <ChevronRight className="w-4 h-4 ml-auto" />
                         ) : (
                           <ChevronDown className="w-4 h-4 ml-auto" />
-                        ))}
+                        )}
                       </h3>
                     </div>
                     
-                    {isClient && !isAddressCollapsed && (
+                    {!isAddressCollapsed && (
                       <div className="space-y-4">
                         <div className="grid md:grid-cols-2 gap-4">
                       <FormField
@@ -615,15 +793,15 @@ export default function DonatePage() {
                       >
                         <MessageSquare className="w-5 h-5" />
                         4. Additional Information
-                        {isClient && (isAdditionalCollapsed ? (
+                        {isAdditionalCollapsed ? (
                           <ChevronRight className="w-4 h-4 ml-auto" />
                         ) : (
                           <ChevronDown className="w-4 h-4 ml-auto" />
-                        ))}
+                        )}
                       </h3>
                     </div>
                     
-                    {isClient && !isAdditionalCollapsed && (
+                    {!isAdditionalCollapsed && (
                       <div className="space-y-4">
                         <FormField
                           control={form.control}
@@ -670,7 +848,7 @@ export default function DonatePage() {
         </div>
       </div>
 
-      {/* Payment handled by Cashfree direct checkout */}
+      {/* Payment handled by direct redirect to payment gateway */}
     </div>
   );
 }

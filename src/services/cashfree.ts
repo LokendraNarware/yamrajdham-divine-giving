@@ -36,13 +36,54 @@ export interface PaymentSessionResponse {
 }
 
 /**
- * Generate a unique customer ID from email
- * @param email Customer email
+ * Generate a unique customer ID from mobile number
+ * @param mobile Mobile number
  * @returns Customer ID
  */
-export const generateCustomerId = (email: string): string => {
-  // Use email as customer ID, but clean it up
-  return email.toLowerCase().trim();
+export const generateCustomerId = (mobile: string): string => {
+  // Cashfree requires customer_id to be alphanumeric with underscores or hyphens
+  // Use mobile number as customer ID, removing all non-alphanumeric characters
+  const cleaned = mobile.replace(/[^\d]/g, ''); // Remove all non-digit characters
+  return `customer_${cleaned}`;
+};
+
+/**
+ * Format phone number for Cashfree API
+ * @param phone Phone number string
+ * @returns Formatted phone number
+ */
+export const formatPhoneForCashfree = (phone: string): string => {
+  // Remove all non-digit characters except +
+  const cleaned = phone.replace(/[^\d+]/g, '');
+  
+  // If it starts with +91, keep it as is
+  if (cleaned.startsWith('+91')) {
+    return cleaned;
+  }
+  
+  // If it starts with 91, add +
+  if (cleaned.startsWith('91')) {
+    return '+' + cleaned;
+  }
+  
+  // If it's a 10-digit number, add +91
+  if (cleaned.length === 10) {
+    return '+91' + cleaned;
+  }
+  
+  // If it's a 9-digit number, pad with 0 and add +91
+  if (cleaned.length === 9) {
+    return '+91' + '0' + cleaned;
+  }
+  
+  // If it's longer than 10 digits, truncate to 10 and add +91
+  if (cleaned.length > 10) {
+    const last10Digits = cleaned.slice(-10);
+    return '+91' + last10Digits;
+  }
+  
+  // Return as is if it doesn't match expected patterns
+  return cleaned;
 };
 
 /**
@@ -63,13 +104,28 @@ export const createPaymentSession = async (sessionData: PaymentSessionData): Pro
     });
 
     if (!response.ok) {
-      const errorData = await response.json();
-      console.error('Payment session creation failed:', errorData);
+      let errorData;
+      try {
+        errorData = await response.json();
+      } catch (parseError) {
+        console.error('Failed to parse error response:', parseError);
+        errorData = { error: 'Invalid response format' };
+      }
+      
+      console.error('Payment session creation failed:', {
+        status: response.status,
+        statusText: response.statusText,
+        errorData: errorData,
+        response: response
+      });
+      
+      console.error('Detailed error information:', errorData);
+      
       return {
         success: false,
         error: errorData.error || 'Failed to create payment session',
-        message: errorData.message || 'Unknown error occurred',
-        details: errorData.details
+        message: errorData.message || `HTTP ${response.status}: ${response.statusText}`,
+        details: errorData.details || { status: response.status, statusText: response.statusText }
       };
     }
 

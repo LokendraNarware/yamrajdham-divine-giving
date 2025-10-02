@@ -105,7 +105,8 @@ const PaymentModal = ({
         success: response.success,
         hasData: !!response.data,
         hasPaymentUrl: !!response.data?.payment_url,
-        hasSessionId: !!response.data?.payment_session_id
+        hasSessionId: !!response.data?.payment_session_id,
+        isMockResponse: response.message?.includes('Mock payment session')
       });
       
       if (!response.success) {
@@ -114,6 +115,24 @@ const PaymentModal = ({
       
       if (!response.data) {
         throw new Error('No payment data received from server');
+      }
+      
+      // Check if this is a mock response (credentials not configured)
+      if (response.message?.includes('Mock payment session')) {
+        console.log('Mock payment session detected, redirecting to success page');
+        toast({
+          title: "Test Mode",
+          description: "Payment gateway not configured. Redirecting to success page for testing...",
+        });
+        
+        // Redirect to success page directly
+        setTimeout(() => {
+          if (response.data?.payment_url) {
+            window.location.href = response.data.payment_url;
+          }
+          onClose();
+        }, 2000);
+        return;
       }
       
       const paymentSessionId = response.data.payment_session_id;
