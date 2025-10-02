@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -44,7 +44,12 @@ export default function DashboardPage() {
       return;
     }
 
-    fetchUserData();
+    // Add a small delay to prevent flash of loading state for fast responses
+    const timeoutId = setTimeout(() => {
+      fetchUserData();
+    }, 100);
+
+    return () => clearTimeout(timeoutId);
   }, [user, router]);
 
   // Filter donations based on status
@@ -63,89 +68,90 @@ export default function DashboardPage() {
     console.log('Fetching data for user:', user.id, user.email);
 
     try {
+      // Use Promise.all to fetch user profile and donations in parallel
+      const [profileResult, donationsResult] = await Promise.allSettled([
+        // Optimized user profile query with better error handling
+        supabase
+          .from('users')
+          .select('*')
+          .eq('id', user.id)
+          .maybeSingle(), // Use maybeSingle instead of single to avoid errors when no data found
+        
+        // Fetch donations immediately with user.id (most common case)
+        supabase
+          .from('user_donations')
+          .select('*')
+          .eq('user_id', user.id)
+          .order('created_at', { ascending: false })
+          .limit(50) // Limit to recent 50 donations for better performance
+      ]);
+
       let resolvedUserProfile: UserProfile | null = null;
 
-      // Fetch user profile
-      console.log('Fetching user profile...');
-      const { data: profileData, error: profileError } = await supabase
-        .from('users')
-        .select('*')
-        .eq('id', user.id)
-        .single();
-
-      console.log('Profile data:', profileData);
-      console.log('Profile error:', profileError);
-
-      if (profileError) {
-        console.error('Error fetching user profile:', profileError);
+      // Handle user profile result
+      if (profileResult.status === 'fulfilled') {
+        const { data: profileData, error: profileError } = profileResult.value;
         
-        // If user profile doesn't exist, try to find by email first, then create
-        if (profileError.code === 'PGRST116' || profileError.message?.includes('No rows found')) {
-          console.log('User profile not found by ID, checking by email...');
+        if (profileData) {
+          console.log('User profile found:', profileData);
+          resolvedUserProfile = profileData;
+        } else if (!profileError || profileError.code === 'PGRST116') {
+          // Profile doesn't exist, try to find by email or create
+          console.log('User profile not found, checking by email...');
           
-          // First, try to find existing user by email
-          const { data: existingUser, error: emailError } = await supabase
+          const { data: existingUser } = await supabase
             .from('users')
             .select('*')
             .eq('email', user.email)
-            .single();
+            .maybeSingle();
           
-          if (existingUser && !emailError) {
+          if (existingUser) {
             console.log('Found existing user by email:', existingUser.email);
             resolvedUserProfile = existingUser;
           } else {
-            console.log('No existing user found, creating new profile...');
-            // Create new user profile
+            console.log('Creating new user profile...');
             const { data: newProfile, error: createError } = await supabase
               .from('users')
-              .insert([{
+              .upsert({
                 id: user.id,
                 email: user.email || '',
                 name: user.user_metadata?.name || user.email?.split('@')[0] || 'User',
                 mobile: user.user_metadata?.phone || '',
-                created_at: new Date().toISOString(),
-              }])
+              }, {
+                onConflict: 'id'
+              })
               .select()
               .single();
             
-            if (createError) {
-              console.error('Error creating user profile:', createError);
-            } else {
+            if (!createError && newProfile) {
               console.log('User profile created:', newProfile);
               resolvedUserProfile = newProfile;
+            } else {
+              console.error('Error creating user profile:', createError);
             }
           }
+        } else {
+          console.error('Error fetching user profile:', profileError);
         }
-      } else {
-        console.log('User profile found:', profileData);
-        resolvedUserProfile = profileData;
       }
 
       // Set the resolved user profile
-      if (resolvedUserProfile) {
-        setUserProfile(resolvedUserProfile);
-      }
+      setUserProfile(resolvedUserProfile);
 
-      // Fetch user donations using the resolved user ID
-      console.log('Fetching user donations...');
-      const userIdForDonations = resolvedUserProfile?.id || user.id;
-      console.log('Using user ID for donations:', userIdForDonations);
-      
-      const { data: donationsData, error: donationsError } = await supabase
-        .from('user_donations')
-        .select('*')
-        .eq('user_id', userIdForDonations)
-        .order('created_at', { ascending: false });
-
-      console.log('Donations data:', donationsData);
-      console.log('Donations error:', donationsError);
-
-      if (donationsError) {
-        console.error('Error fetching donations:', donationsError);
+      // Handle donations result
+      if (donationsResult.status === 'fulfilled') {
+        const { data: donationsData, error: donationsError } = donationsResult.value;
+        
+        if (donationsError) {
+          console.error('Error fetching donations:', donationsError);
+        } else {
+          console.log('Found donations:', donationsData?.length || 0);
+          setDonations(donationsData || []);
+        }
       } else {
-        console.log('Found donations:', donationsData?.length || 0);
-        setDonations(donationsData || []);
+        console.error('Error fetching donations:', donationsResult.reason);
       }
+
     } catch (error) {
       console.error('Error fetching user data:', error);
     } finally {
@@ -181,19 +187,68 @@ export default function DashboardPage() {
     });
   };
 
-  const totalDonated = donations
-    .filter(d => d.payment_status === 'completed')
-    .reduce((sum, d) => sum + d.amount, 0);
-
-  const filteredTotalDonated = filteredDonations
-    .filter(d => d.payment_status === 'completed')
-    .reduce((sum, d) => sum + d.amount, 0);
+  // Memoize expensive calculations
+  const donationStats = useMemo(() => {
+    const completedDonations = donations.filter(d => d.payment_status === 'completed');
+    const totalAmount = completedDonations.reduce((sum, d) => sum + d.amount, 0);
+    const totalCount = completedDonations.length;
+    
+    return {
+      totalAmount,
+      totalCount,
+      completedDonations
+    };
+  }, [donations]);
 
   if (loading) {
     return (
-      <div className="container mx-auto px-4 py-8">
-        <div className="flex items-center justify-center min-h-[400px]">
-          <Loader2 className="h-8 w-8 animate-spin" />
+      <div className="w-full">
+        <div className="max-w-4xl mx-auto">
+          {/* Header Skeleton */}
+          <div className="flex justify-between items-center mb-8">
+            <div>
+              <div className="h-8 w-48 bg-gray-200 rounded animate-pulse mb-2"></div>
+              <div className="h-4 w-32 bg-gray-200 rounded animate-pulse"></div>
+            </div>
+            <div className="h-10 w-24 bg-gray-200 rounded animate-pulse"></div>
+          </div>
+
+          {/* Stats Cards Skeleton */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            {[1, 2, 3].map((i) => (
+              <Card key={i}>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <div className="h-4 w-20 bg-gray-200 rounded animate-pulse"></div>
+                  <div className="h-4 w-4 bg-gray-200 rounded animate-pulse"></div>
+                </CardHeader>
+                <CardContent>
+                  <div className="h-8 w-16 bg-gray-200 rounded animate-pulse mb-2"></div>
+                  <div className="h-3 w-24 bg-gray-200 rounded animate-pulse"></div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+
+          {/* Table Skeleton */}
+          <Card>
+            <CardHeader>
+              <div className="h-6 w-32 bg-gray-200 rounded animate-pulse"></div>
+              <div className="h-4 w-48 bg-gray-200 rounded animate-pulse"></div>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {[1, 2, 3, 4, 5].map((i) => (
+                  <div key={i} className="flex space-x-4">
+                    <div className="h-4 w-24 bg-gray-200 rounded animate-pulse"></div>
+                    <div className="h-4 w-20 bg-gray-200 rounded animate-pulse"></div>
+                    <div className="h-4 w-16 bg-gray-200 rounded animate-pulse"></div>
+                    <div className="h-4 w-20 bg-gray-200 rounded animate-pulse"></div>
+                    <div className="h-4 w-32 bg-gray-200 rounded animate-pulse"></div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </div>
     );
@@ -224,7 +279,7 @@ export default function DashboardPage() {
                 <Heart className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{donations.filter(d => d.payment_status === 'completed').length}</div>
+                <div className="text-2xl font-bold">{donationStats.totalCount}</div>
                 <p className="text-xs text-muted-foreground">
                   Completed donations
                 </p>
@@ -237,7 +292,7 @@ export default function DashboardPage() {
                 <DollarSign className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">₹{totalDonated.toLocaleString()}</div>
+                <div className="text-2xl font-bold">₹{donationStats.totalAmount.toLocaleString()}</div>
                 <p className="text-xs text-muted-foreground">
                   Successfully donated
                 </p>
@@ -301,7 +356,7 @@ export default function DashboardPage() {
                       label: 'View Slip', 
                       sortable: false, 
                       render: (_, row) => {
-                        const paymentStatus = String(row.payment_status || '');
+                        const paymentStatus = String(row.payment_status || '').toLowerCase();
                         if (paymentStatus === 'completed') {
                           return (
                             <Button
@@ -331,8 +386,11 @@ export default function DashboardPage() {
                   searchPlaceholder="Search by ID, name, or email"
                   showActions={false}
                   onRowClick={(row) => {
-                    const orderId = String(row.id);
-                    router.push(`/donate/success?order_id=${orderId}`);
+                    const paymentStatus = String(row.payment_status || '').toLowerCase();
+                    if (paymentStatus === 'completed') {
+                      const orderId = String(row.id);
+                      router.push(`/donate/success?order_id=${orderId}`);
+                    }
                   }}
                 />
               )}

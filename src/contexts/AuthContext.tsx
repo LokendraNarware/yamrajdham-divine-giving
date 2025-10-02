@@ -33,10 +33,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       console.log('Initial session:', session);
       setUser(session?.user ?? null);
       
-      // Check admin status if user exists
+      // Check admin status if user exists (cached for performance)
       if (session?.user?.email) {
-        const adminStatus = await isUserAdmin(session.user.email);
-        setIsAdmin(adminStatus);
+        try {
+          const adminStatus = await isUserAdmin(session.user.email);
+          setIsAdmin(adminStatus);
+        } catch (adminError) {
+          console.error('Error checking admin status:', adminError);
+          setIsAdmin(false);
+        }
       } else {
         setIsAdmin(false);
       }

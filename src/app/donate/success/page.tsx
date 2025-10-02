@@ -59,6 +59,8 @@ export default function PaymentSuccessPage() {
     } | null;
   } | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [paymentLoaded, setPaymentLoaded] = useState(false);
+  const [donationLoaded, setDonationLoaded] = useState(false);
   const [receiptType, setReceiptType] = useState<'traditional' | 'modern'>('modern');
   const [receiptRef, setReceiptRef] = useState<HTMLDivElement | null>(null);
   const [isDownloading, setIsDownloading] = useState(false);
@@ -69,23 +71,28 @@ export default function PaymentSuccessPage() {
     const fetchPaymentDetails = async () => {
       if (orderId) {
         try {
-          // Add a small delay to ensure payment is processed
-          await new Promise(resolve => setTimeout(resolve, 2000));
+          // Fetch both payment verification and donation data in parallel
+          const [details, donationResponse] = await Promise.all([
+            verifyPayment(orderId),
+            fetch(`/api/donations/${orderId}`)
+          ]);
           
-          const details = await verifyPayment(orderId);
           setPaymentDetails(details);
+          setPaymentLoaded(true);
           
-          // Fetch donation data from database
+          // Process donation data
           try {
-            const donationResponse = await fetch(`/api/donations/${orderId}`);
             if (donationResponse.ok) {
               const donation = await donationResponse.json();
               setDonationData(donation);
+              setDonationLoaded(true);
             } else {
               console.error('Failed to fetch donation data');
+              setDonationLoaded(true); // Still set to true to avoid infinite loading
             }
           } catch (error) {
             console.error('Error fetching donation data:', error);
+            setDonationLoaded(true); // Still set to true to avoid infinite loading
           }
           
           // Update donation status in database if payment was successful
@@ -122,6 +129,8 @@ export default function PaymentSuccessPage() {
         }
       } else {
         setIsLoading(false);
+        setPaymentLoaded(true);
+        setDonationLoaded(true);
       }
     };
 
@@ -177,7 +186,7 @@ export default function PaymentSuccessPage() {
       root.render(ModernReceiptElement);
 
       // Wait for the component to render and images to load
-      await new Promise(resolve => setTimeout(resolve, 3000));
+      await new Promise(resolve => setTimeout(resolve, 1000));
 
       // Generate PDF from the temporary container
       await generateReceiptPDF(tempContainer, {
@@ -218,15 +227,34 @@ export default function PaymentSuccessPage() {
     });
   };
 
-  if (isLoading || !isClient) {
+  if (!isClient) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-muted-foreground">
-            {isLoading ? "Verifying payment..." : "Loading..."}
-          </p>
+          <p className="text-muted-foreground">Loading...</p>
         </div>
+      </div>
+    );
+  }
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-background">
+        <main className="container py-8 px-4">
+          <div className="max-w-2xl mx-auto">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+              <p className="text-muted-foreground">Verifying payment...</p>
+            </div>
+            
+            {/* Progressive loading placeholders */}
+            <div className="mt-8 space-y-6">
+              <div className="h-32 bg-gray-100 rounded-lg animate-pulse"></div>
+              <div className="h-48 bg-gray-100 rounded-lg animate-pulse"></div>
+            </div>
+          </div>
+        </main>
       </div>
     );
   }
@@ -431,8 +459,8 @@ export default function PaymentSuccessPage() {
             </Card>
           )}
 
-          {/* Donation Receipt - Only show for successful payments */}
-          {shouldShowSuccessComponents && (
+          {/* Donation Receipt - Only show for successful payments and when data is loaded */}
+          {shouldShowSuccessComponents && paymentLoaded && donationLoaded && (
             <Card className="mb-6">
               <CardHeader>
                 <div className="flex justify-between items-center">
@@ -507,6 +535,22 @@ export default function PaymentSuccessPage() {
                       />
                     )}
                   </div>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Loading state for receipt when payment is successful but data is still loading */}
+          {shouldShowSuccessComponents && (!paymentLoaded || !donationLoaded) && (
+            <Card className="mb-6">
+              <CardHeader>
+                <CardTitle>Preparing Receipt...</CardTitle>
+                <CardDescription>Loading your donation details</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-center space-x-3">
+                  <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
+                  <p className="text-muted-foreground">Fetching your donation receipt...</p>
                 </div>
               </CardContent>
             </Card>
