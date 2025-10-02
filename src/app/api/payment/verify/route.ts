@@ -13,9 +13,6 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // For now, we'll simulate payment verification
-    // In a real implementation, you would call Cashfree's verification API
-
     // Check if donation exists in database
     // We pass donation.id as orderId in our flow; fall back to payment_id if needed
     let { data: donation, error } = await supabase
@@ -43,10 +40,65 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // If we reached success page via return_url, assume success in sandbox
-    // Optionally, you can check a query flag like cf_id in return_url and set completed
-    if (donation.payment_status !== 'completed') {
-      // Optimistic update for sandbox flow
+    // Attempt real verification from Cashfree Orders API when credentials are present
+    const APP_ID = process.env.CASHFREE_APP_ID;
+    const SECRET_KEY = process.env.CASHFREE_SECRET_KEY;
+    const ENVIRONMENT = (process.env.CASHFREE_ENVIRONMENT || 'sandbox').toLowerCase();
+
+    let orderStatus: 'PAID' | 'ACTIVE' | 'EXPIRED' | 'FAILED' | 'UNKNOWN' = 'UNKNOWN';
+    let paymentStatus: 'SUCCESS' | 'PENDING' | 'FAILED' | 'UNKNOWN' = 'UNKNOWN';
+    let paymentMethod: string | undefined;
+    let paymentTime: string | undefined;
+
+    if (APP_ID && SECRET_KEY) {
+      try {
+        const baseUrl = ENVIRONMENT === 'production' ? 'https://api.cashfree.com' : 'https://sandbox.cashfree.com';
+        // Fetch order details
+        const orderRes = await fetch(`${baseUrl}/pg/orders/${encodeURIComponent(orderId!)}`, {
+          headers: {
+            'x-client-id': APP_ID,
+            'x-client-secret': SECRET_KEY,
+            'x-api-version': '2023-08-01',
+            'accept': 'application/json'
+          },
+          cache: 'no-store'
+        });
+
+        if (orderRes.ok) {
+          const orderJson = await orderRes.json();
+          orderStatus = (orderJson.order_status as typeof orderStatus) || 'UNKNOWN';
+        }
+
+        // Fetch latest payment details for the order
+        const paymentsRes = await fetch(`${baseUrl}/pg/orders/${encodeURIComponent(orderId!)}/payments`, {
+          headers: {
+            'x-client-id': APP_ID,
+            'x-client-secret': SECRET_KEY,
+            'x-api-version': '2023-08-01',
+            'accept': 'application/json'
+          },
+          cache: 'no-store'
+        });
+
+        if (paymentsRes.ok) {
+          const paymentsJson = await paymentsRes.json();
+          const latest = Array.isArray(paymentsJson) ? paymentsJson[0] : undefined;
+          if (latest) {
+            paymentStatus = (latest.payment_status as typeof paymentStatus) || 'UNKNOWN';
+            paymentMethod = latest.payment_method || latest.payment_group;
+            paymentTime = latest.payment_time || latest.created_at;
+          }
+        }
+      } catch (err) {
+        console.error('Cashfree verification failed, falling back to DB status:', err);
+      }
+    }
+
+    // Determine final status: prefer Cashfree if available, otherwise DB
+    const isPaid = orderStatus === 'PAID' || paymentStatus === 'SUCCESS' || donation.payment_status === 'completed';
+
+    // Persist status if changed
+    if (isPaid && donation.payment_status !== 'completed') {
       await supabase
         .from('user_donations')
         .update({ payment_status: 'completed' })
@@ -54,14 +106,14 @@ export async function GET(request: NextRequest) {
       donation.payment_status = 'completed';
     }
 
-    // Return payment verification response
+    // Return verification response (prefer Cashfree data when present)
     const verificationResponse = {
       order_id: orderId,
       order_amount: donation.amount,
-      order_status: donation.payment_status === 'completed' ? 'PAID' : 'ACTIVE',
-      payment_status: donation.payment_status === 'completed' ? 'SUCCESS' : 'PENDING',
-      payment_method: donation.payment_gateway || 'Online Payment',
-      payment_time: donation.updated_at,
+      order_status: isPaid ? 'PAID' : (orderStatus === 'UNKNOWN' ? 'ACTIVE' : orderStatus),
+      payment_status: isPaid ? 'SUCCESS' : (paymentStatus === 'UNKNOWN' ? 'PENDING' : paymentStatus),
+      payment_method: paymentMethod || donation.payment_gateway || 'Online Payment',
+      payment_time: paymentTime || donation.updated_at,
       success: true
     };
 
