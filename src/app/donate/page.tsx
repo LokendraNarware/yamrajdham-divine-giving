@@ -332,7 +332,7 @@ function DonatePageContent() {
             // Update donation with Cashfree order ID for webhook processing
             const updateResult = await updateDonationPayment(orderId, {
               payment_status: 'pending',
-              payment_id: paymentResponse.data.order_id
+              cashfree_order_id: paymentResponse.data.cashfree_order_id || paymentResponse.data.order_id
             });
             console.log('Donation update result:', updateResult);
 

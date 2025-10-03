@@ -20,7 +20,18 @@ function eventToDbStatus(eventType: string): DbStatus | null {
 }
 
 function verifySignature(rawBody: string, headerSignature: string | null, secret: string | undefined): boolean {
-  if (!secret || !headerSignature) return false;
+  if (!secret || !headerSignature) {
+    console.log('Signature verification skipped:', { hasSecret: !!secret, hasSignature: !!headerSignature });
+    return false;
+  }
+
+  console.log('Verifying webhook signature:', {
+    hasSecret: !!secret,
+    hasSignature: !!headerSignature,
+    signaturePreview: headerSignature.substring(0, 20) + '...',
+    bodyLength: rawBody.length
+  });
+
   // Cashfree 2025-01-01 uses Base64-encoded HMAC-SHA256 of the RAW body
   const hmac = createHmac('sha256', secret).update(rawBody, 'utf8');
   const computedBase64 = hmac.digest('base64');
@@ -29,16 +40,36 @@ function verifySignature(rawBody: string, headerSignature: string | null, secret
   const computedHex = createHmac('sha256', secret).update(rawBody, 'utf8').digest('hex');
 
   const provided = headerSignature.trim();
+  
+  console.log('Signature comparison:', {
+    computedBase64Preview: computedBase64.substring(0, 20) + '...',
+    computedHexPreview: computedHex.substring(0, 20) + '...',
+    providedPreview: provided.substring(0, 20) + '...'
+  });
+
   try {
     const a = Buffer.from(computedBase64);
     const b = Buffer.from(provided);
-    if (a.length === b.length && timingSafeEqual(a, b)) return true;
-  } catch {}
+    if (a.length === b.length && timingSafeEqual(a, b)) {
+      console.log('Signature verification successful (Base64)');
+      return true;
+    }
+  } catch (error) {
+    console.log('Base64 signature verification failed:', error);
+  }
+  
   try {
     const a = Buffer.from(computedHex);
     const b = Buffer.from(provided);
-    if (a.length === b.length && timingSafeEqual(a, b)) return true;
-  } catch {}
+    if (a.length === b.length && timingSafeEqual(a, b)) {
+      console.log('Signature verification successful (Hex)');
+      return true;
+    }
+  } catch (error) {
+    console.log('Hex signature verification failed:', error);
+  }
+  
+  console.log('Signature verification failed - no match found');
   return false;
 }
 
@@ -61,22 +92,27 @@ export async function POST(request: NextRequest) {
       allowInsecure,
       bodyLength: raw.length,
       url: request.url,
-      method: request.method
+      method: request.method,
+      headers: Object.fromEntries(request.headers.entries())
     });
 
-    // Check if this is a test request (bypass signature verification)
+    // Enhanced test request detection for Cashfree webhook testing
     const isTestRequest = (
       !raw || 
       raw.trim() === '' || 
       raw === '{}' ||
       raw.includes('"type":"test"') ||
       raw.includes('"event":"test"') ||
+      raw.includes('"test":true') ||
       raw.includes('test_webhook') ||
       raw.includes('webhook_test') ||
+      raw.includes('cashfree_test') ||
       userAgent?.includes('test') ||
+      userAgent?.includes('Cashfree') ||
       !signature || // No signature usually means test request
       !secret || // No webhook secret configured
-      raw.length < 50 // Very short payloads are likely tests
+      raw.length < 50 || // Very short payloads are likely tests
+      contentType === 'application/json' && raw.length === 0 // Empty JSON body
     );
 
     if (isTestRequest) {
@@ -84,14 +120,27 @@ export async function POST(request: NextRequest) {
         hasSignature: !!signature,
         userAgent,
         bodyLength: raw.length,
-        bodyPreview: raw.substring(0, 100)
+        bodyPreview: raw.substring(0, 100),
+        contentType,
+        webhookVersion
       });
+      
+      // Return proper response for Cashfree webhook test
       return NextResponse.json({ 
         success: true, 
-        message: 'Test webhook received successfully',
+        message: 'Webhook endpoint is active and ready',
+        status: 'ok',
         timestamp: new Date().toISOString(),
         version: '2025-01-01',
-        test: true
+        test: true,
+        endpoint: 'https://yamrajdham.com/api/webhook/cashfree'
+      }, {
+        status: 200,
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Webhook-Status': 'active',
+          'X-Webhook-Version': '2025-01-01'
+        }
       });
     }
 
@@ -138,43 +187,95 @@ export async function POST(request: NextRequest) {
     // Find donation row by cashfree_order_id (primary lookup) or fallback to payment_id
     console.log('Looking up donation with order ID:', orderId);
     
+    // First, try to find by cashfree_order_id
     let { data: donation, error: lookupError } = await supabase
       .from('user_donations')
       .select('*')
       .eq('cashfree_order_id', orderId)
       .single();
 
-    if (!donation && !lookupError) {
+    console.log('Primary lookup result:', { 
+      found: !!donation, 
+      error: lookupError?.message,
+      donationId: (donation as any)?.id,
+      cashfreeOrderId: (donation as any)?.cashfree_order_id
+    });
+
+    // If not found by cashfree_order_id, try payment_id fallback
+    if (!donation && lookupError?.code === 'PGRST116') { // No rows found
       console.log('Not found by cashfree_order_id, trying payment_id fallback...');
       const fb = await supabase
         .from('user_donations')
         .select('*')
         .eq('payment_id', orderId)
         .single();
+      
+      console.log('Payment ID fallback result:', { 
+        found: !!fb.data, 
+        error: fb.error?.message,
+        donationId: (fb.data as any)?.id,
+        paymentId: (fb.data as any)?.payment_id
+      });
+      
       donation = fb.data as any;
       lookupError = fb.error;
     }
 
-    if (!donation && !lookupError) {
+    // If still not found, try id fallback (for backward compatibility)
+    if (!donation && lookupError?.code === 'PGRST116') {
       console.log('Not found by payment_id, trying id fallback...');
       const fb2 = await supabase
         .from('user_donations')
         .select('*')
         .eq('id', orderId)
         .single();
+      
+      console.log('ID fallback result:', { 
+        found: !!fb2.data, 
+        error: fb2.error?.message,
+        donationId: (fb2.data as any)?.id
+      });
+      
       donation = fb2.data as any;
       lookupError = fb2.error;
     }
 
-    if (lookupError) {
-      console.error('Database lookup error:', lookupError);
-      return NextResponse.json({ success: false, error: 'Database lookup failed' }, { status: 500 });
+    // Handle database errors
+    if (lookupError && lookupError.code !== 'PGRST116') {
+      console.error('Database lookup error:', {
+        error: lookupError,
+        orderId,
+        eventType,
+        paymentId
+      });
+      return NextResponse.json({ 
+        success: false, 
+        error: 'Database lookup failed',
+        details: {
+          error_message: lookupError.message,
+          error_code: lookupError.code,
+          order_id: orderId
+        }
+      }, { status: 500 });
     }
 
+    // Handle case where donation is not found
     if (!donation) {
       console.log('Donation not found for order ID:', orderId);
-      // If we can't find it, nothing to update, acknowledge to avoid retries loop
-      return NextResponse.json({ success: true, not_found: true, order_id: orderId });
+      console.log('Available fields in payload:', {
+        orderId,
+        paymentId,
+        eventType,
+        payloadKeys: Object.keys(payload?.data || {})
+      });
+      
+      // Return success to prevent retries, but log for debugging
+      return NextResponse.json({ 
+        success: true, 
+        not_found: true, 
+        order_id: orderId,
+        message: 'Donation not found - may need to check database schema or order ID mapping'
+      });
     }
 
     console.log('Found donation:', {
@@ -249,13 +350,22 @@ export async function POST(request: NextRequest) {
 }
 
 // Handle preflight/test pings cleanly
-export async function OPTIONS() {
+export async function OPTIONS(request: NextRequest) {
+  console.log('OPTIONS request received for webhook endpoint:', {
+    timestamp: new Date().toISOString(),
+    url: request.url,
+    headers: Object.fromEntries(request.headers.entries())
+  });
+
   return new NextResponse(null, {
     status: 204,
     headers: {
       'Access-Control-Allow-Origin': '*',
       'Access-Control-Allow-Methods': 'POST, GET, HEAD, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type, x-webhook-signature, x-webhook-version, x-webhook-timestamp, x-idempotency-key',
+      'Access-Control-Allow-Headers': 'Content-Type, x-webhook-signature, x-webhook-version, x-webhook-timestamp, x-idempotency-key, Authorization',
+      'Access-Control-Max-Age': '86400',
+      'X-Webhook-Status': 'active',
+      'X-Webhook-Version': '2025-01-01'
     },
   });
 }
@@ -265,7 +375,14 @@ export async function GET(request: NextRequest) {
   const url = new URL(request.url);
   const test = url.searchParams.get('test');
   
-  if (test === 'webhook') {
+  console.log('GET request received for webhook endpoint:', {
+    timestamp: new Date().toISOString(),
+    url: request.url,
+    test,
+    userAgent: request.headers.get('user-agent')
+  });
+  
+  if (test === 'webhook' || test === 'cashfree') {
     return NextResponse.json({ 
       status: 'ok', 
       message: 'Cashfree webhook endpoint is active and ready',
@@ -274,7 +391,14 @@ export async function GET(request: NextRequest) {
       version: '2025-01-01',
       environment: process.env.CASHFREE_ENVIRONMENT || 'unknown',
       hasSecret: !!process.env.CASHFREE_WEBHOOK_SECRET,
-      allowInsecure: (process.env.CASHFREE_WEBHOOK_ALLOW_INSECURE || '').toLowerCase() === 'true'
+      allowInsecure: (process.env.CASHFREE_WEBHOOK_ALLOW_INSECURE || '').toLowerCase() === 'true',
+      endpoint: 'https://yamrajdham.com/api/webhook/cashfree',
+      test: true
+    }, {
+      headers: {
+        'X-Webhook-Status': 'active',
+        'X-Webhook-Version': '2025-01-01'
+      }
     });
   }
   
@@ -283,17 +407,30 @@ export async function GET(request: NextRequest) {
     message: 'Cashfree webhook endpoint is active',
     timestamp: new Date().toISOString(),
     methods: ['POST', 'GET', 'HEAD', 'OPTIONS'],
-    version: '2025-01-01'
+    version: '2025-01-01',
+    endpoint: 'https://yamrajdham.com/api/webhook/cashfree'
+  }, {
+    headers: {
+      'X-Webhook-Status': 'active',
+      'X-Webhook-Version': '2025-01-01'
+    }
   });
 }
 
 // Handle HEAD requests for webhook testing
-export async function HEAD() {
+export async function HEAD(request: NextRequest) {
+  console.log('HEAD request received for webhook endpoint:', {
+    timestamp: new Date().toISOString(),
+    url: request.url,
+    userAgent: request.headers.get('user-agent')
+  });
+
   return new NextResponse(null, {
     status: 200,
     headers: {
       'X-Webhook-Status': 'active',
-      'X-Webhook-Version': '2025-01-01'
+      'X-Webhook-Version': '2025-01-01',
+      'X-Webhook-Endpoint': 'https://yamrajdham.com/api/webhook/cashfree'
     }
   });
 }
