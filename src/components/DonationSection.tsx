@@ -83,12 +83,7 @@ const DonationSection = () => {
             transition={{ duration: 0.6, delay: 0.2 }}
             viewport={{ once: true }}
           >
-            <motion.div
-              animate={{ rotate: 360 }}
-              transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-            >
-              <span className="text-temple-gold font-medium">Donate & Support</span>
-            </motion.div>
+            <span className="text-temple-gold font-medium">Donate & Support</span>
           </motion.div>
           <motion.h2 
             className="text-3xl md:text-4xl font-bold mb-4"

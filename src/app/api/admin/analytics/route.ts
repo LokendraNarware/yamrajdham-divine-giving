@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { supabase } from '@/integrations/supabase/client';
 
 export async function GET(request: Request) {
@@ -13,7 +13,7 @@ export async function GET(request: Request) {
     
     // Try to use the date-filtered database function first if dates are provided
     if (startTimestamp || endTimestamp) {
-      const { data: filteredAnalytics, error: filteredError } = await supabase
+      const { data: filteredAnalytics, error: filteredError } = await (supabase as any)
         .rpc('get_admin_analytics_filtered', {
           start_date: startTimestamp,
           end_date: endTimestamp

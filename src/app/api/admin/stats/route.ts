@@ -13,7 +13,7 @@ export async function GET(request: Request) {
     
     // Try to use the date-filtered database function first if dates are provided
     if (startTimestamp || endTimestamp) {
-      const { data: filteredStats, error: filteredError } = await supabase
+      const { data: filteredStats, error: filteredError } = await (supabase as any)
         .rpc('get_admin_dashboard_stats_filtered', {
           start_date: startTimestamp,
           end_date: endTimestamp

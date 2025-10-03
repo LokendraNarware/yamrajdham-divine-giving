@@ -140,7 +140,7 @@ export default function DateFilter({ onDateRangeChange, className = "" }: DateFi
               <CalendarComponent
                 mode="single"
                 selected={dateRange.startDate || undefined}
-                onSelect={(date) => handleCustomDateChange(date, dateRange.endDate)}
+                onSelect={(date) => handleCustomDateChange(date || null, dateRange.endDate || null)}
                 initialFocus
               />
             </PopoverContent>
@@ -160,7 +160,7 @@ export default function DateFilter({ onDateRangeChange, className = "" }: DateFi
               <CalendarComponent
                 mode="single"
                 selected={dateRange.endDate || undefined}
-                onSelect={(date) => handleCustomDateChange(dateRange.startDate, date)}
+                onSelect={(date) => handleCustomDateChange(dateRange.startDate || null, date || null)}
                 initialFocus
               />
             </PopoverContent>
