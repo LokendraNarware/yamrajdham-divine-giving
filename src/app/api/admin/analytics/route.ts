@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabase } from '@/integrations/supabase/client';
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     // Get analytics data for the dashboard
     const [

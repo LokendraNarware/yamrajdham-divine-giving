@@ -3,6 +3,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 export default function AboutPage() {
   const router = useRouter();
@@ -62,9 +63,11 @@ export default function AboutPage() {
               <div className="relative">
                 <div className="relative z-10">
                   <div className="w-80 h-80 mx-auto lg:mx-0 rounded-full overflow-hidden border-8 border-white shadow-2xl">
-                    <img 
+                    <Image 
                       src="/mataji.png" 
                       alt="Mataji - Spiritual Leader" 
+                      width={320}
+                      height={320}
                       className="w-full h-full object-cover"
                     />
                   </div>
@@ -283,9 +286,11 @@ export default function AboutPage() {
                   {/* Main Image */}
                   <div className="relative">
                     <div className="w-full h-80 rounded-2xl overflow-hidden shadow-2xl">
-                      <img 
+                      <Image 
                         src="/temple-hero.jpg" 
                         alt="Yamrajdham Temple Construction" 
+                        width={800}
+                        height={320}
                         className="w-full h-full object-cover"
                       />
                     </div>

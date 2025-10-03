@@ -1,3 +1,5 @@
+import Image from "next/image";
+
 const AboutIntroSection = () => {
   return (
     <div className="container mx-auto px-4">
@@ -32,9 +34,11 @@ const AboutIntroSection = () => {
           
           <div className="relative">
             <div className="aspect-square rounded-lg overflow-hidden shadow-2xl">
-              <img 
+              <Image 
                 src="/mataji.png" 
                 alt="Divine Blessing" 
+                width={400}
+                height={400}
                 className="w-full h-full object-cover"
               />
             </div>

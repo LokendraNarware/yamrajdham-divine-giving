@@ -1,5 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Building, Calendar } from "lucide-react";
+import Image from "next/image";
 
 const ProgressTracker = () => {
   const milestones = [
@@ -56,9 +57,11 @@ const ProgressTracker = () => {
 
           <div className="space-y-6">
             <div className="rounded-xl overflow-hidden shadow-temple">
-              <img 
+              <Image 
                 src="/construction-progress.jpg" 
                 alt="Temple construction progress" 
+                width={400}
+                height={256}
                 className="w-full h-64 object-cover"
               />
             </div>

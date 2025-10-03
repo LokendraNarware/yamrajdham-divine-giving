@@ -1,6 +1,7 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Heart, Star } from "lucide-react";
+import Image from "next/image";
 
 export default function SpiritualLeaderSection() {
   return (
@@ -16,9 +17,11 @@ export default function SpiritualLeaderSection() {
             <div className="relative">
               <div className="relative z-10">
                 <div className="w-96 h-96 mx-auto lg:mx-0 rounded-full overflow-hidden border-8 border-white shadow-2xl">
-                  <img 
+                  <Image 
                     src="/mataji.png" 
                     alt="Mataji - Spiritual Leader" 
+                    width={384}
+                    height={384}
                     className="w-full h-full object-cover"
                   />
                 </div>

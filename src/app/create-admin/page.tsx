@@ -37,7 +37,7 @@ export default function CreateAdminPage() {
       } else {
         setError(result.error?.message || "Failed to create admin user");
       }
-    } catch (error) {
+    } catch {
       setError("An unexpected error occurred");
     }
     

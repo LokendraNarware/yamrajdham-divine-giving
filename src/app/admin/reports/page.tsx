@@ -1,15 +1,14 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { generateReceiptNumber } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { FileText, Download, Calendar as CalendarIcon, Filter, BarChart3, Loader2 } from "lucide-react";
+import { FileText, Download, Calendar as CalendarIcon, BarChart3, Loader2 } from "lucide-react";
 import { format as formatDate } from "date-fns";
 import { cn } from "@/lib/utils";
 import AdminLayout from "@/components/admin/AdminLayout";
@@ -33,7 +32,6 @@ export default function ReportsPage() {
   const [format, setFormat] = useState("pdf");
   const [isGenerating, setIsGenerating] = useState(false);
   const [reportData, setReportData] = useState<ReportData | null>(null);
-  const { user } = useAuth();
   const { toast } = useToast();
 
   const reportTypes = [

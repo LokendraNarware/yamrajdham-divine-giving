@@ -49,7 +49,6 @@ export default function ProfilePage() {
   const { toast } = useToast();
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [actualUserId, setActualUserId] = useState<string | null>(null);
 
   const form = useForm<ProfileFormData>({
     resolver: zodResolver(profileFormSchema),
@@ -103,7 +102,7 @@ export default function ProfilePage() {
               address: userData.address || "",
             });
             // Store the actual user ID from the database for updates
-            setActualUserId(userData.id);
+            // setActualUserId(userData.id);
           } else {
             // If user data not found in users table, use auth user data
             form.reset({
@@ -151,7 +150,7 @@ export default function ProfilePage() {
     try {
       console.log('Updating user profile with data:', data);
       // Use the actual user ID from the database if available, otherwise use auth user ID
-      const userIdToUse = actualUserId || user.id;
+      const userIdToUse = user.id;
       console.log('User ID:', userIdToUse);
       
       const result = await updateUser(userIdToUse, data);

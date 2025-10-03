@@ -11,7 +11,7 @@ import { Heart, User, MapPin, CreditCard, MessageSquare, ChevronDown, ChevronRig
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Form, FormControl, FormField, FormItem, FormLabel } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
 import { createUser, getUserByEmail, getUserById, createDonation } from "@/services/donations";
 import { useAuth } from "@/contexts/AuthContext";

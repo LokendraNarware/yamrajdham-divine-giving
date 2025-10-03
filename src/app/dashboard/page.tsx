@@ -8,8 +8,7 @@ import { Button } from '@/components/ui/button';
 import DataTable from '@/components/admin/DataTable';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Loader2, Calendar, DollarSign, Heart, LogOut, Filter, Eye, RefreshCw } from 'lucide-react';
+import { Calendar, DollarSign, Heart, LogOut, Eye, RefreshCw } from 'lucide-react';
 
 interface Donation {
   id: string;
@@ -30,7 +29,6 @@ interface UserProfile {
 }
 
 export default function DashboardPage() {
-  const [statusFilter, setStatusFilter] = useState<string>('completed');
   const { user, signOut } = useAuth();
   const router = useRouter();
 
@@ -57,12 +55,9 @@ export default function DashboardPage() {
     // First filter out refunded donations
     const nonRefundedDonations = donations.filter((donation: any) => donation.payment_status !== 'refunded');
     
-    if (statusFilter === 'all') {
-      return nonRefundedDonations;
-    } else {
-      return nonRefundedDonations.filter((donation: any) => donation.payment_status === statusFilter);
-    }
-  }, [isLoading, donations?.length, statusFilter]);
+    // Only show completed donations
+    return nonRefundedDonations.filter((donation: any) => donation.payment_status === 'completed');
+  }, [isLoading, donations]);
 
   const handleRefresh = () => {
     invalidateUserData();

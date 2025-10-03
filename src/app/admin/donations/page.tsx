@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -14,10 +14,8 @@ import {
   Download,
   RefreshCw,
   Search,
-  FileText,
   Mail,
-  Printer,
-  Clock
+  Printer
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -43,10 +41,8 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import AdminLayout from "@/components/admin/AdminLayout";
-import DataTable from "@/components/admin/DataTable";
 
 interface Donation {
   id: string;
@@ -111,14 +107,14 @@ export default function DonationsManagement() {
     if (user) {
       fetchDonations();
     }
-  }, [user]);
+  }, [user, fetchDonations]);
 
   // Apply filters when search/filter state changes
   useEffect(() => {
     applyFilters();
-  }, [donations, searchTerm, dateRange, amountRange, donationType]);
+  }, [donations, searchTerm, dateRange, amountRange, donationType, applyFilters]);
 
-  const fetchDonations = async () => {
+  const fetchDonations = useCallback(async () => {
     try {
       setLoading(true);
       
@@ -148,7 +144,7 @@ export default function DonationsManagement() {
       });
       setLoading(false);
     }
-  };
+  }, [toast]);
 
   const calculateStats = async (donationsData: Donation[]) => {
     // All donations are already completed due to the filter in fetchDonations
@@ -192,7 +188,7 @@ export default function DonationsManagement() {
     setStats(stats);
   };
 
-  const applyFilters = () => {
+  const applyFilters = useCallback(() => {
     let filtered = [...donations];
 
     // Search filter
@@ -258,7 +254,7 @@ export default function DonationsManagement() {
 
     setFilteredDonations(filtered);
     setCurrentPage(1); // Reset to first page when filters change
-  };
+  }, [donations, searchTerm, dateRange, amountRange, donationType]);
 
   const handleExportCSV = () => {
     const csvContent = [

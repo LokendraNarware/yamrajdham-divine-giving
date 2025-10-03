@@ -3,6 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { Heart, MapPin, Users } from "lucide-react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 const HeroSection = () => {
   const router = useRouter();
@@ -11,9 +12,11 @@ const HeroSection = () => {
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
       {/* Background Image with Overlay */}
       <div className="absolute inset-0 z-0">
-        <img 
+        <Image 
           src="/temple-hero.jpg" 
           alt="Yamrajdham Temple" 
+          width={1920}
+          height={1080}
           className="w-full h-full object-cover"
         />
         <div className="absolute inset-0 bg-gradient-to-r from-background/90 via-background/70 to-background/40"></div>
@@ -24,9 +27,11 @@ const HeroSection = () => {
         <div className="max-w-3xl">
           <div className="mb-6">
             <span className="inline-flex items-center gap-2 bg-gradient-divine text-primary-foreground px-4 py-2 rounded-full text-sm font-medium">
-              <img 
+              <Image 
                 src="/LOGO.png" 
                 alt="Yamrajdham Logo" 
+                width={16}
+                height={16}
                 className="w-4 h-4 object-contain"
               />
               Yamrajdham Temple

@@ -1,6 +1,7 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Heart, Eye, Users, BookOpen, Lightbulb, Target, Star } from "lucide-react";
+import Image from "next/image";
 
 export default function MissionVisionSection() {
   return (
@@ -88,9 +89,11 @@ export default function MissionVisionSection() {
               <div className="relative flex justify-center">
                 <div className="relative">
                   <div className="w-80 h-80 rounded-full overflow-hidden border-6 border-white shadow-2xl">
-                    <img 
+                    <Image 
                       src="/mataji.png" 
                       alt="Mataji - Vision" 
+                      width={320}
+                      height={320}
                       className="w-full h-full object-cover"
                     />
                   </div>

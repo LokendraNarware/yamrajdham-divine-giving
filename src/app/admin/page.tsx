@@ -23,10 +23,6 @@ export default function AdminDashboard() {
     window.location.href = '/admin/donations';
   };
 
-  const handleManageUsers = () => {
-    window.location.href = '/admin/users';
-  };
-
 
   // Show loading state
   if (isLoading) {

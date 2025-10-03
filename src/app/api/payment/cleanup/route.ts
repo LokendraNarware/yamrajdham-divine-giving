@@ -3,7 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 
 // POST /api/payment/cleanup
 // Marks pending donations older than 1 hour as failed
-export async function POST(_request: NextRequest) {
+export async function POST() {
   try {
     const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString();
 

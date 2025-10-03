@@ -8,8 +8,6 @@ import SpiritualLeaderSection from "@/components/SpiritualLeaderSection";
 import YamrajDhamSection from "@/components/YamrajDhamSection";
 import MissionVisionSection from "@/components/MissionVisionSection";
 import CommunitySection from "@/components/CommunitySection";
-import { Card, CardContent } from "@/components/ui/card";
-import { Heart, Phone, Mail, MapPin } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 export default function Home() {

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -67,7 +67,7 @@ export default function PaymentSettingsPage() {
       loadSettings();
       fetchPaymentStats();
     }
-  }, [user]);
+  }, [user, loadSettings]);
 
   const fetchPaymentStats = async () => {
     try {
@@ -117,7 +117,7 @@ export default function PaymentSettingsPage() {
     }
   };
 
-  const loadSettings = async () => {
+  const loadSettings = useCallback(async () => {
     try {
       setIsLoading(true);
       
@@ -148,7 +148,7 @@ export default function PaymentSettingsPage() {
       });
       setIsLoading(false);
     }
-  };
+  }, [toast]);
 
   const handleSave = async () => {
     try {

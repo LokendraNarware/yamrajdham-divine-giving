@@ -1,6 +1,7 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Scale, Shield, BookOpen, Star, Sparkles } from "lucide-react";
+import Image from "next/image";
 
 export default function YamrajDhamSection() {
   return (
@@ -59,9 +60,11 @@ export default function YamrajDhamSection() {
               {/* Main Image */}
               <div className="relative">
                 <div className="w-full h-80 rounded-2xl overflow-hidden shadow-2xl">
-                  <img 
+                  <Image 
                     src="/temple-hero.jpg" 
                     alt="Yamrajdham Temple Construction" 
+                    width={400}
+                    height={320}
                     className="w-full h-full object-cover"
                   />
                 </div>

@@ -69,7 +69,7 @@ function PaymentSuccessContent() {
   const [paymentLoaded, setPaymentLoaded] = useState(false);
   const [donationLoaded, setDonationLoaded] = useState(false);
   // Removed receiptType state since we only use modern receipts now
-  const [receiptRef, setReceiptRef] = useState<HTMLDivElement | null>(null);
+  const [receiptRef] = useState<HTMLDivElement | null>(null);
   const [isDownloading, setIsDownloading] = useState(false);
   const [showReceiptPreview, setShowReceiptPreview] = useState(false);
   

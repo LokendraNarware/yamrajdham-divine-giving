@@ -1,11 +1,11 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Users, Search, Filter, MoreVertical, Eye, Edit, Trash2, UserCheck, UserX } from "lucide-react";
+import { Users, Search, Filter, MoreVertical, Eye, Edit, Trash2, UserCheck } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -60,9 +60,9 @@ export default function UsersPage() {
     if (user) {
       fetchUsers();
     }
-  }, [user]);
+  }, [user, fetchUsers]);
 
-  const fetchUsers = async () => {
+  const fetchUsers = useCallback(async () => {
     try {
       setIsLoading(true);
 
@@ -148,7 +148,7 @@ export default function UsersPage() {
       });
       setIsLoading(false);
     }
-  };
+  }, [toast]);
 
   const filteredUsers = users.filter(user =>
     user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||

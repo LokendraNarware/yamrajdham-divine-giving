@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { BarChart3, TrendingUp, DollarSign, Users, Calendar, Download } from "lucide-react";
@@ -49,9 +49,9 @@ export default function AnalyticsPage() {
     if (user) {
       fetchAnalyticsData();
     }
-  }, [user]);
+  }, [user, fetchAnalyticsData]);
 
-  const fetchAnalyticsData = async () => {
+  const fetchAnalyticsData = useCallback(async () => {
     try {
       setLoading(true);
 
@@ -105,7 +105,7 @@ export default function AnalyticsPage() {
       console.error('Error fetching analytics data:', error);
       setLoading(false);
     }
-  };
+  }, []);
 
   const generateMonthlyTrends = (donations: any[]) => {
     const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
@@ -115,7 +115,7 @@ export default function AnalyticsPage() {
     // Generate last 6 months
     for (let i = 5; i >= 0; i--) {
       const date = new Date(currentDate.getFullYear(), currentDate.getMonth() - i, 1);
-      const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+      // const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
       
       const monthDonations = donations.filter(d => {
         const donationDate = new Date(d.created_at);

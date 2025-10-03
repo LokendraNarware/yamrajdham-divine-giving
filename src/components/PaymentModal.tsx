@@ -52,7 +52,7 @@ const PaymentModal = ({
   isOpen, 
   onClose, 
   donationData, 
-  onPaymentSuccess, // eslint-disable-line @typescript-eslint/no-unused-vars
+  onPaymentSuccess,
   onPaymentFailure 
 }: PaymentModalProps) => {
   const [isLoading, setIsLoading] = useState(false);

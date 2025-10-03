@@ -1,5 +1,6 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Building, BookOpen, Users, Zap, Home, GraduationCap } from "lucide-react";
+import Image from "next/image";
 
 const AboutTempleConstructionSection = () => {
   const features = [
@@ -150,9 +151,11 @@ const AboutTempleConstructionSection = () => {
             
             <div className="relative">
               <div className="aspect-square rounded-lg overflow-hidden shadow-2xl">
-                <img 
+                <Image 
                   src="/construction-progress.jpg" 
                   alt="Temple Construction Progress" 
+                  width={400}
+                  height={400}
                   className="w-full h-full object-cover"
                 />
               </div>

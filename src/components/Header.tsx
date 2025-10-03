@@ -5,6 +5,7 @@ import { Heart, Menu, User, LogOut, Shield, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
 import { useState } from "react";
+import Image from "next/image";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -34,9 +35,11 @@ const Header = () => {
         {/* Logo Section */}
         <div className="flex items-center">
           <div className="px-4 py-3 bg-gradient-divine rounded-lg shadow-gold flex items-center justify-center">
-            <img 
+            <Image 
               src="/LOGO.png" 
               alt="Yamrajdham Temple Logo" 
+              width={48}
+              height={48}
               className="h-12 w-auto object-contain"
             />
           </div>
