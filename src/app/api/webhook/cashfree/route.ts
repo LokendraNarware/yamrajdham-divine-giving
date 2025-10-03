@@ -6,11 +6,10 @@ type DbStatus = 'pending' | 'completed' | 'failed' | 'refunded';
 
 function eventToDbStatus(eventType: string): DbStatus | null {
   switch (eventType) {
-    case 'PAYMENT_SUCCESS':
+    case 'PAYMENT_SUCCESS_WEBHOOK':
       return 'completed';
-    case 'PAYMENT_FAILED':
-    case 'PAYMENT_USER_DROPPED':
-    case 'PAYMENT_CANCELLED':
+    case 'PAYMENT_FAILED_WEBHOOK':
+    case 'PAYMENT_USER_DROPPED_WEBHOOK':
       return 'failed';
     case 'PAYMENT_REFUND_SUCCESS':
     case 'REFUND_SUCCESS':
@@ -47,12 +46,14 @@ export async function POST(request: NextRequest) {
   try {
     const secret = process.env.CASHFREE_WEBHOOK_SECRET;
     const allowInsecure = (process.env.CASHFREE_WEBHOOK_ALLOW_INSECURE || '').toLowerCase() === 'true';
-    const signature = request.headers.get('x-webhook-signature') || request.headers.get('x-cf-signature');
+    const signature = request.headers.get('x-webhook-signature');
+    const webhookVersion = request.headers.get('x-webhook-version');
     const raw = await request.text();
 
     console.log('Webhook received:', {
       timestamp: new Date().toISOString(),
       signature: signature ? 'present' : 'missing',
+      webhookVersion,
       allowInsecure,
       bodyLength: raw.length
     });
@@ -63,9 +64,9 @@ export async function POST(request: NextRequest) {
     }
 
     const payload = JSON.parse(raw);
-    const eventType: string = payload?.event || payload?.type || '';
+    const eventType: string = payload?.type || payload?.event || '';
     const orderId: string | undefined = payload?.data?.order?.order_id || payload?.data?.order_id || payload?.order_id;
-    const paymentId: string | undefined = payload?.data?.payment?.payment_id || payload?.data?.payment_id;
+    const paymentId: string | undefined = payload?.data?.payment?.cf_payment_id || payload?.data?.payment?.payment_id || payload?.data?.payment_id;
 
     console.log('Webhook payload:', {
       eventType,
@@ -141,7 +142,7 @@ export async function OPTIONS() {
     headers: {
       'Access-Control-Allow-Origin': '*',
       'Access-Control-Allow-Methods': 'POST, GET, HEAD, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type, x-webhook-signature, x-cf-signature',
+      'Access-Control-Allow-Headers': 'Content-Type, x-webhook-signature, x-webhook-version, x-webhook-timestamp, x-idempotency-key',
     },
   });
 }
