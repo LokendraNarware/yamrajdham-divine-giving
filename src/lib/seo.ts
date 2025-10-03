@@ -206,19 +206,24 @@ export function generateStructuredData(type: 'organization' | 'website' | 'place
         "@id": `${baseUrl}/#website`,
         "url": baseUrl,
         "name": "Yamrajdham Temple - Divine Giving",
-        "description": "Support the construction of Yamrajdham Temple through your generous donations. Join us in building a sacred space for spiritual growth and community worship.",
-        "publisher": {
-          "@id": `${baseUrl}/#organization`
+        "alternateName": "Yamrajdham Temple",
+        "logo": {
+          "@type": "ImageObject",
+          "url": `${baseUrl}/LOGO.png`,
+          "width": 200,
+          "height": 200
         },
-        "potentialAction": [
-          {
-            "@type": "SearchAction",
-            "target": {
-              "@type": "EntryPoint",
-              "urlTemplate": `${baseUrl}/search?q={search_term_string}`
-            },
-            "query-input": "required name=search_term_string"
-          }
+        "description": "Support the construction of Yamrajdham Temple through your generous donations. Join us in building a sacred space for spiritual growth and community worship.",
+        "email": "info@yamrajdham.com",
+        "address": {
+          "@type": "PostalAddress",
+          "addressLocality": "Delhi",
+          "addressRegion": "Delhi",
+          "addressCountry": "IN"
+        },
+        "sameAs": [
+          "https://www.facebook.com/yamrajdham",
+          "https://www.instagram.com/yamrajdham"
         ]
       });
       break;
@@ -237,7 +242,7 @@ export function generateStructuredData(type: 'organization' | 'website' | 'place
         },
         "telephone": "+91-96625-44676",
         "url": baseUrl,
-        "sameAs": baseUrl
+        "sameAs": [baseUrl]
       });
       break;
       

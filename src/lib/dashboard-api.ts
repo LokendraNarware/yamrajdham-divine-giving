@@ -271,7 +271,7 @@ export const userApi = {
       }
 
       const donations = data || [];
-      const totalAmount = donations.reduce((sum, d) => sum + d.amount, 0);
+      const totalAmount = (donations as any).reduce((sum: number, d: any) => sum + d.amount, 0);
       const totalCount = donations.length;
 
       return {
@@ -328,7 +328,7 @@ export const publicApi = {
     }
 
     // Convert to key-value object for easier access
-    const settings = (data || []).reduce((acc, setting) => {
+    const settings = ((data as any) || []).reduce((acc: any, setting: any) => {
       acc[setting.key] = setting.value;
       return acc;
     }, {} as Record<string, string>);
