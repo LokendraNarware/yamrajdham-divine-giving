@@ -9,6 +9,7 @@ import YamrajDhamSection from "@/components/YamrajDhamSection";
 import MissionVisionSection from "@/components/MissionVisionSection";
 import CommunitySection from "@/components/CommunitySection";
 import { useRouter } from "next/navigation";
+import { motion } from "framer-motion";
 
 export default function Home() {
   const router = useRouter();
@@ -20,43 +21,121 @@ export default function Home() {
         </section>
         
         {/* Spiritual Leader Section */}
-        <section id="about">
+        <motion.section 
+          id="about"
+          initial={{ opacity: 0, y: 50 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, ease: "easeOut" }}
+          viewport={{ once: true, margin: "-100px" }}
+        >
           <SpiritualLeaderSection />
-        </section>
+        </motion.section>
         
         {/* Yamraj Dham Section */}
-        <YamrajDhamSection />
+        <motion.div
+          initial={{ opacity: 0, y: 50 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, ease: "easeOut" }}
+          viewport={{ once: true, margin: "-100px" }}
+        >
+          <YamrajDhamSection />
+        </motion.div>
         
         {/* Mission & Vision Section */}
-        <MissionVisionSection />
+        <motion.div
+          initial={{ opacity: 0, y: 50 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, ease: "easeOut" }}
+          viewport={{ once: true, margin: "-100px" }}
+        >
+          <MissionVisionSection />
+        </motion.div>
         
-        <section id="donate" className="py-16">
+        <motion.section 
+          id="donate" 
+          className="py-16"
+          initial={{ opacity: 0, y: 50 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, ease: "easeOut" }}
+          viewport={{ once: true, margin: "-100px" }}
+        >
           <DonationSection />
-        </section>
+        </motion.section>
         
-        <section id="progress" className="py-16 bg-muted/30">
+        <motion.section 
+          id="progress" 
+          className="py-16 bg-muted/30"
+          initial={{ opacity: 0, y: 50 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, ease: "easeOut" }}
+          viewport={{ once: true, margin: "-100px" }}
+        >
           <ProgressTracker />
-        </section>
+        </motion.section>
         
         {/* Community Section */}
-        <CommunitySection />
+        <motion.div
+          initial={{ opacity: 0, y: 50 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, ease: "easeOut" }}
+          viewport={{ once: true, margin: "-100px" }}
+        >
+          <CommunitySection />
+        </motion.div>
         
-        <section id="prayers" className="py-16">
+        <motion.section 
+          id="prayers" 
+          className="py-16"
+          initial={{ opacity: 0, y: 50 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, ease: "easeOut" }}
+          viewport={{ once: true, margin: "-100px" }}
+        >
           <PrayerSection />
-        </section>
+        </motion.section>
         
         {/* Closing Call to Action */}
-        <section className="py-16 bg-gradient-brown text-white">
+        <motion.section 
+          className="py-16 bg-gradient-brown text-white"
+          initial={{ opacity: 0, y: 50 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, ease: "easeOut" }}
+          viewport={{ once: true, margin: "-100px" }}
+        >
           <div className="container mx-auto px-4">
-            <div className="max-w-4xl mx-auto text-center">
-              <h2 className="text-3xl md:text-4xl font-bold mb-6">
+            <motion.div 
+              className="max-w-4xl mx-auto text-center"
+              initial={{ opacity: 0, scale: 0.9 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+              viewport={{ once: true }}
+            >
+              <motion.h2 
+                className="text-3xl md:text-4xl font-bold mb-6"
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.3 }}
+                viewport={{ once: true }}
+              >
                 🙏 Be a part of history. Be a part of dharma.
-              </h2>
-              <p className="text-lg leading-relaxed mb-8">
+              </motion.h2>
+              <motion.p 
+                className="text-lg leading-relaxed mb-8"
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.4 }}
+                viewport={{ once: true }}
+              >
                 Your support ensures that the Yamrajdham Temple, under the guidance of <strong>DHARAM DHAM TRUST</strong>, becomes a beacon of faith, justice, and peace for generations to come.
-              </p>
+              </motion.p>
               
-              <div className="bg-white/10 rounded-lg p-6 mb-8">
+              <motion.div 
+                className="bg-white/10 rounded-lg p-6 mb-8"
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.5 }}
+                viewport={{ once: true }}
+              >
                 <h3 className="text-xl font-bold mb-4">📑 Trust Information</h3>
                 <div className="grid md:grid-cols-2 gap-4 text-sm">
                   <div>
@@ -70,25 +149,35 @@ export default function Home() {
                     <strong>Website:</strong> https://dharamdhamtrust.org
                   </div>
                 </div>
-              </div>
+              </motion.div>
               
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <button 
-                onClick={() => router.push('/donate')}
-                className="bg-white text-temple-gold hover:bg-temple-cream px-8 py-3 rounded-full font-semibold transition-colors cursor-pointer"
+              <motion.div 
+                className="flex flex-col sm:flex-row gap-4 justify-center"
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.6 }}
+                viewport={{ once: true }}
               >
-                Donate Now
-              </button>
-              <button 
-                onClick={() => router.push('/contact')}
-                className="border-2 border-white text-white hover:bg-white hover:text-temple-gold px-8 py-3 rounded-full font-semibold transition-colors cursor-pointer"
-              >
-                Contact Us
-              </button>
-              </div>
-            </div>
+                <motion.button 
+                  onClick={() => router.push('/donate')}
+                  className="bg-white text-temple-gold hover:bg-temple-cream px-8 py-3 rounded-full font-semibold transition-all duration-300 cursor-pointer hover:scale-105 hover:shadow-lg"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  Donate Now
+                </motion.button>
+                <motion.button 
+                  onClick={() => router.push('/contact')}
+                  className="border-2 border-white text-white hover:bg-white hover:text-temple-gold px-8 py-3 rounded-full font-semibold transition-all duration-300 cursor-pointer hover:scale-105 hover:shadow-lg"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  Contact Us
+                </motion.button>
+              </motion.div>
+            </motion.div>
           </div>
-        </section>
+        </motion.section>
     </div>
   );
 }

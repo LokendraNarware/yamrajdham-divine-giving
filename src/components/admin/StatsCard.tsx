@@ -2,6 +2,7 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { LucideIcon, TrendingUp, TrendingDown } from "lucide-react";
+import { formatCurrencyClean } from "@/lib/currency-utils";
 
 interface StatsCardProps {
   title: string;
@@ -63,8 +64,8 @@ export default function StatsCard({
   
   const formatValue = (val: string | number) => {
     if (isCurrency && typeof val === 'number') {
-      // Simple currency formatting
-      return `₹${val.toLocaleString('en-IN')}`;
+      // Use clean currency formatting without .00 decimals
+      return formatCurrencyClean(val);
     }
     return val;
   };

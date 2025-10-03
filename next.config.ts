@@ -28,6 +28,7 @@ const nextConfig: NextConfig = {
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
     domains: ['yamrajdham.com', 'www.yamrajdham.com'],
     qualities: [25, 50, 75, 100], // Configure acceptable quality values for Image components
+    unoptimized: false, // Keep optimization enabled globally
   },
   
   // Headers for better caching and security

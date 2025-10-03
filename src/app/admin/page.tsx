@@ -10,6 +10,7 @@ import DonationTrendsChart from "@/components/admin/DonationTrendsChart";
 import CategoryBreakdownChart from "@/components/admin/CategoryBreakdownChart";
 import RecentDonationsFeed from "@/components/admin/RecentDonationsFeed";
 import PaymentStatusOverview from "@/components/admin/PaymentStatusOverview";
+import { formatCurrencyClean } from "@/lib/currency-utils";
 
 export default function AdminDashboard() {
   const { user } = useAuth();
@@ -124,7 +125,7 @@ export default function AdminDashboard() {
             subtitle="✅ 100% completion rate"
             icon={CheckCircle}
             color="blue"
-            description={`Avg: ₹${dashboardStats.totalDonations > 0 ? Math.round(dashboardStats.totalAmount / dashboardStats.totalDonations) : 0} per donation`}
+            description={`Avg: ${formatCurrencyClean(dashboardStats.totalDonations > 0 ? Math.round(dashboardStats.totalAmount / dashboardStats.totalDonations) : 0)} per donation`}
           />
           
           <StatsCard

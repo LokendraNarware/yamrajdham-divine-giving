@@ -13,6 +13,7 @@ import AdminLayout from "@/components/admin/AdminLayout";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
+import { formatCurrencyClean } from "@/lib/currency-utils";
 
 interface PaymentSettings {
   gateway: string;
@@ -195,10 +196,7 @@ export default function PaymentSettingsPage() {
 
 
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-IN', {
-      style: 'currency',
-      currency: 'INR',
-    }).format(amount);
+    return formatCurrencyClean(amount);
   };
 
   if (isLoading) {

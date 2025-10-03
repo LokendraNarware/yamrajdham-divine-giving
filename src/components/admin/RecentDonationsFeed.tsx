@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { formatDistanceToNow } from 'date-fns';
 import { ExternalLink, RefreshCw } from "lucide-react";
+import { formatCurrencyClean } from "@/lib/currency-utils";
 
 interface RecentDonation {
   id: string;
@@ -28,10 +29,7 @@ export default function RecentDonationsFeed({
   onRefresh 
 }: RecentDonationsFeedProps) {
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-IN', {
-      style: 'currency',
-      currency: 'INR',
-    }).format(amount);
+    return formatCurrencyClean(amount);
   };
 
   const formatTimeAgo = (dateString: string) => {

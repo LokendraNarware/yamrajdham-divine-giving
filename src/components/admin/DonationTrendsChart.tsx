@@ -3,6 +3,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { format, subMonths, startOfMonth } from 'date-fns';
+import { formatCurrencyClean } from "@/lib/currency-utils";
 
 interface DonationTrendsChartProps {
   data: Array<{
@@ -33,11 +34,7 @@ export default function DonationTrendsChart({ data, isLoading }: DonationTrendsC
   const chartData = data && data.length > 0 ? data : generateDefaultData();
 
   const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('en-IN', {
-      style: 'currency',
-      currency: 'INR',
-      maximumFractionDigits: 0,
-    }).format(value);
+    return formatCurrencyClean(value);
   };
 
   const CustomTooltip = ({ active, payload, label }: any) => {

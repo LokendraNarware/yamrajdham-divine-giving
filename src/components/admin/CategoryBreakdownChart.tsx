@@ -2,6 +2,7 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
+import { formatCurrencyClean } from "@/lib/currency-utils";
 
 interface CategoryBreakdownChartProps {
   data: Array<{
@@ -17,11 +18,7 @@ const COLORS = ['#10b981', '#3b82f6', '#8b5cf6', '#f59e0b', '#ef4444', '#06b6d4'
 
 export default function CategoryBreakdownChart({ data, isLoading }: CategoryBreakdownChartProps) {
   const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('en-IN', {
-      style: 'currency',
-      currency: 'INR',
-      maximumFractionDigits: 0,
-    }).format(value);
+    return formatCurrencyClean(value);
   };
 
   const CustomTooltip = ({ active, payload }: any) => {

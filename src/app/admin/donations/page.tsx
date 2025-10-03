@@ -5,6 +5,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { generateReceiptNumber } from "@/lib/utils";
+import { formatCurrencyClean } from "@/lib/currency-utils";
 import { 
   DollarSign, 
   TrendingUp, 
@@ -295,10 +296,7 @@ export default function DonationsManagement() {
   };
 
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-IN', {
-      style: 'currency',
-      currency: 'INR',
-    }).format(amount);
+    return formatCurrencyClean(amount);
   };
 
   const formatDate = (dateString: string) => {

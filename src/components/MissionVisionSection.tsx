@@ -2,31 +2,100 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Heart, Eye, Users, BookOpen, Lightbulb, Target, Star } from "lucide-react";
 import Image from "next/image";
+import { motion } from "framer-motion";
 
 export default function MissionVisionSection() {
   return (
     <section className="py-20 bg-gradient-gold text-white relative overflow-hidden">
       {/* Background decorative elements */}
-      <div className="absolute top-10 right-10 w-32 h-32 bg-white/10 rounded-full"></div>
-      <div className="absolute bottom-10 left-10 w-24 h-24 bg-white/10 rounded-full"></div>
-      <div className="absolute top-1/2 left-1/4 w-16 h-16 bg-white/5 rounded-full"></div>
+      <motion.div 
+        className="absolute top-10 right-10 w-32 h-32 bg-white/10 rounded-full"
+        animate={{ 
+          scale: [1, 1.1, 1],
+          opacity: [0.1, 0.2, 0.1]
+        }}
+        transition={{ 
+          duration: 4,
+          repeat: Infinity,
+          ease: "easeInOut"
+        }}
+      ></motion.div>
+      <motion.div 
+        className="absolute bottom-10 left-10 w-24 h-24 bg-white/10 rounded-full"
+        animate={{ 
+          scale: [1, 1.2, 1],
+          opacity: [0.1, 0.15, 0.1]
+        }}
+        transition={{ 
+          duration: 5,
+          repeat: Infinity,
+          ease: "easeInOut",
+          delay: 1
+        }}
+      ></motion.div>
+      <motion.div 
+        className="absolute top-1/2 left-1/4 w-16 h-16 bg-white/5 rounded-full"
+        animate={{ 
+          scale: [1, 1.3, 1],
+          opacity: [0.05, 0.1, 0.05]
+        }}
+        transition={{ 
+          duration: 6,
+          repeat: Infinity,
+          ease: "easeInOut",
+          delay: 2
+        }}
+      ></motion.div>
       
       <div className="container mx-auto px-4 relative z-10">
         <div className="max-w-7xl mx-auto">
           {/* Header */}
-          <div className="text-center mb-16">
-            <div className="flex items-center justify-center gap-2 mb-6">
-              <Star className="w-8 h-8 text-temple-gold" />
+          <motion.div 
+            className="text-center mb-16"
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            viewport={{ once: true }}
+          >
+            <motion.div 
+              className="flex items-center justify-center gap-2 mb-6"
+              initial={{ opacity: 0, scale: 0.8 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+              viewport={{ once: true }}
+            >
+              <motion.div
+                animate={{ rotate: 360 }}
+                transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+              >
+                <Star className="w-8 h-8 text-temple-gold" />
+              </motion.div>
               <span className="text-3xl font-bold">Our Mission & Vision</span>
-            </div>
-            <div className="w-24 h-1 bg-white rounded-full mx-auto"></div>
-          </div>
+            </motion.div>
+            <motion.div 
+              className="w-24 h-1 bg-white rounded-full mx-auto"
+              initial={{ width: 0 }}
+              whileInView={{ width: 96 }}
+              transition={{ duration: 0.8, delay: 0.4 }}
+              viewport={{ once: true }}
+            ></motion.div>
+          </motion.div>
 
           <div className="grid lg:grid-cols-2 gap-16 items-start">
             {/* Mission Section */}
-            <div className="space-y-8">
+            <motion.div 
+              className="space-y-8"
+              initial={{ opacity: 0, x: -50 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.8, delay: 0.2 }}
+              viewport={{ once: true }}
+            >
               {/* Mission Card */}
-              <Card className="bg-white/15 backdrop-blur-sm border-white/30 shadow-2xl">
+              <motion.div
+                whileHover={{ scale: 1.02, y: -5 }}
+                transition={{ duration: 0.3 }}
+              >
+                <Card className="bg-white/15 backdrop-blur-sm border-white/30 shadow-2xl">
                 <CardContent className="p-10">
                   <div className="flex items-center gap-6 mb-8">
                     <div className="w-16 h-16 bg-white/25 rounded-full flex items-center justify-center shadow-lg">
@@ -59,35 +128,70 @@ export default function MissionVisionSection() {
                     </div>
                   </div>
                 </CardContent>
-              </Card>
+                </Card>
+              </motion.div>
 
               {/* Mission Features */}
               <div className="grid grid-cols-2 gap-6">
-                <Card className="bg-white/15 backdrop-blur-sm border-white/30 hover:bg-white/20 transition-all duration-300">
-                  <CardContent className="p-6 text-center">
-                    <div className="w-12 h-12 bg-white/25 rounded-full flex items-center justify-center mx-auto mb-4">
-                      <Heart className="w-6 h-6 text-white" />
-                    </div>
-                    <h4 className="font-bold text-lg">Spiritual Growth</h4>
-                  </CardContent>
-                </Card>
+                <motion.div
+                  whileHover={{ scale: 1.05, y: -5 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <Card className="bg-white/15 backdrop-blur-sm border-white/30 hover:bg-white/20 transition-all duration-300">
+                    <CardContent className="p-6 text-center">
+                      <motion.div 
+                        className="w-12 h-12 bg-white/25 rounded-full flex items-center justify-center mx-auto mb-4"
+                        whileHover={{ rotate: 360 }}
+                        transition={{ duration: 0.6 }}
+                      >
+                        <Heart className="w-6 h-6 text-white" />
+                      </motion.div>
+                      <h4 className="font-bold text-lg">Spiritual Growth</h4>
+                    </CardContent>
+                  </Card>
+                </motion.div>
                 
-                <Card className="bg-white/15 backdrop-blur-sm border-white/30 hover:bg-white/20 transition-all duration-300">
-                  <CardContent className="p-6 text-center">
-                    <div className="w-12 h-12 bg-white/25 rounded-full flex items-center justify-center mx-auto mb-4">
-                      <Users className="w-6 h-6 text-white" />
-                    </div>
-                    <h4 className="font-bold text-lg">Community Service</h4>
-                  </CardContent>
-                </Card>
+                <motion.div
+                  whileHover={{ scale: 1.05, y: -5 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <Card className="bg-white/15 backdrop-blur-sm border-white/30 hover:bg-white/20 transition-all duration-300">
+                    <CardContent className="p-6 text-center">
+                      <motion.div 
+                        className="w-12 h-12 bg-white/25 rounded-full flex items-center justify-center mx-auto mb-4"
+                        whileHover={{ rotate: 360 }}
+                        transition={{ duration: 0.6 }}
+                      >
+                        <Users className="w-6 h-6 text-white" />
+                      </motion.div>
+                      <h4 className="font-bold text-lg">Community Service</h4>
+                    </CardContent>
+                  </Card>
+                </motion.div>
               </div>
-            </div>
+            </motion.div>
 
             {/* Vision Section */}
-            <div className="space-y-8">
+            <motion.div 
+              className="space-y-8"
+              initial={{ opacity: 0, x: 50 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.8, delay: 0.4 }}
+              viewport={{ once: true }}
+            >
               {/* Vision Image */}
-              <div className="relative flex justify-center">
-                <div className="relative">
+              <motion.div 
+                className="relative flex justify-center"
+                initial={{ opacity: 0, scale: 0.8 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.8, delay: 0.6 }}
+                viewport={{ once: true }}
+              >
+                <motion.div 
+                  className="relative"
+                  whileHover={{ scale: 1.05 }}
+                  transition={{ duration: 0.3 }}
+                >
                   <div className="w-80 h-80 rounded-full overflow-hidden border-6 border-white shadow-2xl">
                     <Image 
                       src="/mataji.png" 
@@ -98,16 +202,28 @@ export default function MissionVisionSection() {
                     />
                   </div>
                   {/* Decorative elements around image */}
-                  <div className="absolute -top-6 -right-6 w-16 h-16 bg-temple-gold rounded-full flex items-center justify-center shadow-lg">
+                  <motion.div 
+                    className="absolute -top-6 -right-6 w-16 h-16 bg-temple-gold rounded-full flex items-center justify-center shadow-lg"
+                    animate={{ rotate: 360 }}
+                    transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
+                  >
                     <Star className="w-8 h-8 text-temple-brown" />
-                  </div>
-                  <div className="absolute -bottom-6 -left-6 w-12 h-12 bg-white/30 rounded-full flex items-center justify-center shadow-lg">
+                  </motion.div>
+                  <motion.div 
+                    className="absolute -bottom-6 -left-6 w-12 h-12 bg-white/30 rounded-full flex items-center justify-center shadow-lg"
+                    animate={{ scale: [1, 1.2, 1] }}
+                    transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                  >
                     <Heart className="w-6 h-6 text-white" />
-                  </div>
-                </div>
-              </div>
+                  </motion.div>
+                </motion.div>
+              </motion.div>
 
-              <Card className="bg-white/15 backdrop-blur-sm border-white/30 shadow-2xl">
+              <motion.div
+                whileHover={{ scale: 1.02, y: -5 }}
+                transition={{ duration: 0.3 }}
+              >
+                <Card className="bg-white/15 backdrop-blur-sm border-white/30 shadow-2xl">
                 <CardContent className="p-10">
                   <div className="flex items-center gap-6 mb-8">
                     <div className="w-16 h-16 bg-white/25 rounded-full flex items-center justify-center shadow-lg">
@@ -141,20 +257,32 @@ export default function MissionVisionSection() {
                     </div>
                   </div>
                 </CardContent>
-              </Card>
-            </div>
+                </Card>
+              </motion.div>
+            </motion.div>
           </div>
 
           {/* Call to Action */}
-          <div className="text-center mt-16">
-            <Button 
-              variant="outline"
-              size="lg" 
-              className="bg-white text-temple-brown hover:bg-temple-cream px-12 py-4 rounded-full font-bold text-lg shadow-xl hover:shadow-2xl transition-all duration-300"
+          <motion.div 
+            className="text-center mt-16"
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.8 }}
+            viewport={{ once: true }}
+          >
+            <motion.div
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
             >
-              Join Our Mission
-            </Button>
-          </div>
+              <Button 
+                variant="outline"
+                size="lg" 
+                className="bg-white text-temple-brown hover:bg-temple-cream px-12 py-4 rounded-full font-bold text-lg shadow-xl hover:shadow-2xl transition-all duration-300"
+              >
+                Join Our Mission
+              </Button>
+            </motion.div>
+          </motion.div>
         </div>
       </div>
     </section>
