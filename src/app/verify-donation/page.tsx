@@ -1,13 +1,13 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { CheckCircle, XCircle, Loader2 } from 'lucide-react';
 import { verifyPayment } from '@/services/cashfree';
 
-export default function VerifyDonationPage() {
+function VerifyDonationContent() {
   const searchParams = useSearchParams();
   const [verificationStatus, setVerificationStatus] = useState<'loading' | 'verified' | 'invalid' | 'error'>('loading');
   const [donationDetails, setDonationDetails] = useState<any>(null);
@@ -168,5 +168,24 @@ export default function VerifyDonationPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function VerifyDonationPage() {
+  return (
+    <Suspense fallback={
+      <div className="bg-gradient-to-br from-[#F5F5DC] to-[#F0F0E6] py-12">
+        <div className="container mx-auto px-4">
+          <div className="max-w-2xl mx-auto">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#8B0000] mx-auto mb-4"></div>
+              <p className="text-gray-600">Loading verification...</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    }>
+      <VerifyDonationContent />
+    </Suspense>
   );
 }

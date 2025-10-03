@@ -171,7 +171,7 @@ export const seoConfigs = {
 export function generateStructuredData(type: 'organization' | 'website' | 'place' | 'event', data?: any) {
   const baseUrl = 'https://dharamdhamtrust.org';
   
-  const baseStructuredData = {
+  const baseStructuredData: any = {
     "@context": "https://schema.org",
     "@graph": [
       {
@@ -240,7 +240,6 @@ export function generateStructuredData(type: 'organization' | 'website' | 'place
           "addressRegion": "Churu",
           "addressCountry": "IN"
         },
-        "telephone": "+91-96625-44676",
         "url": baseUrl,
         "sameAs": [baseUrl]
       });
