@@ -4,12 +4,13 @@ import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 
 interface DonationReceiptProps {
-  donationId: string;
+  donationId: string; // This will be the receipt_number from DB
   donorName: string;
   amount: number;
   date: string;
   purpose?: string;
   paymentMethod?: string;
+  orderId?: string; // Optional order_id for QR code verification
 }
 
 export default function DonationReceipt({
@@ -18,7 +19,8 @@ export default function DonationReceipt({
   amount,
   date,
   purpose = "Temple Construction",
-  paymentMethod = "Online Payment"
+  paymentMethod = "Online Payment",
+  orderId
 }: DonationReceiptProps) {
   console.log('DonationReceipt rendered with new design');
   const formatAmount = (amount: number) => {

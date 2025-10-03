@@ -6,12 +6,13 @@ import Image from 'next/image';
 import QRCode from 'qrcode';
 
 interface PDFModernDonationReceiptProps {
-  donationId: string;
+  donationId: string; // This will be the receipt_number from DB
   donorName: string;
   amount: number;
   date: string;
   purpose?: string;
   paymentMethod?: string;
+  orderId?: string; // Optional order_id for QR code verification
 }
 
 export default function PDFModernDonationReceipt({
@@ -20,7 +21,8 @@ export default function PDFModernDonationReceipt({
   amount,
   date,
   purpose = "Temple Construction",
-  paymentMethod = "Online Payment"
+  paymentMethod = "Online Payment",
+  orderId
 }: PDFModernDonationReceiptProps) {
   const [qrCodeDataURL, setQrCodeDataURL] = useState<string>('');
 
@@ -28,7 +30,9 @@ export default function PDFModernDonationReceipt({
     // Generate QR code with donation verification link
     const generateQRCode = async () => {
       try {
-        const verificationUrl = `${window.location.origin}/verify-donation?order_id=${donationId}`;
+        // Use orderId for verification if available, otherwise fallback to donationId
+        const verificationId = orderId || donationId;
+        const verificationUrl = `${window.location.origin}/verify-donation?order_id=${verificationId}`;
         const qrCodeData = await QRCode.toDataURL(verificationUrl, {
           width: 120, // Increased size for better clarity
           margin: 2, // Increased margin for better readability
@@ -45,7 +49,7 @@ export default function PDFModernDonationReceipt({
     };
 
     generateQRCode();
-  }, [donationId]);
+  }, [donationId, orderId]);
   const formatAmount = (amount: number) => {
     if (!amount || isNaN(amount)) return '₹0';
     return new Intl.NumberFormat('en-IN', {

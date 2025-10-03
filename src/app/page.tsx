@@ -10,9 +10,98 @@ import MissionVisionSection from "@/components/MissionVisionSection";
 import CommunitySection from "@/components/CommunitySection";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
+import { useEffect, useState } from "react";
 
 export default function Home() {
   const router = useRouter();
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  // Render static version on server to prevent hydration mismatch
+  if (!isClient) {
+    return (
+      <div className="w-full">
+        <section id="home">
+          <HeroSection />
+        </section>
+        
+        <section id="about">
+          <SpiritualLeaderSection />
+        </section>
+        
+        <div>
+          <YamrajDhamSection />
+        </div>
+        
+        <div>
+          <MissionVisionSection />
+        </div>
+        
+        <section id="donate" className="py-16">
+          <DonationSection />
+        </section>
+        
+        <section id="progress" className="py-16 bg-muted/30">
+          <ProgressTracker />
+        </section>
+        
+        <div>
+          <CommunitySection />
+        </div>
+        
+        <section id="prayers" className="py-16">
+          <PrayerSection />
+        </section>
+        
+        <section className="py-16 bg-gradient-brown text-white">
+          <div className="container mx-auto px-4">
+            <div className="max-w-4xl mx-auto text-center">
+              <h2 className="text-3xl md:text-4xl font-bold mb-6">
+                🙏 Be a part of history. Be a part of dharma.
+              </h2>
+              <p className="text-lg leading-relaxed mb-8">
+                Your support ensures that the Yamrajdham Temple, under the guidance of <strong>DHARAM DHAM TRUST</strong>, becomes a beacon of faith, justice, and peace for generations to come.
+              </p>
+              
+              <div className="bg-white/10 rounded-lg p-6 mb-8">
+                <h3 className="text-xl font-bold mb-4">📑 Trust Information</h3>
+                <div className="grid md:grid-cols-2 gap-4 text-sm">
+                  <div>
+                    <strong>Trust Name:</strong> DHARAM DHAM TRUST<br/>
+                    <strong>Email:</strong> dharamdhamtrust@gmail.com<br/>
+                    <strong>Phone:</strong> +91-84273-83381
+                  </div>
+                  <div>
+                    <strong>Location:</strong> Taranagar Churu, Rajasthan<br/>
+                    <strong>Registration:</strong> [Trust Registration No.]<br/>
+                    <strong>Website:</strong> https://dharamdhamtrust.org
+                  </div>
+                </div>
+              </div>
+              
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <button 
+                  onClick={() => router.push('/donate')}
+                  className="bg-white text-temple-gold hover:bg-temple-cream px-8 py-3 rounded-full font-semibold transition-all duration-300 cursor-pointer hover:scale-105 hover:shadow-lg"
+                >
+                  Donate Now
+                </button>
+                <button 
+                  onClick={() => router.push('/contact')}
+                  className="border-2 border-white text-white hover:bg-white hover:text-temple-gold px-8 py-3 rounded-full font-semibold transition-all duration-300 cursor-pointer hover:scale-105 hover:shadow-lg"
+                >
+                  Contact Us
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+    );
+  }
 
   return (
     <div className="w-full">

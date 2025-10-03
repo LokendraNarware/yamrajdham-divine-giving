@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createHmac, timingSafeEqual } from 'crypto';
-import { supabase } from '@/integrations/supabase/client';
+import { UserDonation, WebhookPayload } from '@/types/donation';
+import { logger, LogContext } from '@/lib/structured-logger';
+import { DonationService, DatabaseUtils } from '@/services/database';
 
 type DbStatus = 'pending' | 'completed' | 'failed' | 'refunded';
 
@@ -83,8 +85,7 @@ export async function POST(request: NextRequest) {
     const userAgent = request.headers.get('user-agent');
     const raw = await request.text();
 
-    console.log('Webhook received:', {
-      timestamp: new Date().toISOString(),
+    const webhookContext: LogContext = {
       signature: signature ? 'present' : 'missing',
       webhookVersion,
       contentType,
@@ -93,8 +94,9 @@ export async function POST(request: NextRequest) {
       bodyLength: raw.length,
       url: request.url,
       method: request.method,
-      headers: Object.fromEntries(request.headers.entries())
-    });
+    };
+    
+    logger.webhookReceived(webhookContext);
 
     // Enhanced test request detection for Cashfree webhook testing
     const isTestRequest = (
@@ -116,7 +118,7 @@ export async function POST(request: NextRequest) {
     );
 
     if (isTestRequest) {
-      console.log('Test webhook request received (bypassing signature verification)', {
+      logger.info('Test webhook request received (bypassing signature verification)', {
         hasSignature: !!signature,
         userAgent,
         bodyLength: raw.length,
@@ -145,7 +147,7 @@ export async function POST(request: NextRequest) {
     }
 
     if (!allowInsecure && !verifySignature(raw, signature, secret)) {
-      console.error('Webhook signature verification failed', {
+      logger.webhookError('Signature verification failed', {
         hasSignature: !!signature,
         hasSecret: !!secret,
         allowInsecure,
@@ -155,18 +157,18 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: false, error: 'Invalid signature' }, { status: 401 });
     }
 
-    let payload;
+    let payload: WebhookPayload;
     try {
-      payload = JSON.parse(raw);
+      payload = JSON.parse(raw) as WebhookPayload;
     } catch (parseError) {
-      console.error('Failed to parse webhook payload:', parseError);
+      logger.webhookError('Failed to parse webhook payload', { error: parseError });
       return NextResponse.json({ success: false, error: 'Invalid JSON payload' }, { status: 400 });
     }
     const eventType: string = payload?.type || payload?.event || '';
-    const orderId: string | undefined = payload?.data?.order?.order_id || payload?.data?.order_id || payload?.order_id;
-    const paymentId: string | undefined = payload?.data?.payment?.cf_payment_id || payload?.data?.payment?.payment_id || payload?.data?.payment_id;
+    const orderId: string | undefined = payload?.data?.order?.order_id || payload?.order_id;
+    const paymentId: string | undefined = payload?.data?.payment?.cf_payment_id || payload?.payment_id;
 
-    console.log('Webhook payload:', {
+    logger.debug('Webhook payload processed', {
       eventType,
       orderId,
       paymentId,
@@ -174,7 +176,7 @@ export async function POST(request: NextRequest) {
     });
 
     if (!eventType || !orderId) {
-      console.error('Missing required fields:', { eventType, orderId });
+      logger.webhookError('Missing required fields', { eventType, orderId });
       return NextResponse.json({ success: false, error: 'Missing event or order_id' }, { status: 400 });
     }
 
@@ -184,66 +186,41 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: true, ignored: true });
     }
 
-    // Find donation row by cashfree_order_id (primary lookup) or fallback to payment_id
-    console.log('Looking up donation with order ID:', orderId);
+    // Find donation using the new service layer with fallback strategy
+    logger.debug('Looking up donation with order ID', { orderId });
     
-    // First, try to find by cashfree_order_id
-    let { data: donation, error: lookupError } = await supabase
-      .from('user_donations')
-      .select('*')
-      .eq('cashfree_order_id', orderId)
-      .single();
+    let currentDonation: UserDonation | null = null;
+    let currentError: any = null;
 
-    console.log('Primary lookup result:', { 
-      found: !!donation, 
-      error: lookupError?.message,
-      donationId: (donation as any)?.id,
-      cashfreeOrderId: (donation as any)?.cashfree_order_id
-    });
+    // Try multiple lookup strategies
+    const lookupStrategies = [
+      () => DonationService.findByCashfreeOrderId(orderId),
+      () => DonationService.findByPaymentId(orderId),
+      () => DonationService.findById(orderId),
+    ];
 
-    // If not found by cashfree_order_id, try payment_id fallback
-    if (!donation && lookupError?.code === 'PGRST116') { // No rows found
-      console.log('Not found by cashfree_order_id, trying payment_id fallback...');
-      const fb = await supabase
-        .from('user_donations')
-        .select('*')
-        .eq('payment_id', orderId)
-        .single();
+    for (const strategy of lookupStrategies) {
+      const result = await strategy();
       
-      console.log('Payment ID fallback result:', { 
-        found: !!fb.data, 
-        error: fb.error?.message,
-        donationId: (fb.data as any)?.id,
-        paymentId: (fb.data as any)?.payment_id
-      });
+      if (result.data) {
+        currentDonation = result.data;
+        logger.debug('Donation found using lookup strategy', {
+          donationId: currentDonation.id,
+          strategy: strategy.name,
+        });
+        break;
+      }
       
-      donation = fb.data as any;
-      lookupError = fb.error;
-    }
-
-    // If still not found, try id fallback (for backward compatibility)
-    if (!donation && lookupError?.code === 'PGRST116') {
-      console.log('Not found by payment_id, trying id fallback...');
-      const fb2 = await supabase
-        .from('user_donations')
-        .select('*')
-        .eq('id', orderId)
-        .single();
-      
-      console.log('ID fallback result:', { 
-        found: !!fb2.data, 
-        error: fb2.error?.message,
-        donationId: (fb2.data as any)?.id
-      });
-      
-      donation = fb2.data as any;
-      lookupError = fb2.error;
+      if (!DatabaseUtils.isNotFoundError(result.error)) {
+        currentError = result.error;
+        break;
+      }
     }
 
     // Handle database errors
-    if (lookupError && lookupError.code !== 'PGRST116') {
-      console.error('Database lookup error:', {
-        error: lookupError,
+    if (currentError && currentError.code !== 'PGRST116') {
+      logger.databaseError('Database lookup error', {
+        error: currentError,
         orderId,
         eventType,
         paymentId
@@ -252,17 +229,17 @@ export async function POST(request: NextRequest) {
         success: false, 
         error: 'Database lookup failed',
         details: {
-          error_message: lookupError.message,
-          error_code: lookupError.code,
+          error_message: currentError.message,
+          error_code: currentError.code,
           order_id: orderId
         }
       }, { status: 500 });
     }
 
     // Handle case where donation is not found
-    if (!donation) {
-      console.log('Donation not found for order ID:', orderId);
-      console.log('Available fields in payload:', {
+    if (!currentDonation) {
+      logger.warn('Donation not found for order ID', { orderId });
+      logger.debug('Available fields in payload', {
         orderId,
         paymentId,
         eventType,
@@ -278,39 +255,27 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    console.log('Found donation:', {
-      id: (donation as any).id,
-      amount: (donation as any).amount,
-      current_status: (donation as any).payment_status,
-      cashfree_order_id: (donation as any).cashfree_order_id,
-      payment_id: (donation as any).payment_id
+    logger.info('Found donation', {
+      donationId: currentDonation.id,
+      amount: currentDonation.amount,
+      current_status: currentDonation.payment_status,
+      cashfree_order_id: currentDonation.cashfree_order_id,
+      payment_id: currentDonation.payment_id
     });
 
-    const updateData: Record<string, any> = { 
-      payment_status: mapped,
-      last_verified_at: new Date().toISOString()
-    };
-    if (paymentId && !(donation as any).payment_id) {
-      updateData.payment_id = paymentId;
-    }
+    // Update donation status using the service layer
+    const updateResult = await DonationService.updatePaymentStatus(
+      currentDonation.id,
+      mapped,
+      {
+        payment_id: paymentId && !currentDonation.payment_id ? paymentId : undefined,
+      }
+    );
 
-    console.log('Updating donation with data:', {
-      donation_id: (donation as any).id,
-      update_data: updateData,
-      event_type: eventType,
-      mapped_status: mapped,
-      payment_id: paymentId
-    });
-
-    const { error: updateError } = await (supabase.from('user_donations') as any)
-      .update(updateData)
-      .eq('id', (donation as any).id);
-
-    if (updateError) {
-      console.error('Error updating donation status:', {
-        donation_id: (donation as any).id,
-        update_data: updateData,
-        error: updateError,
+    if (updateResult.error) {
+      logger.databaseError('Error updating donation status', {
+        donation_id: currentDonation.id,
+        error: updateResult.error,
         event_type: eventType,
         order_id: orderId
       });
@@ -318,16 +283,15 @@ export async function POST(request: NextRequest) {
         success: false, 
         error: 'Database update failed',
         details: {
-          donation_id: (donation as any).id,
-          update_data: updateData,
-          error_message: updateError.message
+          donation_id: currentDonation.id,
+          error_message: updateResult.error.message
         }
       }, { status: 500 });
     }
 
-    console.log(`Successfully updated donation ${(donation as any).id} status to ${mapped}`, {
-      donation_id: (donation as any).id,
-      old_status: (donation as any).payment_status,
+    logger.donationUpdated({
+      donation_id: currentDonation.id,
+      old_status: currentDonation.payment_status,
       new_status: mapped,
       event_type: eventType,
       order_id: orderId,
@@ -338,21 +302,20 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ 
       success: true,
-      donation_id: (donation as any).id,
-      old_status: (donation as any).payment_status,
+      donation_id: currentDonation.id,
+      old_status: currentDonation.payment_status,
       new_status: mapped,
       event_type: eventType
     });
   } catch (err) {
-    console.error('Cashfree webhook error:', err);
+    logger.webhookError('Cashfree webhook error', { error: err });
     return NextResponse.json({ success: false, error: 'Internal server error' }, { status: 500 });
   }
 }
 
 // Handle preflight/test pings cleanly
 export async function OPTIONS(request: NextRequest) {
-  console.log('OPTIONS request received for webhook endpoint:', {
-    timestamp: new Date().toISOString(),
+  logger.debug('OPTIONS request received for webhook endpoint', {
     url: request.url,
     headers: Object.fromEntries(request.headers.entries())
   });
@@ -375,8 +338,7 @@ export async function GET(request: NextRequest) {
   const url = new URL(request.url);
   const test = url.searchParams.get('test');
   
-  console.log('GET request received for webhook endpoint:', {
-    timestamp: new Date().toISOString(),
+  logger.debug('GET request received for webhook endpoint', {
     url: request.url,
     test,
     userAgent: request.headers.get('user-agent')
@@ -419,8 +381,7 @@ export async function GET(request: NextRequest) {
 
 // Handle HEAD requests for webhook testing
 export async function HEAD(request: NextRequest) {
-  console.log('HEAD request received for webhook endpoint:', {
-    timestamp: new Date().toISOString(),
+  logger.debug('HEAD request received for webhook endpoint', {
     url: request.url,
     userAgent: request.headers.get('user-agent')
   });

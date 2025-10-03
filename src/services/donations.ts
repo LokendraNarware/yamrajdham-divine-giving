@@ -1,4 +1,7 @@
+import { DatabaseService } from './database';
+import { UserDonation } from '@/types/donation';
 import { supabase } from '@/integrations/supabase/client';
+import { logger } from '@/lib/structured-logger';
 
 export interface UserData {
   email: string;
@@ -312,21 +315,24 @@ export const getDonations = async (): Promise<{ success: boolean; data?: any; er
 
 export const updateDonationPayment = async (id: string, paymentData: { payment_status: string; payment_id?: string; cashfree_order_id?: string }): Promise<{ success: boolean; data?: any; error?: any }> => {
   try {
-    const { data, error } = await (supabase as any)
-      .from('user_donations')
-      .update(paymentData)
-      .eq('id', id)
-      .select()
-      .single();
-
-    if (error) {
-      console.error('Error updating donation payment:', error);
-      throw error;
+    const result = await DatabaseService.updateOne<UserDonation>('user_donations', id, paymentData);
+    
+    if (result.error) {
+      logger.error('Error updating donation payment', {
+        donationId: id,
+        paymentData,
+        error: result.error,
+      });
+      return { success: false, error: result.error };
     }
 
-    return { success: true, data };
+    return { success: true, data: result.data };
   } catch (err) {
-    console.error('Error in updateDonationPayment:', err);
+    logger.error('Exception in updateDonationPayment', {
+      donationId: id,
+      paymentData,
+      error: err,
+    });
     return { success: false, error: err };
   }
 };

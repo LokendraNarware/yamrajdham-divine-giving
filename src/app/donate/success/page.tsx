@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, Suspense, useRef } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -229,7 +229,7 @@ function PaymentSuccessContent() {
   const handleDownloadReceipt = async () => {
     if (isDownloading) return;
     setIsDownloading(true);
-    if (!paymentDetails || !donationData || !isClient) {
+    if (!paymentDetails || !donationData || !isClient || typeof window === 'undefined') {
       toast({
         title: "Error",
         description: "Receipt data not available",
@@ -266,12 +266,13 @@ function PaymentSuccessContent() {
       
       const ModernReceiptElement = (
         <PDFModernDonationReceipt
-          donationId={paymentDetails.order_id || 'N/A'}
+          donationId={donationData.receiptNumber || paymentDetails.order_id || 'N/A'}
           donorName={donationData.donor?.name || "Devotee"}
           amount={paymentDetails.order_amount || 0}
           date={paymentDetails.payment_time || donationData.createdAt || stableDateFallback}
           purpose={donationData.donationType === 'general' ? 'Temple Construction' : donationData.donationType || 'Temple Construction'}
           paymentMethod={paymentDetails.payment_method || "Online Payment"}
+          orderId={paymentDetails.order_id}
         />
       );
 
@@ -282,7 +283,7 @@ function PaymentSuccessContent() {
 
       // Generate PDF from the temporary container
       await generateReceiptPDF(tempContainer, {
-        donationId: paymentDetails.order_id || 'N/A',
+        donationId: donationData.receiptNumber || paymentDetails.order_id || 'N/A',
         donorName: donationData.donor?.name || "Devotee",
         amount: paymentDetails.order_amount || 0,
         date: paymentDetails.payment_time || donationData.createdAt || stableDateFallback,
@@ -512,8 +513,8 @@ function PaymentSuccessContent() {
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="text-sm font-medium text-muted-foreground">Donation ID</label>
-                    <p className="font-mono text-sm">{paymentDetails.order_id || 'N/A'}</p>
+                    <label className="text-sm font-medium text-muted-foreground">Receipt No</label>
+                    <p className="font-mono text-sm">{donationData?.receiptNumber || paymentDetails.order_id || 'N/A'}</p>
                   </div>
                   <div>
                     <label className="text-sm font-medium text-muted-foreground">Amount</label>
@@ -613,13 +614,14 @@ function PaymentSuccessContent() {
                   {showReceiptPreview && (
                     <div ref={receiptRef} className="border rounded-lg p-4 bg-gray-50">
                       <ModernDonationReceipt
-                        key={`modern-receipt-${paymentDetails.order_id}`}
-                        donationId={paymentDetails.order_id || 'N/A'}
+                        key={`modern-receipt-${donationData?.receiptNumber || paymentDetails.order_id}`}
+                        donationId={donationData?.receiptNumber || paymentDetails.order_id || 'N/A'}
                         donorName={donationData?.donor?.name || "Devotee"}
                         amount={paymentDetails.order_amount || 0}
                         date={paymentDetails.payment_time || donationData?.createdAt || stableDateFallback}
                         purpose={donationData?.donationType === 'general' ? 'Temple Construction' : donationData?.donationType || 'Temple Construction'}
                         paymentMethod={paymentDetails.payment_method || "Online Payment"}
+                        orderId={paymentDetails.order_id}
                       />
                     </div>
                   )}
@@ -776,16 +778,5 @@ function PaymentSuccessContent() {
 }
 
 export default function PaymentSuccessPage() {
-  return (
-    <Suspense fallback={
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-muted-foreground">Loading payment details...</p>
-        </div>
-      </div>
-    }>
-      <PaymentSuccessContent />
-    </Suspense>
-  );
+  return <PaymentSuccessContent />;
 }
