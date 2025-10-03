@@ -17,6 +17,7 @@ export interface DonationData {
   donation_type?: string;
   payment_status?: 'pending' | 'completed' | 'failed' | 'refunded';
   payment_id?: string;
+  cashfree_order_id?: string;
   payment_gateway?: string;
   receipt_number?: string;
   is_anonymous?: boolean;
@@ -309,7 +310,7 @@ export const getDonations = async (): Promise<{ success: boolean; data?: any; er
   }
 };
 
-export const updateDonationPayment = async (id: string, paymentData: { payment_status: string; payment_id?: string }): Promise<{ success: boolean; data?: any; error?: any }> => {
+export const updateDonationPayment = async (id: string, paymentData: { payment_status: string; payment_id?: string; cashfree_order_id?: string }): Promise<{ success: boolean; data?: any; error?: any }> => {
   try {
     const { data, error } = await (supabase as any)
       .from('user_donations')
