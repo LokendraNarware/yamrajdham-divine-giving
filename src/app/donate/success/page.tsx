@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, Suspense } from "react";
+import { useEffect, useState, Suspense, useRef } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -69,65 +69,101 @@ function PaymentSuccessContent() {
   const [paymentLoaded, setPaymentLoaded] = useState(false);
   const [donationLoaded, setDonationLoaded] = useState(false);
   // Removed receiptType state since we only use modern receipts now
-  const [receiptRef] = useState<HTMLDivElement | null>(null);
+  const receiptRef = useRef<HTMLDivElement | null>(null);
   const [isDownloading, setIsDownloading] = useState(false);
   const [showReceiptPreview, setShowReceiptPreview] = useState(false);
+  const [pollingInterval, setPollingInterval] = useState<NodeJS.Timeout | null>(null);
+  const [pollingCount, setPollingCount] = useState(0);
+  const [isPolling, setIsPolling] = useState(false);
   
   const orderId = searchParams.get("order_id");
 
-  useEffect(() => {
-    const fetchPaymentDetails = async () => {
-      if (orderId) {
-        try {
-          // Show loading immediately
-          setIsLoading(true);
-          
-          // Fetch both payment verification and donation data in parallel with timeout
-          const timeoutPromise = new Promise((_, reject) => 
-            setTimeout(() => reject(new Error('Request timeout')), 10000)
-          );
-          
-          const fetchPromise = Promise.all([
-            verifyPayment(orderId),
-            fetch(`/api/donations/${orderId}`)
-          ]);
-          
-          const [details, donationResponse] = await Promise.race([
-            fetchPromise,
-            timeoutPromise
-          ]) as [any, Response];
-          
-          setPaymentDetails(details);
-          setPaymentLoaded(true);
-          
-          // Process donation data
-          try {
-            if (donationResponse.ok) {
-              const donation = await donationResponse.json();
-              setDonationData(donation);
-              setDonationLoaded(true);
-            } else {
-              console.error('Failed to fetch donation data');
-              setDonationLoaded(true); // Still set to true to avoid infinite loading
-            }
-          } catch (error) {
-            console.error('Error fetching donation data:', error);
-            setDonationLoaded(true); // Still set to true to avoid infinite loading
-          }
-          
-          // Update donation status in database if payment was successful
-          if (details && (details.order_status === 'PAID' || details.payment_status === 'SUCCESS')) {
-            // Only show success toast if payment is truly completed
-            if (!details.payment_status || details.payment_status !== 'PENDING') {
-              toast({
-                title: "Donation Successful!",
-                description: "Thank you for your generous donation.",
-              });
-            }
-          } else if (details && (details.order_status === 'ACTIVE' || details.payment_status === 'PENDING')) {
+  // Function to fetch payment details
+  const fetchPaymentDetails = async (isPollingCall = false) => {
+    if (!orderId) {
+      setIsLoading(false);
+      setPaymentLoaded(true);
+      setDonationLoaded(true);
+      return;
+    }
+
+    try {
+      if (!isPollingCall) {
+        setIsLoading(true);
+      }
+      
+      // Fetch both payment verification and donation data in parallel with timeout
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Request timeout')), 10000)
+      );
+      
+      const fetchPromise = Promise.all([
+        verifyPayment(orderId),
+        fetch(`/api/donations/${orderId}`)
+      ]);
+      
+      const [details, donationResponse] = await Promise.race([
+        fetchPromise,
+        timeoutPromise
+      ]) as [any, Response];
+      
+      setPaymentDetails(details);
+      setPaymentLoaded(true);
+      
+      // Process donation data
+      try {
+        if (donationResponse.ok) {
+          const donation = await donationResponse.json();
+          setDonationData(donation);
+          setDonationLoaded(true);
+        } else {
+          console.error('Failed to fetch donation data');
+          setDonationLoaded(true); // Still set to true to avoid infinite loading
+        }
+      } catch (error) {
+        console.error('Error fetching donation data:', error);
+        setDonationLoaded(true); // Still set to true to avoid infinite loading
+      }
+      
+      // Check if payment is successful and stop polling
+      const isPaymentSuccessful = details && (
+        (details.order_status === 'PAID') || 
+        (details.payment_status === 'SUCCESS')
+      );
+      
+      if (isPaymentSuccessful) {
+        // Stop polling when payment is successful
+        if (pollingInterval) {
+          clearInterval(pollingInterval);
+          setPollingInterval(null);
+          setIsPolling(false);
+        }
+        
+        // Show success toast only once
+        if (!isPollingCall) {
+          toast({
+            title: "Donation Successful!",
+            description: "Thank you for your generous donation.",
+          });
+        }
+      } else {
+        // Start polling if payment is still pending and we haven't started yet
+        const isPaymentPending = details && (
+          (details.order_status === 'ACTIVE') || 
+          (details.payment_status === 'PENDING') ||
+          (details.payment_status === 'NOT_ATTEMPTED')
+        );
+        
+        if (isPaymentPending && !isPollingCall && !pollingInterval && pollingCount < 20) {
+          startPolling();
+        }
+        
+        // Show appropriate toast only on initial load
+        if (!isPollingCall) {
+          if (isPaymentPending) {
             toast({
-              title: "Payment Pending",
-              description: "Your payment is being processed. Please wait.",
+              title: "Payment Processing",
+              description: "Your payment is being processed. We'll update you automatically.",
               variant: "default",
             });
           } else if (details) {
@@ -137,23 +173,56 @@ function PaymentSuccessContent() {
               variant: "destructive",
             });
           }
-        } catch (error) {
-          console.error("Error fetching payment details:", error);
-          toast({
-            title: "Error",
-            description: "Failed to fetch payment details. Please contact support.",
-            variant: "destructive",
-          });
-        } finally {
-          setIsLoading(false);
         }
-      } else {
+      }
+    } catch (error) {
+      console.error("Error fetching payment details:", error);
+      if (!isPollingCall) {
+        toast({
+          title: "Error",
+          description: "Failed to fetch payment details. Please contact support.",
+          variant: "destructive",
+        });
+      }
+    } finally {
+      if (!isPollingCall) {
         setIsLoading(false);
-        setPaymentLoaded(true);
-        setDonationLoaded(true);
+      }
+    }
+  };
+
+  // Function to start polling for payment status
+  const startPolling = () => {
+    if (pollingInterval || isPolling) return;
+    
+    setIsPolling(true);
+    const interval = setInterval(() => {
+      setPollingCount(prev => {
+        const newCount = prev + 1;
+        if (newCount >= 20) { // Stop after 20 attempts (about 2 minutes)
+          clearInterval(interval);
+          setPollingInterval(null);
+          setIsPolling(false);
+          return newCount;
+        }
+        fetchPaymentDetails(true);
+        return newCount;
+      });
+    }, 6000); // Poll every 6 seconds
+    
+    setPollingInterval(interval);
+  };
+
+  // Cleanup polling on unmount
+  useEffect(() => {
+    return () => {
+      if (pollingInterval) {
+        clearInterval(pollingInterval);
       }
     };
+  }, [pollingInterval]);
 
+  useEffect(() => {
     fetchPaymentDetails();
   }, [orderId, toast]);
 
@@ -353,9 +422,20 @@ function PaymentSuccessContent() {
                   <h1 className="text-2xl font-bold text-yellow-800 mb-2">
                     Payment Processing
                   </h1>
-                  <p className="text-yellow-700">
-                    Your payment is being processed. Please wait or refresh the page in a few minutes.
+                  <p className="text-yellow-700 mb-3">
+                    Your payment is being processed. We're checking the status automatically.
                   </p>
+                  {isPolling && (
+                    <div className="text-sm text-yellow-600">
+                      <div className="flex items-center justify-center space-x-2">
+                        <div className="animate-pulse">●</div>
+                        <span>Checking payment status... ({pollingCount}/20)</span>
+                      </div>
+                      <p className="mt-1 text-xs">
+                        This usually takes 30-60 seconds. You can refresh the page anytime.
+                      </p>
+                    </div>
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -531,7 +611,7 @@ function PaymentSuccessContent() {
 
                   {/* Receipt Preview - Lazy loaded only when requested */}
                   {showReceiptPreview && (
-                    <div ref={setReceiptRef} className="border rounded-lg p-4 bg-gray-50">
+                    <div ref={receiptRef} className="border rounded-lg p-4 bg-gray-50">
                       <ModernDonationReceipt
                         key={`modern-receipt-${paymentDetails.order_id}`}
                         donationId={paymentDetails.order_id || 'N/A'}
@@ -639,16 +719,43 @@ function PaymentSuccessContent() {
             )}
             
             {(isPaymentFailed || isPaymentPending || isMockOrder) && (
-              <Button 
-                onClick={() => router.push("/donate")} 
-                variant="default" 
-                size="lg" 
-                className="flex-1"
-              >
-                {isPaymentFailed ? "Try Again" : 
-                 isMockOrder ? "Make Real Donation" : 
-                 "Check Status Later"}
-              </Button>
+              <>
+                {isPaymentPending && (
+                  <Button 
+                    onClick={() => {
+                      if (pollingInterval) {
+                        clearInterval(pollingInterval);
+                        setPollingInterval(null);
+                        setIsPolling(false);
+                      }
+                      fetchPaymentDetails();
+                    }} 
+                    variant="outline" 
+                    size="lg" 
+                    className="flex-1"
+                    disabled={isLoading}
+                  >
+                    {isLoading ? (
+                      <>
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        Checking...
+                      </>
+                    ) : (
+                      "Check Status Now"
+                    )}
+                  </Button>
+                )}
+                <Button 
+                  onClick={() => router.push("/donate")} 
+                  variant="default" 
+                  size="lg" 
+                  className="flex-1"
+                >
+                  {isPaymentFailed ? "Try Again" : 
+                   isMockOrder ? "Make Real Donation" : 
+                   "Make Another Donation"}
+                </Button>
+              </>
             )}
             
             {!paymentDetails && (

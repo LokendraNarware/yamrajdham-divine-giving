@@ -56,12 +56,6 @@ export default function UsersPage() {
   const { user } = useAuth();
   const { toast } = useToast();
 
-  useEffect(() => {
-    if (user) {
-      fetchUsers();
-    }
-  }, [user, fetchUsers]);
-
   const fetchUsers = useCallback(async () => {
     try {
       setIsLoading(true);
@@ -149,6 +143,12 @@ export default function UsersPage() {
       setIsLoading(false);
     }
   }, [toast]);
+
+  useEffect(() => {
+    if (user) {
+      fetchUsers();
+    }
+  }, [user, fetchUsers]);
 
   const filteredUsers = users.filter(user =>
     user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||

@@ -45,12 +45,6 @@ export default function AnalyticsPage() {
   const [loading, setLoading] = useState(true);
   const { user } = useAuth();
 
-  useEffect(() => {
-    if (user) {
-      fetchAnalyticsData();
-    }
-  }, [user, fetchAnalyticsData]);
-
   const fetchAnalyticsData = useCallback(async () => {
     try {
       setLoading(true);
@@ -106,6 +100,12 @@ export default function AnalyticsPage() {
       setLoading(false);
     }
   }, []);
+
+  useEffect(() => {
+    if (user) {
+      fetchAnalyticsData();
+    }
+  }, [user, fetchAnalyticsData]);
 
   const generateMonthlyTrends = (donations: any[]) => {
     const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];

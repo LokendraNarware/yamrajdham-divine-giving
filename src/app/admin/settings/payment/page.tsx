@@ -23,6 +23,12 @@ interface PaymentSettings {
   minAmount: number;
   maxAmount: number;
   currency: string;
+  testMode: boolean;
+  autoCapture: boolean;
+  enableRefunds: boolean;
+  refundWindow: number;
+  notificationEmail: string;
+  lastSync: string;
   autoApprove: boolean;
   emailNotifications: boolean;
   smsNotifications: boolean;
@@ -46,6 +52,12 @@ export default function PaymentSettingsPage() {
     minAmount: 1,
     maxAmount: 1000000,
     currency: 'INR',
+    testMode: false,
+    autoCapture: true,
+    enableRefunds: true,
+    refundWindow: 30,
+    notificationEmail: '',
+    lastSync: '',
     autoApprove: false,
     emailNotifications: true,
     smsNotifications: false,
@@ -61,6 +73,45 @@ export default function PaymentSettingsPage() {
   });
   const { user } = useAuth();
   const { toast } = useToast();
+
+  const loadSettings = useCallback(async () => {
+    try {
+      setIsLoading(true);
+      
+      // In a real app, you'd fetch from a settings table
+      // For now, we'll use environment variables or defaults
+      const defaultSettings: PaymentSettings = {
+        gateway: process.env.NEXT_PUBLIC_PAYMENT_GATEWAY || 'cashfree',
+        merchantId: process.env.NEXT_PUBLIC_CASHFREE_APP_ID || '',
+        apiKey: process.env.NEXT_PUBLIC_CASHFREE_SECRET_KEY || '',
+        secretKey: process.env.NEXT_PUBLIC_CASHFREE_SECRET_KEY || '',
+        webhookUrl: process.env.NEXT_PUBLIC_WEBHOOK_URL || '',
+        minAmount: 1,
+        maxAmount: 1000000,
+        currency: 'INR',
+        testMode: process.env.NODE_ENV === 'development',
+        autoCapture: true,
+        enableRefunds: true,
+        refundWindow: 30,
+        notificationEmail: process.env.NEXT_PUBLIC_ADMIN_EMAIL || '',
+        lastSync: new Date().toISOString(),
+        autoApprove: false,
+        emailNotifications: true,
+        smsNotifications: false,
+      };
+
+      setSettings(defaultSettings);
+      setIsLoading(false);
+    } catch (error) {
+      console.error('Error loading settings:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load payment settings.",
+        variant: "destructive",
+      });
+      setIsLoading(false);
+    }
+  }, [toast]);
 
   useEffect(() => {
     if (user) {
@@ -116,39 +167,6 @@ export default function PaymentSettingsPage() {
       console.error('Error fetching payment stats:', error);
     }
   };
-
-  const loadSettings = useCallback(async () => {
-    try {
-      setIsLoading(true);
-      
-      // In a real app, you'd fetch from a settings table
-      // For now, we'll use environment variables or defaults
-      const defaultSettings: PaymentSettings = {
-        gateway: process.env.NEXT_PUBLIC_PAYMENT_GATEWAY || 'cashfree',
-        merchantId: process.env.NEXT_PUBLIC_CASHFREE_APP_ID || '',
-        apiKey: process.env.NEXT_PUBLIC_CASHFREE_SECRET_KEY || '',
-        secretKey: process.env.NEXT_PUBLIC_CASHFREE_SECRET_KEY || '',
-        webhookUrl: process.env.NEXT_PUBLIC_WEBHOOK_URL || '',
-        minAmount: 1,
-        maxAmount: 1000000,
-        currency: 'INR',
-        autoApprove: false,
-        emailNotifications: true,
-        smsNotifications: false,
-      };
-
-      setSettings(defaultSettings);
-      setIsLoading(false);
-    } catch (error) {
-      console.error('Error loading settings:', error);
-      toast({
-        title: "Error",
-        description: "Failed to load payment settings.",
-        variant: "destructive",
-      });
-      setIsLoading(false);
-    }
-  }, [toast]);
 
   const handleSave = async () => {
     try {

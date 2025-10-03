@@ -102,18 +102,6 @@ export default function DonationsManagement() {
   const { toast } = useToast();
   const { user } = useAuth();
 
-  // Fetch donations on component mount
-  useEffect(() => {
-    if (user) {
-      fetchDonations();
-    }
-  }, [user, fetchDonations]);
-
-  // Apply filters when search/filter state changes
-  useEffect(() => {
-    applyFilters();
-  }, [donations, searchTerm, dateRange, amountRange, donationType, applyFilters]);
-
   const fetchDonations = useCallback(async () => {
     try {
       setLoading(true);
@@ -145,48 +133,6 @@ export default function DonationsManagement() {
       setLoading(false);
     }
   }, [toast]);
-
-  const calculateStats = async (donationsData: Donation[]) => {
-    // All donations are already completed due to the filter in fetchDonations
-    const completedDonations = donationsData;
-    
-    // Fetch pending donations count
-    const { count: pendingCount } = await supabase
-      .from('user_donations')
-      .select('*', { count: 'exact', head: true })
-      .eq('payment_status', 'pending');
-    
-    const totalAmount = completedDonations.reduce((sum, d) => sum + d.amount, 0);
-    const averageDonation = completedDonations.length > 0 ? totalAmount / completedDonations.length : 0;
-    
-    // This month's donations
-    const currentMonth = new Date().getMonth();
-    const currentYear = new Date().getFullYear();
-    const thisMonthDonations = completedDonations.filter(d => {
-      const donationDate = new Date(d.created_at);
-      return donationDate.getMonth() === currentMonth && donationDate.getFullYear() === currentYear;
-    }).length;
-    
-    // Amount range breakdowns
-    const highValueDonations = completedDonations.filter(d => d.amount >= 50000).length;
-    const mediumValueDonations = completedDonations.filter(d => d.amount >= 10000 && d.amount < 50000).length;
-    const lowValueDonations = completedDonations.filter(d => d.amount >= 1000 && d.amount < 10000).length;
-    const smallValueDonations = completedDonations.filter(d => d.amount >= 500 && d.amount < 1000).length;
-    
-    const stats = {
-      completedDonations: completedDonations.length,
-      pendingDonations: pendingCount || 0,
-      totalAmount: totalAmount,
-      averageDonation: averageDonation,
-      thisMonthDonations: thisMonthDonations,
-      highValueDonations: highValueDonations,
-      mediumValueDonations: mediumValueDonations,
-      lowValueDonations: lowValueDonations,
-      smallValueDonations: smallValueDonations,
-    };
-    
-    setStats(stats);
-  };
 
   const applyFilters = useCallback(() => {
     let filtered = [...donations];
@@ -255,6 +201,60 @@ export default function DonationsManagement() {
     setFilteredDonations(filtered);
     setCurrentPage(1); // Reset to first page when filters change
   }, [donations, searchTerm, dateRange, amountRange, donationType]);
+
+  // Fetch donations on component mount
+  useEffect(() => {
+    if (user) {
+      fetchDonations();
+    }
+  }, [user, fetchDonations]);
+
+  // Apply filters when search/filter state changes
+  useEffect(() => {
+    applyFilters();
+  }, [donations, searchTerm, dateRange, amountRange, donationType, applyFilters]);
+
+  const calculateStats = async (donationsData: Donation[]) => {
+    // All donations are already completed due to the filter in fetchDonations
+    const completedDonations = donationsData;
+    
+    // Fetch pending donations count
+    const { count: pendingCount } = await supabase
+      .from('user_donations')
+      .select('*', { count: 'exact', head: true })
+      .eq('payment_status', 'pending');
+    
+    const totalAmount = completedDonations.reduce((sum, d) => sum + d.amount, 0);
+    const averageDonation = completedDonations.length > 0 ? totalAmount / completedDonations.length : 0;
+    
+    // This month's donations
+    const currentMonth = new Date().getMonth();
+    const currentYear = new Date().getFullYear();
+    const thisMonthDonations = completedDonations.filter(d => {
+      const donationDate = new Date(d.created_at);
+      return donationDate.getMonth() === currentMonth && donationDate.getFullYear() === currentYear;
+    }).length;
+    
+    // Amount range breakdowns
+    const highValueDonations = completedDonations.filter(d => d.amount >= 50000).length;
+    const mediumValueDonations = completedDonations.filter(d => d.amount >= 10000 && d.amount < 50000).length;
+    const lowValueDonations = completedDonations.filter(d => d.amount >= 1000 && d.amount < 10000).length;
+    const smallValueDonations = completedDonations.filter(d => d.amount >= 500 && d.amount < 1000).length;
+    
+    const stats = {
+      completedDonations: completedDonations.length,
+      pendingDonations: pendingCount || 0,
+      totalAmount: totalAmount,
+      averageDonation: averageDonation,
+      thisMonthDonations: thisMonthDonations,
+      highValueDonations: highValueDonations,
+      mediumValueDonations: mediumValueDonations,
+      lowValueDonations: lowValueDonations,
+      smallValueDonations: smallValueDonations,
+    };
+    
+    setStats(stats);
+  };
 
   const handleExportCSV = () => {
     const csvContent = [

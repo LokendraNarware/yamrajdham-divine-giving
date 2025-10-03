@@ -50,7 +50,15 @@ export async function POST(request: NextRequest) {
     const signature = request.headers.get('x-webhook-signature') || request.headers.get('x-cf-signature');
     const raw = await request.text();
 
+    console.log('Webhook received:', {
+      timestamp: new Date().toISOString(),
+      signature: signature ? 'present' : 'missing',
+      allowInsecure,
+      bodyLength: raw.length
+    });
+
     if (!allowInsecure && !verifySignature(raw, signature, secret)) {
+      console.error('Webhook signature verification failed');
       return NextResponse.json({ success: false, error: 'Invalid signature' }, { status: 401 });
     }
 
@@ -59,7 +67,15 @@ export async function POST(request: NextRequest) {
     const orderId: string | undefined = payload?.data?.order?.order_id || payload?.data?.order_id || payload?.order_id;
     const paymentId: string | undefined = payload?.data?.payment?.payment_id || payload?.data?.payment_id;
 
+    console.log('Webhook payload:', {
+      eventType,
+      orderId,
+      paymentId,
+      payload: JSON.stringify(payload, null, 2)
+    });
+
     if (!eventType || !orderId) {
+      console.error('Missing required fields:', { eventType, orderId });
       return NextResponse.json({ success: false, error: 'Missing event or order_id' }, { status: 400 });
     }
 
@@ -90,14 +106,24 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: true, not_found: true });
     }
 
-    const updateData: Record<string, any> = { payment_status: mapped };
+    const updateData: Record<string, any> = { 
+      payment_status: mapped,
+      last_verified_at: new Date().toISOString()
+    };
     if (paymentId && !(donation as any).payment_id) {
       updateData.payment_id = paymentId;
     }
 
-    await (supabase.from('user_donations') as any)
+    const { error: updateError } = await (supabase.from('user_donations') as any)
       .update(updateData)
       .eq('id', (donation as any).id);
+
+    if (updateError) {
+      console.error('Error updating donation status:', updateError);
+      return NextResponse.json({ success: false, error: 'Database update failed' }, { status: 500 });
+    }
+
+    console.log(`Successfully updated donation ${(donation as any).id} status to ${mapped}`);
 
     // Cache invalidation removed - not available in webhook context
 
