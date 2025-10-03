@@ -24,14 +24,3 @@ export const formatCurrencyClean = (amount: number): string => {
   return result;
 };
 
-/**
- * Formats a number as Indian Rupee currency with .00 decimals (original behavior)
- * @param amount - The amount to format
- * @returns Formatted currency string with decimals (e.g., "₹1,000.00")
- */
-export const formatCurrencyWithDecimals = (amount: number): string => {
-  return new Intl.NumberFormat('en-IN', {
-    style: 'currency',
-    currency: 'INR',
-  }).format(amount);
-};
