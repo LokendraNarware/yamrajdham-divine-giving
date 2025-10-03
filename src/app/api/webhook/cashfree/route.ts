@@ -114,9 +114,31 @@ export async function OPTIONS() {
     status: 204,
     headers: {
       'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'POST, OPTIONS',
+      'Access-Control-Allow-Methods': 'POST, GET, HEAD, OPTIONS',
       'Access-Control-Allow-Headers': 'Content-Type, x-webhook-signature, x-cf-signature',
     },
+  });
+}
+
+// Handle GET requests for webhook testing/verification
+export async function GET() {
+  return NextResponse.json({ 
+    status: 'ok', 
+    message: 'Cashfree webhook endpoint is active',
+    timestamp: new Date().toISOString(),
+    methods: ['POST', 'GET', 'OPTIONS'],
+    version: '2025-01-01'
+  });
+}
+
+// Handle HEAD requests for webhook testing
+export async function HEAD() {
+  return new NextResponse(null, {
+    status: 200,
+    headers: {
+      'X-Webhook-Status': 'active',
+      'X-Webhook-Version': '2025-01-01'
+    }
   });
 }
 
