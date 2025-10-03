@@ -189,7 +189,7 @@ export default function AnalyticsPage() {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
+            <CardTitle className="text-sm font-medium">Total Donations</CardTitle>
             <DollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -197,7 +197,7 @@ export default function AnalyticsPage() {
               {loading ? '...' : formatCurrency(analyticsData.totalRevenue)}
             </div>
             <p className="text-xs text-muted-foreground">
-              {analyticsData.totalRevenue > 0 ? 'From completed donations only' : 'No revenue yet'}
+              {analyticsData.totalRevenue > 0 ? 'From completed donations only' : 'No donations yet'}
             </p>
           </CardContent>
         </Card>
@@ -269,11 +269,11 @@ export default function AnalyticsPage() {
                     <Tooltip 
                       formatter={(value, name) => [
                         name === 'donations' ? `${value} donations` : `₹${value}`,
-                        name === 'donations' ? 'Donations' : 'Revenue'
+                        name === 'donations' ? 'Donations' : 'Donations'
                       ]}
                     />
                     <Bar dataKey="donations" fill="#8884d8" name="Donations" />
-                    <Bar dataKey="revenue" fill="#82ca9d" name="Revenue" />
+                    <Bar dataKey="revenue" fill="#82ca9d" name="Donations" />
                   </BarChart>
                 </ResponsiveContainer>
               ) : (

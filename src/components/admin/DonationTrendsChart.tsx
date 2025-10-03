@@ -9,6 +9,7 @@ interface DonationTrendsChartProps {
     month: string;
     amount: number;
     donations: number;
+    donors: number;
   }>;
   isLoading?: boolean;
 }
@@ -22,7 +23,8 @@ export default function DonationTrendsChart({ data, isLoading }: DonationTrendsC
       months.push({
         month: format(date, 'MMM'),
         amount: 0,
-        donations: 0
+        donations: 0,
+        donors: 0
       });
     }
     return months;
@@ -48,6 +50,9 @@ export default function DonationTrendsChart({ data, isLoading }: DonationTrendsC
           </p>
           <p className="text-blue-600">
             Donations: {payload[1].value}
+          </p>
+          <p className="text-purple-600">
+            Donors: {payload[2].value}
           </p>
         </div>
       );
@@ -108,6 +113,13 @@ export default function DonationTrendsChart({ data, isLoading }: DonationTrendsC
                 stroke="#3b82f6"
                 fontSize={12}
               />
+              <YAxis 
+                yAxisId="donors"
+                orientation="right"
+                stroke="#8b5cf6"
+                fontSize={12}
+                offset={50}
+              />
               <Tooltip content={<CustomTooltip />} />
               <Line
                 yAxisId="amount"
@@ -127,6 +139,15 @@ export default function DonationTrendsChart({ data, isLoading }: DonationTrendsC
                 dot={{ fill: '#3b82f6', strokeWidth: 2, r: 3 }}
                 activeDot={{ r: 5, stroke: '#3b82f6', strokeWidth: 2 }}
               />
+              <Line
+                yAxisId="donors"
+                type="monotone"
+                dataKey="donors"
+                stroke="#8b5cf6"
+                strokeWidth={2}
+                dot={{ fill: '#8b5cf6', strokeWidth: 2, r: 3 }}
+                activeDot={{ r: 5, stroke: '#8b5cf6', strokeWidth: 2 }}
+              />
             </LineChart>
           </ResponsiveContainer>
         </div>
@@ -139,6 +160,10 @@ export default function DonationTrendsChart({ data, isLoading }: DonationTrendsC
           <div className="flex items-center">
             <div className="w-3 h-3 bg-blue-500 rounded-full mr-2"></div>
             <span className="text-gray-600">Number of Donations</span>
+          </div>
+          <div className="flex items-center">
+            <div className="w-3 h-3 bg-purple-500 rounded-full mr-2"></div>
+            <span className="text-gray-600">Number of Donors</span>
           </div>
         </div>
       </CardContent>

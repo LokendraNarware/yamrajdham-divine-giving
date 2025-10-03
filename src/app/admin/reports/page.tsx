@@ -39,7 +39,7 @@ export default function ReportsPage() {
   const reportTypes = [
     { value: "donations", label: "Donation Report", description: "Detailed completed donation transactions" },
     { value: "users", label: "User Report", description: "User activity and donation statistics" },
-    { value: "financial", label: "Financial Summary", description: "Revenue and financial overview from completed donations" },
+    { value: "financial", label: "Financial Summary", description: "Donations and financial overview from completed donations" },
     { value: "monthly", label: "Monthly Report", description: "Monthly performance summary" },
     { value: "yearly", label: "Annual Report", description: "Yearly comprehensive report" },
     { value: "tax", label: "Tax Report", description: "Tax-deductible donations report" }
@@ -208,7 +208,7 @@ export default function ReportsPage() {
     
     const headers = ['Metric', 'Value'];
     const rows = [
-      ['Total Revenue', reportData.totalRevenue],
+      ['Total Donations', reportData.totalRevenue],
       ['Total Completed Donations', reportData.totalDonations],
       ['Total Users', reportData.totalUsers],
       ['Average Donation Amount', reportData.averageDonation],
@@ -224,7 +224,7 @@ export default function ReportsPage() {
     const headers = ['Summary'];
     const rows = [
       [`Report Type: ${reportTypes.find(r => r.value === reportType)?.label}`],
-      [`Total Revenue: ₹${reportData.totalRevenue.toLocaleString()}`],
+      [`Total Donations: ₹${reportData.totalRevenue.toLocaleString()}`],
       [`Total Completed Donations: ${reportData.totalDonations}`],
       [`Total Users: ${reportData.totalUsers}`],
       [`Average Donation: ₹${reportData.averageDonation.toLocaleString()}`],
@@ -405,7 +405,7 @@ export default function ReportsPage() {
                 <div className="text-2xl font-bold text-green-600">
                   {formatCurrency(reportData.totalRevenue)}
                 </div>
-                <div className="text-sm text-gray-600">Total Revenue</div>
+                <div className="text-sm text-gray-600">Total Donations</div>
               </div>
               <div className="text-center p-4 bg-blue-50 rounded-lg">
                 <div className="text-2xl font-bold text-blue-600">

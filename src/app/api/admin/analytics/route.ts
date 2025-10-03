@@ -12,7 +12,7 @@ export async function GET(request: NextRequest) {
       // Monthly trends for last 6 months
       supabase
         .from('user_donations')
-        .select('amount, created_at')
+        .select('amount, created_at, user_id')
         .eq('payment_status', 'completed')
         .gte('created_at', new Date(Date.now() - 6 * 30 * 24 * 60 * 60 * 1000).toISOString())
         .order('created_at', { ascending: true }),
@@ -42,18 +42,19 @@ export async function GET(request: NextRequest) {
     const monthlyTrends = [];
     if (monthlyTrendsResult.status === 'fulfilled' && monthlyTrendsResult.value.data) {
       const donations = monthlyTrendsResult.value.data;
-      const monthlyData: Record<string, { amount: number; count: number }> = {};
+      const monthlyData: Record<string, { amount: number; count: number; uniqueDonors: Set<string> }> = {};
 
-      (donations as Array<{created_at: string, amount: number}>).forEach(donation => {
+      (donations as Array<{created_at: string, amount: number, user_id: string}>).forEach(donation => {
         const month = new Date(donation.created_at).toLocaleDateString('en-US', { 
           month: 'short', 
           year: 'numeric' 
         });
         if (!monthlyData[month]) {
-          monthlyData[month] = { amount: 0, count: 0 };
+          monthlyData[month] = { amount: 0, count: 0, uniqueDonors: new Set() };
         }
         monthlyData[month].amount += donation.amount;
         monthlyData[month].count += 1;
+        monthlyData[month].uniqueDonors.add(donation.user_id);
       });
 
       // Generate last 6 months
@@ -64,7 +65,8 @@ export async function GET(request: NextRequest) {
         monthlyTrends.push({
           month: date.toLocaleDateString('en-US', { month: 'short' }),
           amount: monthlyData[monthKey]?.amount || 0,
-          donations: monthlyData[monthKey]?.count || 0
+          donations: monthlyData[monthKey]?.count || 0,
+          donors: monthlyData[monthKey]?.uniqueDonors.size || 0
         });
       }
     }
