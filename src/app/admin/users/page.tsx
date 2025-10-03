@@ -95,7 +95,7 @@ export default function UsersPage() {
       const { data: usersWithoutDonations, error: usersWithoutDonationsError } = await supabase
         .from('users')
         .select('*')
-        .not('id', 'in', `(${usersData?.map(u => u.id).join(',') || 'null'})`);
+        .not('id', 'in', `(${(usersData as Array<{id: string}> || []).map(u => u.id).join(',') || 'null'})`);
 
       if (usersWithoutDonationsError) {
         console.error('Error fetching users without donations:', usersWithoutDonationsError);
@@ -110,14 +110,14 @@ export default function UsersPage() {
         console.error('Error fetching admin data:', adminError);
       }
 
-      const adminEmails = new Set(adminData?.map(admin => admin.email) || []);
+      const adminEmails = new Set((adminData as Array<{email: string}> || []).map(admin => admin.email));
 
       // Process users with completed donations only
-      const usersWithStats: UserWithStats[] = usersData?.map(user => {
+      const usersWithStats: UserWithStats[] = (usersData as any || []).map((user: any) => {
         const donations = user.user_donations || [];
         // All donations here are already completed due to the filter above
         const donationCount = donations.length;
-        const totalDonated = donations.reduce((sum, d) => sum + d.amount, 0);
+        const totalDonated = donations.reduce((sum: number, d: any) => sum + d.amount, 0);
 
         return {
           ...user,
@@ -128,12 +128,12 @@ export default function UsersPage() {
       }) || [];
 
       // Add users without donations
-      const usersWithoutDonationsStats: UserWithStats[] = usersWithoutDonations?.map(user => ({
+      const usersWithoutDonationsStats: UserWithStats[] = (usersWithoutDonations as any || []).map((user: any) => ({
         ...user,
         donation_count: 0,
         total_donated: 0,
         is_admin: adminEmails.has(user.email),
-      })) || [];
+      }));
 
       // Combine all users
       const allUsers = [...usersWithStats, ...usersWithoutDonationsStats];

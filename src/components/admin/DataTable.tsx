@@ -91,8 +91,8 @@ export default function DataTable({
     const aValue = a[sortField];
     const bValue = b[sortField];
     
-    if (aValue < bValue) return sortDirection === "asc" ? -1 : 1;
-    if (aValue > bValue) return sortDirection === "asc" ? 1 : -1;
+    if ((aValue as any) < (bValue as any)) return sortDirection === "asc" ? -1 : 1;
+    if ((aValue as any) > (bValue as any)) return sortDirection === "asc" ? 1 : -1;
     return 0;
   });
 
@@ -239,15 +239,15 @@ export default function DataTable({
               ) : (
                 paginatedData.map((row, index) => (
                   <TableRow 
-                    key={row.id || index}
+                    key={(row as any).id || index}
                     className={onRowClick ? "cursor-pointer hover:bg-gray-50" : ""}
                     onClick={() => onRowClick?.(row)}
                   >
                     {columns.map((column) => (
                       <TableCell key={column.key}>
                         {column.render 
-                          ? column.render(row[column.key], row)
-                          : row[column.key]
+                          ? column.render((row as any)[column.key], row)
+                          : (row as any)[column.key]
                         }
                       </TableCell>
                     ))}
@@ -264,15 +264,15 @@ export default function DataTable({
                               <Eye className="w-4 h-4 mr-2" />
                               View Details
                             </DropdownMenuItem>
-                            {onStatusChange && row.payment_status === 'pending' && (
+                            {onStatusChange && (row as any).payment_status === 'pending' && (
                               <>
                                 <DropdownMenuItem 
-                                  onClick={() => onStatusChange(row.id, 'completed')}
+                                  onClick={() => onStatusChange((row as any).id, 'completed')}
                                 >
                                   Mark Completed
                                 </DropdownMenuItem>
                                 <DropdownMenuItem 
-                                  onClick={() => onStatusChange(row.id, 'failed')}
+                                  onClick={() => onStatusChange((row as any).id, 'failed')}
                                 >
                                   Mark Failed
                                 </DropdownMenuItem>

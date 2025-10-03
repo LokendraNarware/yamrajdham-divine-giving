@@ -300,7 +300,7 @@ export default function PaymentSuccessPage() {
   const isMockOrder = paymentDetails && (
     (paymentDetails.order_status === 'MOCK_UNPAID') || 
     (paymentDetails.payment_status === 'MOCK_UNPAID') ||
-    (paymentDetails.is_mock === true)
+    ((paymentDetails as any).is_mock === true)
   );
   
   const isPaymentFailed = paymentDetails && !isPaymentSuccessful && !isPaymentPending && !isMockOrder;
@@ -315,7 +315,7 @@ export default function PaymentSuccessPage() {
     console.log('Payment Details Debug:', {
       order_status: paymentDetails.order_status,
       payment_status: paymentDetails.payment_status,
-      is_mock: paymentDetails.is_mock,
+      is_mock: (paymentDetails as any).is_mock,
       isPaymentSuccessful,
       isPaymentPending,
       isMockOrder,

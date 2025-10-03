@@ -38,7 +38,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
         const { data: adminData, error } = await supabase
           .from('admin')
           .select('*')
-          .eq('email', user.email)
+          .eq('email', user.email || '')
           .eq('is_active', true)
           .single();
 
@@ -77,11 +77,11 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
         .from('admin')
         .insert({
           email: user.email,
-          name: user.email.split('@')[0],
+          name: user.email?.split('@')[0] || 'Admin',
           mobile: '9999999999', // Default mobile
           role: 'admin',
           is_active: true
-        });
+        } as any);
 
       if (error) {
         toast({

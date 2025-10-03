@@ -132,7 +132,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             name: userData.name,
             mobile: userData.phone || '', // Use mobile column, not phone
             created_at: new Date().toISOString(),
-          })
+          } as any)
           .select()
           .single();
 

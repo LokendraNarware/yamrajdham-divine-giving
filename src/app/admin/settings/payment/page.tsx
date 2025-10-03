@@ -81,7 +81,7 @@ export default function PaymentSettingsPage() {
         return;
       }
 
-      const donations = donationsData || [];
+      const donations = (donationsData || []) as Array<{payment_status: string, created_at: string, amount: number}>;
       const totalDonations = donations.length;
       const completedDonations = donations.filter(d => d.payment_status === 'completed').length;
       const failedDonations = donations.filter(d => d.payment_status === 'failed').length;

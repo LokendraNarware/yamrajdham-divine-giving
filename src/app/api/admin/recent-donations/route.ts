@@ -30,7 +30,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Transform data for the component
-    const transformedDonations = (donations || []).map(donation => ({
+    const transformedDonations = (donations as Array<{id: string, amount: number, is_anonymous: boolean, user?: {name: string}, donation_type?: string, created_at: string}> || []).map(donation => ({
       id: donation.id,
       amount: donation.amount,
       donor_name: donation.is_anonymous ? 'Anonymous' : (donation.user?.name || 'Unknown'),

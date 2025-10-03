@@ -30,7 +30,6 @@ interface UserProfile {
 }
 
 export default function DashboardPage() {
-  const [filteredDonations, setFilteredDonations] = useState<Donation[]>([]);
   const [statusFilter, setStatusFilter] = useState<string>('completed');
   const { user, signOut } = useAuth();
   const router = useRouter();
@@ -51,16 +50,15 @@ export default function DashboardPage() {
     }
   }, [user, router]);
 
-  // Filter donations based on status (exclude refunded donations)
-  useEffect(() => {
+  // Filter donations based on status (exclude refunded donations) using useMemo
+  const filteredDonations = useMemo(() => {
     // First filter out refunded donations
-    const nonRefundedDonations = donations.filter(donation => donation.payment_status !== 'refunded');
+    const nonRefundedDonations = (donations as any).filter((donation: any) => donation.payment_status !== 'refunded');
     
     if (statusFilter === 'all') {
-      setFilteredDonations(nonRefundedDonations);
+      return nonRefundedDonations;
     } else {
-      const filtered = nonRefundedDonations.filter(donation => donation.payment_status === statusFilter);
-      setFilteredDonations(filtered);
+      return nonRefundedDonations.filter((donation: any) => donation.payment_status === statusFilter);
     }
   }, [donations, statusFilter]);
 
@@ -99,9 +97,9 @@ export default function DashboardPage() {
   // Memoize expensive calculations using cached data (exclude refunded donations)
   const donationStats = useMemo(() => {
     // Filter out refunded donations from all calculations
-    const nonRefundedDonations = donations.filter(d => d.payment_status !== 'refunded');
-    const completedDonations = nonRefundedDonations.filter(d => d.payment_status === 'completed');
-    const totalAmount = userStats?.totalAmount || completedDonations.reduce((sum, d) => sum + d.amount, 0);
+    const nonRefundedDonations = (donations as any).filter((d: any) => d.payment_status !== 'refunded');
+    const completedDonations = nonRefundedDonations.filter((d: any) => d.payment_status === 'completed');
+    const totalAmount = userStats?.totalAmount || completedDonations.reduce((sum: number, d: any) => sum + d.amount, 0);
     const totalCount = userStats?.totalCount || completedDonations.length;
     
     return {
@@ -213,7 +211,7 @@ export default function DashboardPage() {
             <div>
               <h1 className="text-3xl font-bold">My Dashboard</h1>
               <p className="text-muted-foreground">
-                Welcome back, {userProfile?.name || 'User'}!
+                Welcome back, {(userProfile as any)?.name || 'User'}!
               </p>
             </div>
             <div className="flex gap-2">
@@ -263,8 +261,8 @@ export default function DashboardPage() {
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">
-                  {userProfile?.created_at ? 
-                    new Date(userProfile.created_at).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) :
+                  {(userProfile as any)?.created_at ? 
+                    new Date((userProfile as any).created_at).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) :
                     'N/A'
                   }
                 </div>

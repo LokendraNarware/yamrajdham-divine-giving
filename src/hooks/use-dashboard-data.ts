@@ -117,7 +117,7 @@ export const useInvalidateAdminData = () => {
     invalidateAnalytics: () => queryClient.invalidateQueries({ queryKey: queryKeys.admin.analytics }),
     invalidateUsers: () => queryClient.invalidateQueries({ queryKey: queryKeys.admin.users }),
     invalidateDonations: () => queryClient.invalidateQueries({ queryKey: queryKeys.admin.donations }),
-    invalidateAll: () => queryClient.invalidateQueries({ queryKey: queryKeys.admin }),
+    invalidateAll: () => queryClient.invalidateQueries({ queryKey: ['admin'] }),
   };
 };
 
@@ -128,7 +128,7 @@ export const useInvalidateUserData = (userId: string) => {
     invalidateProfile: () => queryClient.invalidateQueries({ queryKey: queryKeys.user.profile(userId) }),
     invalidateDonations: () => queryClient.invalidateQueries({ queryKey: queryKeys.user.donations(userId) }),
     invalidateStats: () => queryClient.invalidateQueries({ queryKey: queryKeys.user.stats(userId) }),
-    invalidateAll: () => queryClient.invalidateQueries({ queryKey: queryKeys.user }),
+    invalidateAll: () => queryClient.invalidateQueries({ queryKey: ['user'] }),
   };
 };
 
@@ -140,7 +140,7 @@ export const useInvalidatePublicData = () => {
     invalidateMilestones: () => queryClient.invalidateQueries({ queryKey: queryKeys.public.constructionMilestones }),
     invalidateSettings: () => queryClient.invalidateQueries({ queryKey: queryKeys.public.projectSettings }),
     invalidateRecentDonations: () => queryClient.invalidateQueries({ queryKey: queryKeys.public.recentDonations }),
-    invalidateAll: () => queryClient.invalidateQueries({ queryKey: queryKeys.public }),
+    invalidateAll: () => queryClient.invalidateQueries({ queryKey: ['public'] }),
   };
 };
 
@@ -150,7 +150,7 @@ export const useUpdateDonationStatus = () => {
   
   return useMutation({
     mutationFn: async ({ donationId, status }: { donationId: string; status: string }) => {
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from('user_donations')
         .update({ payment_status: status })
         .eq('id', donationId);
@@ -159,9 +159,9 @@ export const useUpdateDonationStatus = () => {
     },
     onSuccess: () => {
       // Invalidate all admin and user data that might be affected
-      queryClient.invalidateQueries({ queryKey: queryKeys.admin });
-      queryClient.invalidateQueries({ queryKey: queryKeys.user });
-      queryClient.invalidateQueries({ queryKey: queryKeys.public.recentDonations });
+      queryClient.invalidateQueries({ queryKey: ['admin'] });
+      queryClient.invalidateQueries({ queryKey: ['user'] });
+      queryClient.invalidateQueries({ queryKey: ['public'] });
     },
   });
 };

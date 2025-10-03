@@ -131,7 +131,7 @@ export async function GET(request: NextRequest) {
       currentDb: string
     ): 'pending' | 'completed' | 'failed' | 'refunded' => {
       // Primary mapping from payment status
-      switch (pgPaymentStatus) {
+      switch (pgPaymentStatus as any) {
         case 'SUCCESS':
           return 'completed';
         case 'FAILED':
@@ -144,7 +144,7 @@ export async function GET(request: NextRequest) {
           break; // fall back to order status / current DB
       }
       // Fallback mapping from order status
-      switch (pgOrderStatus) {
+      switch (pgOrderStatus as any) {
         case 'PAID':
           return 'completed';
         case 'ACTIVE':

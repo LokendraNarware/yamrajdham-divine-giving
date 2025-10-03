@@ -9,8 +9,8 @@ export const adminApi = {
       const { data: optimizedStats, error: optimizedError } = await supabase
         .rpc('get_admin_dashboard_stats');
 
-      if (!optimizedError && optimizedStats && optimizedStats.length > 0) {
-        const stats = optimizedStats[0];
+      if (!optimizedError && optimizedStats && (optimizedStats as any).length > 0) {
+        const stats = (optimizedStats as any)[0];
         return {
           totalDonations: stats.total_donations,
           totalAmount: stats.total_amount,
@@ -74,10 +74,10 @@ export const adminApi = {
 
       // Calculate statistics
       const totalDonations = completedDonations.length;
-      const totalAmount = completedDonations.reduce((sum, d) => sum + d.amount, 0);
+      const totalAmount = (completedDonations as any).reduce((sum: number, d: any) => sum + d.amount, 0);
       const totalUsers = usersData.length;
       
-      const statusCounts = allDonations.reduce((acc, d) => {
+      const statusCounts = (allDonations as any).reduce((acc: any, d: any) => {
         // Exclude refunded donations from status counts
         if (d.payment_status !== 'refunded') {
           acc[d.payment_status] = (acc[d.payment_status] || 0) + 1;
@@ -122,9 +122,9 @@ export const adminApi = {
     }
 
     const donations = donationsData || [];
-    const totalRevenue = donations.reduce((sum, d) => sum + (d.amount || 0), 0);
+    const totalRevenue = (donations as any).reduce((sum: number, d: any) => sum + (d.amount || 0), 0);
     const totalDonations = donations.length;
-    const uniqueDonors = new Set(donations.map(d => d.user?.name)).size;
+    const uniqueDonors = new Set((donations as any).map((d: any) => d.user?.name)).size;
     const averageDonation = totalDonations > 0 ? totalRevenue / totalDonations : 0;
 
     // Generate monthly trends (last 6 months)

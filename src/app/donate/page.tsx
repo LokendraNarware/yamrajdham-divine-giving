@@ -18,14 +18,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { createPaymentSession, generateCustomerId, formatPhoneForCashfree } from "@/services/cashfree";
 // Removed PaymentModal import - using direct payment gateway redirect
 
-// Declare Cashfree SDK types
-declare global {
-  interface Window {
-    Cashfree: (config: { mode: string }) => {
-      checkout: (options: { paymentSessionId: string; redirectTarget: string }) => void;
-    };
-  }
-}
+// Cashfree SDK types are already declared globally
 
 
 const donationFormSchema = z.object({
@@ -371,13 +364,13 @@ export default function DonatePage() {
               
               // Debug: Check what's available on window
               console.log('Window object keys:', Object.keys(window).filter(key => key.toLowerCase().includes('cashfree')));
-              console.log('window.Cashfree available:', typeof window.Cashfree);
-              console.log('window.cashfree available:', typeof window.cashfree);
+              console.log('window.Cashfree available:', typeof (window as any).Cashfree);
+              console.log('window.cashfree available:', typeof (window as any).cashfree);
               
               // Wait a bit for SDK to load if not immediately available
               const waitForCashfreeSDK = async (maxAttempts = 15) => {
                 for (let i = 0; i < maxAttempts; i++) {
-                  if (window.Cashfree) {
+                  if ((window as any).Cashfree) {
                     console.log('Cashfree SDK found after', i + 1, 'attempts');
                     return true;
                   }
@@ -404,7 +397,7 @@ export default function DonatePage() {
                   
                   // Wait a bit more for the SDK to initialize
                   await new Promise(resolve => setTimeout(resolve, 500));
-                  return !!window.Cashfree;
+                  return !!(window as any).Cashfree;
                 } catch (error) {
                   console.error('Failed to load Cashfree SDK:', error);
                   return false;
@@ -418,7 +411,7 @@ export default function DonatePage() {
                   console.log('Cashfree SDK ready, initializing checkout...');
                   
                   // Initialize Cashfree SDK
-                  const cashfree = window.Cashfree({
+                  const cashfree = (window as any).Cashfree({
                     mode: "sandbox" // Use "production" for live environment
                   });
                   

@@ -44,7 +44,7 @@ export async function GET(request: NextRequest) {
       const donations = monthlyTrendsResult.value.data;
       const monthlyData: Record<string, { amount: number; count: number }> = {};
 
-      donations.forEach(donation => {
+      (donations as Array<{created_at: string, amount: number}>).forEach(donation => {
         const month = new Date(donation.created_at).toLocaleDateString('en-US', { 
           month: 'short', 
           year: 'numeric' 
@@ -75,7 +75,7 @@ export async function GET(request: NextRequest) {
       const donations = categoryBreakdownResult.value.data;
       const categoryData: Record<string, { amount: number; count: number }> = {};
 
-      donations.forEach(donation => {
+      (donations as Array<{donation_type?: string, amount: number}>).forEach(donation => {
         const category = donation.donation_type || 'Other';
         if (!categoryData[category]) {
           categoryData[category] = { amount: 0, count: 0 };
@@ -99,7 +99,7 @@ export async function GET(request: NextRequest) {
       const donations = topDonorsResult.value.data;
       const donorData: Record<string, { amount: number; count: number }> = {};
 
-      donations.forEach(donation => {
+      (donations as Array<{user?: {name: string}, amount: number}>).forEach(donation => {
         const donorName = donation.user?.name || 'Unknown';
         if (!donorData[donorName]) {
           donorData[donorName] = { amount: 0, count: 0 };

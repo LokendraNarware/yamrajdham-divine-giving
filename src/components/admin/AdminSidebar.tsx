@@ -14,7 +14,7 @@ import {
   Menu,
   X
 } from "lucide-react";
-import { useState } from "react";
+import React, { useState } from "react";
 
 interface AdminSidebarProps {
   onSignOut: () => void;
@@ -67,7 +67,7 @@ const AdminSidebar = ({ onSignOut, userEmail }: AdminSidebarProps) => {
   const renderNavSection = (title: string, items: any[], icon?: any) => (
     <div className="space-y-1">
       <div className="flex items-center gap-2 px-3 py-2">
-        {icon && <icon className="w-4 h-4 text-temple-gold" />}
+        {icon && React.createElement(icon, { className: "w-4 h-4 text-temple-gold" })}
         <h3 className={cn(
           "text-xs font-semibold text-temple-charcoal uppercase tracking-wider",
           isCollapsed && "hidden"

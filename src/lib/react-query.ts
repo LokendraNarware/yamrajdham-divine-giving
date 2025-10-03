@@ -1,26 +1,5 @@
-import { QueryClient } from '@tanstack/react-query';
-
-// Create a client with optimized caching configuration
-export const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      // Cache data for 5 minutes by default
-      staleTime: 5 * 60 * 1000, // 5 minutes
-      // Keep data in cache for 10 minutes
-      gcTime: 10 * 60 * 1000, // 10 minutes (formerly cacheTime)
-      // Retry failed requests 2 times
-      retry: 2,
-      // Don't refetch on window focus for dashboard data
-      refetchOnWindowFocus: false,
-      // Don't refetch on reconnect for dashboard data
-      refetchOnReconnect: false,
-    },
-    mutations: {
-      // Retry mutations once
-      retry: 1,
-    },
-  },
-});
+// This file now only contains query keys and utilities
+// QueryClient configuration is handled in QueryProvider.tsx
 
 // Query keys for consistent caching
 export const queryKeys = {

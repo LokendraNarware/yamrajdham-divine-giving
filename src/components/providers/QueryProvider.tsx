@@ -16,15 +16,31 @@ export function QueryProvider({ children }: { children: React.ReactNode }) {
             // Keep data in cache for 10 minutes
             gcTime: 10 * 60 * 1000, // 10 minutes (formerly cacheTime)
             // Retry failed requests 2 times
-            retry: 2,
+            retry: (failureCount, error) => {
+              // Don't retry on 4xx errors (client errors)
+              if (error instanceof Error && error.message.includes('4')) {
+                return false;
+              }
+              return failureCount < 2;
+            },
             // Don't refetch on window focus for dashboard data
             refetchOnWindowFocus: false,
             // Don't refetch on reconnect for dashboard data
             refetchOnReconnect: false,
+            // Better error handling
+            throwOnError: false,
           },
           mutations: {
             // Retry mutations once
-            retry: 1,
+            retry: (failureCount, error) => {
+              // Don't retry on 4xx errors
+              if (error instanceof Error && error.message.includes('4')) {
+                return false;
+              }
+              return failureCount < 1;
+            },
+            // Better error handling
+            throwOnError: false,
           },
         },
       })

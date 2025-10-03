@@ -11,36 +11,36 @@ export class CacheInvalidationService {
 
   // Invalidate admin data when donations are updated
   invalidateAdminData() {
-    this.queryClient.invalidateQueries({ queryKey: queryKeys.admin.stats });
-    this.queryClient.invalidateQueries({ queryKey: queryKeys.admin.analytics });
-    this.queryClient.invalidateQueries({ queryKey: queryKeys.admin.donations });
+    this.queryClient.invalidateQueries({ queryKey: ['admin', 'stats'] });
+    this.queryClient.invalidateQueries({ queryKey: ['admin', 'analytics'] });
+    this.queryClient.invalidateQueries({ queryKey: ['admin', 'donations'] });
   }
 
   // Invalidate user data when user makes a donation
   invalidateUserData(userId: string) {
-    this.queryClient.invalidateQueries({ queryKey: queryKeys.user.profile(userId) });
-    this.queryClient.invalidateQueries({ queryKey: queryKeys.user.donations(userId) });
-    this.queryClient.invalidateQueries({ queryKey: queryKeys.user.stats(userId) });
+    this.queryClient.invalidateQueries({ queryKey: ['user', 'profile', userId] });
+    this.queryClient.invalidateQueries({ queryKey: ['user', 'donations', userId] });
+    this.queryClient.invalidateQueries({ queryKey: ['user', 'stats', userId] });
   }
 
   // Invalidate public data when settings change
   invalidatePublicData() {
-    this.queryClient.invalidateQueries({ queryKey: queryKeys.public.recentDonations });
-    this.queryClient.invalidateQueries({ queryKey: queryKeys.public.projectSettings });
+    this.queryClient.invalidateQueries({ queryKey: ['public', 'recent-donations'] });
+    this.queryClient.invalidateQueries({ queryKey: ['public', 'project-settings'] });
   }
 
   // Invalidate all dashboard data
   invalidateAllDashboardData() {
-    this.queryClient.invalidateQueries({ queryKey: queryKeys.admin });
-    this.queryClient.invalidateQueries({ queryKey: queryKeys.user });
-    this.queryClient.invalidateQueries({ queryKey: queryKeys.public });
+    this.queryClient.invalidateQueries({ queryKey: ['admin'] });
+    this.queryClient.invalidateQueries({ queryKey: ['user'] });
+    this.queryClient.invalidateQueries({ queryKey: ['public'] });
   }
 
   // Prefetch data for better UX
   async prefetchUserData(userId: string) {
     await Promise.all([
       this.queryClient.prefetchQuery({
-        queryKey: queryKeys.user.profile(userId),
+        queryKey: ['user', 'profile', userId],
         queryFn: async () => {
           const { userApi } = await import('./dashboard-api');
           return userApi.getUserProfile(userId);
@@ -48,7 +48,7 @@ export class CacheInvalidationService {
         staleTime: 10 * 60 * 1000, // 10 minutes
       }),
       this.queryClient.prefetchQuery({
-        queryKey: queryKeys.user.donations(userId),
+        queryKey: ['user', 'donations', userId],
         queryFn: async () => {
           const { userApi } = await import('./dashboard-api');
           return userApi.getUserDonations(userId);
@@ -62,7 +62,7 @@ export class CacheInvalidationService {
   async prefetchAdminData() {
     await Promise.all([
       this.queryClient.prefetchQuery({
-        queryKey: queryKeys.admin.stats,
+        queryKey: ['admin', 'stats'],
         queryFn: async () => {
           const { adminApi } = await import('./dashboard-api');
           return adminApi.getDashboardStats();
@@ -70,12 +70,35 @@ export class CacheInvalidationService {
         staleTime: 2 * 60 * 1000, // 2 minutes
       }),
       this.queryClient.prefetchQuery({
-        queryKey: queryKeys.admin.analytics,
+        queryKey: ['admin', 'analytics'],
         queryFn: async () => {
           const { adminApi } = await import('./dashboard-api');
           return adminApi.getAnalyticsData();
         },
         staleTime: 5 * 60 * 1000, // 5 minutes
+      }),
+    ]);
+  }
+
+  // Prefetch public data
+  async prefetchPublicData() {
+    const { publicApi } = await import('./dashboard-api');
+    
+    await Promise.all([
+      this.queryClient.prefetchQuery({
+        queryKey: ['public', 'donation-categories'],
+        queryFn: publicApi.getDonationCategories,
+        staleTime: 30 * 60 * 1000, // 30 minutes
+      }),
+      this.queryClient.prefetchQuery({
+        queryKey: ['public', 'construction-milestones'],
+        queryFn: publicApi.getConstructionMilestones,
+        staleTime: 15 * 60 * 1000, // 15 minutes
+      }),
+      this.queryClient.prefetchQuery({
+        queryKey: ['public', 'project-settings'],
+        queryFn: publicApi.getProjectSettings,
+        staleTime: 10 * 60 * 1000, // 10 minutes
       }),
     ]);
   }
@@ -135,25 +158,8 @@ export function useCacheWarming() {
 
     // Warm cache for public pages
     warmPublicCache: async () => {
-      const { publicApi } = await import('./dashboard-api');
-      
-      await Promise.all([
-        this.queryClient.prefetchQuery({
-          queryKey: queryKeys.public.donationCategories,
-          queryFn: publicApi.getDonationCategories,
-          staleTime: 30 * 60 * 1000, // 30 minutes
-        }),
-        this.queryClient.prefetchQuery({
-          queryKey: queryKeys.public.constructionMilestones,
-          queryFn: publicApi.getConstructionMilestones,
-          staleTime: 15 * 60 * 1000, // 15 minutes
-        }),
-        this.queryClient.prefetchQuery({
-          queryKey: queryKeys.public.projectSettings,
-          queryFn: publicApi.getProjectSettings,
-          staleTime: 10 * 60 * 1000, // 10 minutes
-        }),
-      ]);
+      // Use the existing prefetch methods instead of accessing private queryClient
+      await cacheService.prefetchPublicData();
     },
   };
 }

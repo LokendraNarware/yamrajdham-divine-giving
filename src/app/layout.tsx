@@ -4,6 +4,7 @@ import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { QueryProvider } from "@/components/providers/QueryProvider";
+import { QueryErrorBoundary } from "@/components/providers/QueryErrorBoundary";
 import WhatsAppIcon from "@/components/WhatsAppIcon";
 import ConditionalLayout from "@/components/ConditionalLayout";
 
@@ -170,16 +171,18 @@ export default function RootLayout({
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
         />
-        <script src="https://sdk.cashfree.com/js/v3/cashfree.js"></script>
+        <script src="https://sdk.cashfree.com/js/v3/cashfree.js" async></script>
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <AuthProvider>
           <QueryProvider>
-            <ConditionalLayout>
-              {children}
-            </ConditionalLayout>
+            <QueryErrorBoundary>
+              <ConditionalLayout>
+                {children}
+              </ConditionalLayout>
+            </QueryErrorBoundary>
             <Toaster />
             <WhatsAppIcon />
           </QueryProvider>

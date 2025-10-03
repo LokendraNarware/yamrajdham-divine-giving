@@ -1,12 +1,9 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  // Configure allowed development origins to prevent cross-origin warnings
-  experimental: {
-    // Enable turbopack for faster builds and HMR
-    turbo: {
-      // Turbopack configuration
-    },
+  // Turbopack configuration for faster builds and HMR
+  turbopack: {
+    // Turbopack configuration
   },
   
   // TypeScript checking enabled for better code quality

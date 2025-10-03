@@ -7,8 +7,8 @@ export async function GET() {
     const { data: optimizedStats, error: optimizedError } = await supabase
       .rpc('get_admin_dashboard_stats');
 
-    if (!optimizedError && optimizedStats && optimizedStats.length > 0) {
-      const stats = optimizedStats[0];
+    if (!optimizedError && optimizedStats && (optimizedStats as Array<any>).length > 0) {
+      const stats = (optimizedStats as Array<any>)[0];
       return NextResponse.json({
         totalDonations: stats.total_donations,
         totalAmount: stats.total_amount,
@@ -72,10 +72,10 @@ export async function GET() {
 
     // Calculate statistics
     const totalDonations = completedDonations.length;
-    const totalAmount = completedDonations.reduce((sum, d) => sum + d.amount, 0);
+    const totalAmount = (completedDonations as Array<{amount: number}>).reduce((sum, d) => sum + d.amount, 0);
     const totalUsers = usersData.length;
     
-    const statusCounts = allDonations.reduce((acc, d) => {
+    const statusCounts = (allDonations as Array<{payment_status: string}>).reduce((acc, d) => {
       // Exclude refunded donations from status counts
       if (d.payment_status !== 'refunded') {
         acc[d.payment_status] = (acc[d.payment_status] || 0) + 1;
