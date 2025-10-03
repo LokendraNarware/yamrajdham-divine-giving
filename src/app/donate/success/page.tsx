@@ -8,6 +8,7 @@ import { CheckCircle, Download, Mail, Heart, Loader2 } from "lucide-react";
 import { verifyPayment } from "@/services/cashfree";
 import { useToast } from "@/hooks/use-toast";
 import ModernDonationReceipt from "@/components/ModernDonationReceipt";
+import { generateReceiptNumber } from "@/lib/utils";
 import dynamic from "next/dynamic";
 
 // Lazy load PDF components to improve initial page load
@@ -266,7 +267,7 @@ function PaymentSuccessContent() {
       
       const ModernReceiptElement = (
         <PDFModernDonationReceipt
-          donationId={donationData.receiptNumber || paymentDetails.order_id || 'N/A'}
+          donationId={donationData.receiptNumber || generateReceiptNumber(paymentDetails.order_id)}
           donorName={donationData.donor?.name || "Devotee"}
           amount={paymentDetails.order_amount || 0}
           date={paymentDetails.payment_time || donationData.createdAt || stableDateFallback}
@@ -283,7 +284,7 @@ function PaymentSuccessContent() {
 
       // Generate PDF from the temporary container
       await generateReceiptPDF(tempContainer, {
-        donationId: donationData.receiptNumber || paymentDetails.order_id || 'N/A',
+        donationId: donationData.receiptNumber || generateReceiptNumber(paymentDetails.order_id),
         donorName: donationData.donor?.name || "Devotee",
         amount: paymentDetails.order_amount || 0,
         date: paymentDetails.payment_time || donationData.createdAt || stableDateFallback,
@@ -322,7 +323,7 @@ function PaymentSuccessContent() {
 
   if (!isClient) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
           <p className="text-muted-foreground">Loading payment details...</p>
@@ -333,9 +334,9 @@ function PaymentSuccessContent() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-background">
-        <main className="container py-8 px-4">
-          <div className="max-w-2xl mx-auto">
+      <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
+        <main className="container mx-auto py-12 px-4">
+          <div className="max-w-4xl mx-auto">
             <div className="text-center">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
               <p className="text-muted-foreground">Verifying your donation...</p>
@@ -395,9 +396,9 @@ function PaymentSuccessContent() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <main className="container py-8 px-4">
-        <div className="max-w-2xl mx-auto">
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
+      <main className="container mx-auto py-12 px-4">
+        <div className="max-w-4xl mx-auto">
           {/* Status Message */}
           {shouldShowSuccessComponents && (
             <Card className="border-green-200 bg-green-50 mb-6">
@@ -514,7 +515,9 @@ function PaymentSuccessContent() {
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="text-sm font-medium text-muted-foreground">Receipt No</label>
-                    <p className="font-mono text-sm">{donationData?.receiptNumber || paymentDetails.order_id || 'N/A'}</p>
+                    <p className="font-mono text-sm">
+                      {donationData?.receiptNumber || generateReceiptNumber(paymentDetails.order_id)}
+                    </p>
                   </div>
                   <div>
                     <label className="text-sm font-medium text-muted-foreground">Amount</label>
@@ -612,18 +615,18 @@ function PaymentSuccessContent() {
 
                   {/* Receipt Preview - Lazy loaded only when requested */}
                   {showReceiptPreview && (
-                    <div ref={receiptRef} className="border rounded-lg p-4 bg-gray-50">
-                      <ModernDonationReceipt
-                        key={`modern-receipt-${donationData?.receiptNumber || paymentDetails.order_id}`}
-                        donationId={donationData?.receiptNumber || paymentDetails.order_id || 'N/A'}
-                        donorName={donationData?.donor?.name || "Devotee"}
-                        amount={paymentDetails.order_amount || 0}
-                        date={paymentDetails.payment_time || donationData?.createdAt || stableDateFallback}
-                        purpose={donationData?.donationType === 'general' ? 'Temple Construction' : donationData?.donationType || 'Temple Construction'}
-                        paymentMethod={paymentDetails.payment_method || "Online Payment"}
-                        orderId={paymentDetails.order_id}
-                      />
-                    </div>
+                     <div ref={receiptRef} className="border rounded-lg p-4 bg-gray-50">
+                       <ModernDonationReceipt
+                         key={`modern-receipt-${donationData?.receiptNumber || generateReceiptNumber(paymentDetails.order_id)}`}
+                         donationId={donationData?.receiptNumber || generateReceiptNumber(paymentDetails.order_id)}
+                         donorName={donationData?.donor?.name || "Devotee"}
+                         amount={paymentDetails.order_amount || 0}
+                         date={paymentDetails.payment_time || donationData?.createdAt || stableDateFallback}
+                         purpose={donationData?.donationType === 'general' ? 'Temple Construction' : donationData?.donationType || 'Temple Construction'}
+                         paymentMethod={paymentDetails.payment_method || "Online Payment"}
+                         orderId={paymentDetails.order_id}
+                       />
+                     </div>
                   )}
                 </div>
               </CardContent>

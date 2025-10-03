@@ -16,6 +16,7 @@ import { useToast } from "@/hooks/use-toast";
 import { createUser, getUserByEmail, getUserById, createDonation, updateDonationPayment } from "@/services/donations";
 import { useAuth } from "@/contexts/AuthContext";
 import { createPaymentSession, generateCustomerId, formatPhoneForCashfree } from "@/services/cashfree";
+import { generateReceiptNumber } from "@/lib/utils";
 // Removed PaymentModal import - using direct payment gateway redirect
 
 // Cashfree SDK types are already declared globally
@@ -288,6 +289,15 @@ function DonatePageContent() {
         // Use donation ID as order ID for Cashfree
         const orderId = donationResult.data.id;
         console.log('Donation created successfully, order ID:', orderId);
+        
+        // Generate and update receipt number using the actual donation ID
+        const receiptNumber = generateReceiptNumber(orderId);
+        console.log('Generated receipt number:', receiptNumber);
+        
+        // Update the donation with the receipt number
+        await updateDonationPayment(orderId, {
+          receipt_number: receiptNumber,
+        });
         
         console.log('Donation created successfully, proceeding to payment...');
         
