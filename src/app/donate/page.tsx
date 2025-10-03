@@ -194,8 +194,6 @@ export default function DonatePage() {
 
 
   const onSubmit = async (data: DonationFormData) => {
-    console.log('=== FORM SUBMISSION STARTED ===');
-    console.log('onSubmit function called with data:', data);
     
     // Show immediate feedback to user
     toast({
@@ -209,22 +207,6 @@ export default function DonatePage() {
     form.clearErrors();
 
     try {
-      console.log('=== DONATION FORM SUBMISSION STARTED ===');
-      console.log('Form data:', data);
-      console.log('Form validation state:', {
-        isValid: form.formState.isValid,
-        errors: form.formState.errors,
-        isDirty: form.formState.isDirty
-      });
-      
-      // Add debug toast to show form submission started
-      toast({
-        title: "Form Submission Started",
-        description: "Processing your donation request...",
-      });
-      
-      // Skip validation - proceed directly to payment
-      console.log('Skipping form validation - proceeding to payment');
       
       // Provide defaults for required fields
       const formData = {
@@ -244,23 +226,17 @@ export default function DonatePage() {
       // Parse amount with fallback
       const amount = parseInt(formData.amount) || 100; // Default to 100 if invalid
 
-      console.log('Form validation passed, proceeding with donation...');
-      
       // Auto account creation logic - no login required
       let userId: string | null = null;
 
       // Check if user already exists by email
-      console.log('Checking if user exists by email:', formData.email);
       const userResult = await getUserByEmail(formData.email);
-      console.log('User lookup result:', userResult);
       
       if (userResult.success && userResult.data) {
         // User exists, use their ID
-        console.log('User already exists:', userResult.data.email);
         userId = userResult.data.id;
       } else {
         // User doesn't exist, create new account automatically
-        console.log('Creating new user account for:', formData.email);
         
         const userData = {
           email: formData.email,
@@ -274,9 +250,7 @@ export default function DonatePage() {
           pan_no: formData.panNo || undefined,
         };
 
-        console.log('User data to create:', userData);
         const createUserResult = await createUser(userData);
-        console.log('User creation result:', createUserResult);
         
         if (createUserResult.success && createUserResult.data) {
           userId = createUserResult.data.id;

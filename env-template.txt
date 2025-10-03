@@ -1,10 +1,15 @@
+# ⚠️  SECURITY WARNING: This is a template file. Never commit real credentials!
+# Copy this file to .env.local and replace with your actual values
+
 # Supabase Configuration
-NEXT_PUBLIC_SUPABASE_URL=https://dxdfgaymlhcqxjsuwhoi.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR4ZGZnYXltbGhjcXhqc3V3aG9pIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg2NjA1NzYsImV4cCI6MjA3NDIzNjU3Nn0.nqFqNySt2GMN-LAqfDUiW-UtcpeF1iDAsF_T8SJeMSE
+# Get these from your Supabase project dashboard
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url_here
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key_here
 
 # Cashfree API Credentials
-CASHFREE_APP_ID=your_app_id_here
-CASHFREE_SECRET_KEY=your_secret_key_here
+# Get these from your Cashfree merchant dashboard
+CASHFREE_APP_ID=your_cashfree_app_id_here
+CASHFREE_SECRET_KEY=your_cashfree_secret_key_here
 CASHFREE_ENVIRONMENT=sandbox
 CASHFREE_WEBHOOK_SECRET=your_webhook_secret_here
 
@@ -12,8 +17,8 @@ CASHFREE_WEBHOOK_SECRET=your_webhook_secret_here
 NEXT_PUBLIC_SITE_URL=http://localhost:3000
 NEXT_PUBLIC_CASHFREE_ENVIRONMENT=sandbox
 
-# Test Credentials (for development)
-# CASHFREE_APP_ID=TEST10758970030978c58449ce8e073107985701
-# CASHFREE_SECRET_KEY=cfsk_ma_test_180b2c26eda0cf5a0750b646047f7dd4_5f14dbaf
+# For development/testing only - replace with your test credentials
+# CASHFREE_APP_ID=your_test_app_id
+# CASHFREE_SECRET_KEY=your_test_secret_key
 # CASHFREE_ENVIRONMENT=sandbox
-# CASHFREE_WEBHOOK_SECRET=test_webhook_secret
+# CASHFREE_WEBHOOK_SECRET=your_test_webhook_secret

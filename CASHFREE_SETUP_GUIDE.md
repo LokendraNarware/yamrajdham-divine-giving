@@ -5,15 +5,15 @@
 Create a `.env.local` file in your project root with the following content:
 
 ```env
-# Supabase Configuration (already set)
-NEXT_PUBLIC_SUPABASE_URL=https://dxdfgaymlhcqxjsuwhoi.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR4ZGZnYXltbGhjcXhqc3V3aG9pIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg2NjA1NzYsImV4cCI6MjA3NDIzNjU3Nn0.nqFqNySt2GMN-LAqfDUiW-UtcpeF1iDAsF_T8SJeMSE
+# Supabase Configuration
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
 
-# Cashfree API Credentials (TEST CREDENTIALS - WORKING)
-CASHFREE_APP_ID=TEST10758970030978c58449ce8e073107985701
-CASHFREE_SECRET_KEY=cfsk_ma_test_180b2c26eda0cf5a0750b646047f7dd4_5f14dbaf
+# Cashfree API Credentials
+CASHFREE_APP_ID=your_cashfree_app_id
+CASHFREE_SECRET_KEY=your_cashfree_secret_key
 CASHFREE_ENVIRONMENT=sandbox
-CASHFREE_WEBHOOK_SECRET=test_webhook_secret
+CASHFREE_WEBHOOK_SECRET=your_webhook_secret
 
 # Site Configuration
 NEXT_PUBLIC_SITE_URL=http://localhost:3000

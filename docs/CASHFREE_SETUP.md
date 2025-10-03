@@ -4,11 +4,11 @@ This document provides instructions for setting up Cashfree payment gateway inte
 
 ## ✅ IMPLEMENTATION COMPLETE
 
-The Cashfree integration has been fully implemented with the provided test credentials:
+The Cashfree integration has been fully implemented. Configure your credentials in `.env.local`:
 
-- **App ID**: `TEST10758970030978c58449ce8e073107985701`
-- **Secret Key**: `cfsk_ma_test_180b2c26eda0cf5a0750b646047f7dd4_5f14dbaf`
-- **Environment**: Sandbox (Test Mode)
+- **App ID**: Your Cashfree App ID from dashboard
+- **Secret Key**: Your Cashfree Secret Key from dashboard  
+- **Environment**: Sandbox (Test Mode) or Production
 
 ### 🔧 CORS Issue Fixed
 

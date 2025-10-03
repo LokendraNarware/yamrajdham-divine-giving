@@ -8,8 +8,8 @@ export async function POST(_request: NextRequest) {
     const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString();
 
     // Update rows where payment_status is 'pending' and updated_at < oneHourAgo
-    const { data, error } = await (supabase
-      .from('user_donations') as any)
+    const { data, error } = await supabase
+      .from('user_donations')
       .update({ payment_status: 'failed' })
       .lt('updated_at', oneHourAgo)
       .eq('payment_status', 'pending')

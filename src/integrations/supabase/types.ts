@@ -132,15 +132,197 @@ export type Database = {
           updated_at?: string | null
         }
       }
+      donors: {
+        Row: {
+          id: string
+          name: string
+          email: string
+          mobile: string
+          country: string
+          state: string
+          city: string
+          pin_code: string
+          address: string
+          pan_no: string | null
+          preacher_name: string | null
+          is_anonymous: boolean
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          name: string
+          email: string
+          mobile: string
+          country?: string
+          state: string
+          city: string
+          pin_code: string
+          address: string
+          pan_no?: string | null
+          preacher_name?: string | null
+          is_anonymous?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          name?: string
+          email?: string
+          mobile?: string
+          country?: string
+          state?: string
+          city?: string
+          pin_code?: string
+          address?: string
+          pan_no?: string | null
+          preacher_name?: string | null
+          is_anonymous?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+      }
+      donation_categories: {
+        Row: {
+          id: string
+          name: string
+          description: string | null
+          suggested_amount: number | null
+          icon: string | null
+          is_active: boolean
+          sort_order: number
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          name: string
+          description?: string | null
+          suggested_amount?: number | null
+          icon?: string | null
+          is_active?: boolean
+          sort_order?: number
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          name?: string
+          description?: string | null
+          suggested_amount?: number | null
+          icon?: string | null
+          is_active?: boolean
+          sort_order?: number
+          created_at?: string
+        }
+      }
+      donations: {
+        Row: {
+          id: string
+          donor_id: string | null
+          category_id: string | null
+          amount: number
+          custom_amount: number | null
+          donation_type: string | null
+          status: 'pending' | 'completed' | 'failed' | 'refunded'
+          payment_method: 'upi' | 'card' | 'netbanking' | 'wallet' | 'other' | null
+          payment_id: string | null
+          message: string | null
+          is_anonymous: boolean
+          receipt_number: string | null
+          tax_deductible: boolean
+          created_at: string
+          updated_at: string
+          completed_at: string | null
+        }
+        Insert: {
+          id?: string
+          donor_id?: string | null
+          category_id?: string | null
+          amount: number
+          custom_amount?: number | null
+          donation_type?: string | null
+          status?: 'pending' | 'completed' | 'failed' | 'refunded'
+          payment_method?: 'upi' | 'card' | 'netbanking' | 'wallet' | 'other' | null
+          payment_id?: string | null
+          message?: string | null
+          is_anonymous?: boolean
+          receipt_number?: string | null
+          tax_deductible?: boolean
+          created_at?: string
+          updated_at?: string
+          completed_at?: string | null
+        }
+        Update: {
+          id?: string
+          donor_id?: string | null
+          category_id?: string | null
+          amount?: number
+          custom_amount?: number | null
+          donation_type?: string | null
+          status?: 'pending' | 'completed' | 'failed' | 'refunded'
+          payment_method?: 'upi' | 'card' | 'netbanking' | 'wallet' | 'other' | null
+          payment_id?: string | null
+          message?: string | null
+          is_anonymous?: boolean
+          receipt_number?: string | null
+          tax_deductible?: boolean
+          created_at?: string
+          updated_at?: string
+          completed_at?: string | null
+        }
+      }
     }
     Views: {
-      [_ in never]: never
+      donation_summary: {
+        Row: {
+          category_name: string
+          total_donations: number
+          total_amount: number
+          average_amount: number
+          max_amount: number
+          min_amount: number
+        }
+      }
+      funding_progress: {
+        Row: {
+          total_goal: number
+          current_amount: number
+          total_donors: number
+          total_donations: number
+          average_donation: number
+        }
+      }
+      recent_donations: {
+        Row: {
+          id: string
+          amount: number
+          created_at: string
+          donor_name: string
+          category_name: string | null
+          message: string | null
+        }
+      }
     }
     Functions: {
-      [_ in never]: never
+      get_total_donations: {
+        Args: Record<PropertyKey, never>
+        Returns: number
+      }
+      get_total_donors: {
+        Args: Record<PropertyKey, never>
+        Returns: number
+      }
+      update_funding_progress: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
     }
     Enums: {
-      [_ in never]: never
+      donation_status: 'pending' | 'completed' | 'failed' | 'refunded'
+      payment_method: 'upi' | 'card' | 'netbanking' | 'wallet' | 'other'
+      prayer_type: 'general' | 'special' | 'havan' | 'group'
+      prayer_status: 'submitted' | 'in_progress' | 'completed' | 'rejected'
+      milestone_status: 'planned' | 'in_progress' | 'completed' | 'delayed'
+      data_type: 'string' | 'number' | 'boolean' | 'json'
     }
     CompositeTypes: {
       [_ in never]: never
