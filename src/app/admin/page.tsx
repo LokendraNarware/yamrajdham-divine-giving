@@ -9,7 +9,6 @@ import StatsCard from "@/components/admin/StatsCard";
 import DonationTrendsChart from "@/components/admin/DonationTrendsChart";
 import CategoryBreakdownChart from "@/components/admin/CategoryBreakdownChart";
 import RecentDonationsFeed from "@/components/admin/RecentDonationsFeed";
-import QuickActions from "@/components/admin/QuickActions";
 import PaymentStatusOverview from "@/components/admin/PaymentStatusOverview";
 
 export default function AdminDashboard() {
@@ -28,22 +27,6 @@ export default function AdminDashboard() {
     window.location.href = '/admin/users';
   };
 
-  const handleViewAnalytics = () => {
-    window.location.href = '/admin/analytics';
-  };
-
-  const handleGenerateReport = () => {
-    window.location.href = '/admin/reports';
-  };
-
-  const handleSendUpdates = () => {
-    // TODO: Implement send updates functionality
-    console.log('Send updates clicked');
-  };
-
-  const handlePaymentSettings = () => {
-    window.location.href = '/admin/settings/payment';
-  };
 
   // Show loading state
   if (isLoading) {
@@ -188,14 +171,6 @@ export default function AdminDashboard() {
               isLoading={isLoading}
               onViewAll={handleViewAllDonations}
               onRefresh={handleRefresh}
-            />
-            <QuickActions
-              onManageDonations={handleViewAllDonations}
-              onManageUsers={handleManageUsers}
-              onViewAnalytics={handleViewAnalytics}
-              onGenerateReport={handleGenerateReport}
-              onSendUpdates={handleSendUpdates}
-              onPaymentSettings={handlePaymentSettings}
             />
           </div>
         </div>

@@ -15,7 +15,7 @@ const ProgressTracker = () => {
             <span className="text-temple-gold font-medium">Temple Construction Progress</span>
           </div>
           <h2 className="text-3xl md:text-4xl font-bold mb-4">
-            Together, we are bringing Yamraj dham Temple to life.
+            Together, we are bringing Yamrajdham Temple to life.
           </h2>
         </div>
 

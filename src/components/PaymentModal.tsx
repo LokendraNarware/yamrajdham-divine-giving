@@ -251,7 +251,7 @@ const PaymentModal = ({
         <DialogHeader>
           <DialogTitle className="text-center">Complete Your Donation</DialogTitle>
           <DialogDescription className="text-center">
-            Support the construction of Yamraj dham Temple
+            Support the construction of Yamrajdham Temple
           </DialogDescription>
         </DialogHeader>
 

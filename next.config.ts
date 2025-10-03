@@ -15,6 +15,9 @@ const nextConfig: NextConfig = {
   compress: true,
   poweredByHeader: false,
   
+  // Production optimizations
+  output: 'standalone',
+  
   // Image optimization
   images: {
     formats: ['image/webp', 'image/avif'],
@@ -23,6 +26,7 @@ const nextConfig: NextConfig = {
     minimumCacheTTL: 60,
     dangerouslyAllowSVG: true,
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
+    domains: ['yamrajdham.com', 'www.yamrajdham.com'],
   },
   
   // Headers for better caching and security
@@ -46,6 +50,10 @@ const nextConfig: NextConfig = {
           {
             key: 'Permissions-Policy',
             value: 'camera=(), microphone=(), geolocation=()',
+          },
+          {
+            key: 'Strict-Transport-Security',
+            value: 'max-age=31536000; includeSubDomains',
           },
         ],
       },
@@ -82,6 +90,21 @@ const nextConfig: NextConfig = {
         source: '/donations',
         destination: '/donate',
         permanent: true,
+      },
+      {
+        source: '/yamrajdhamtemple.org',
+        destination: '/',
+        permanent: true,
+      },
+    ];
+  },
+  
+  // Rewrites for API compatibility
+  async rewrites() {
+    return [
+      {
+        source: '/api/:path*',
+        destination: '/api/:path*',
       },
     ];
   },

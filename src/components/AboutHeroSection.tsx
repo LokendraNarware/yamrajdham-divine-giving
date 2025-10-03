@@ -21,7 +21,7 @@ const AboutHeroSection = () => {
             <span className="inline-flex items-center gap-2 bg-gradient-divine text-primary-foreground px-4 py-2 rounded-full text-sm font-medium">
               <img 
                 src="/LOGO.png" 
-                alt="Yamraj dham Logo" 
+                alt="Yamrajdham Temple Logo" 
                 className="w-4 h-4 object-contain"
               />
               DHARAM DHAM TRUST

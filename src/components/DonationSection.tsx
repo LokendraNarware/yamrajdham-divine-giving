@@ -21,7 +21,7 @@ const DonationSection = () => {
   const donationTypes = [
     {
       title: "₹101 – ईंट दान (Brick Seva)",
-      description: "Offer sacred bricks that will form the walls of Yamraj dham Temple.",
+      description: "Offer sacred bricks that will form the walls of Yamrajdham Temple.",
       amount: "101",
       icon: <Building className="w-6 h-6 text-primary" />
     },

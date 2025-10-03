@@ -64,13 +64,13 @@ This wireframe outlines the redesigned admin donations page (`/admin/donations`)
 │ │Receipt│ Donor Info    │ Amount      │ Type        │ Date        ││
 │ │Number │               │             │             │             ││
 │ ├─────┼─────────────┼─────────────┼─────────────┼─────────────┼─┤│
-│ │DON-  │ John Doe      │ ₹2,500      │ General     │ 15 Jan 2024 ││
+│ │YD-  │ John Doe      │ ₹2,500      │ General     │ 15 Jan 2024 ││
 │ │ABC123│ john@email.com│             │             │ 10:30 AM   ││
 │ ├─────┼─────────────┼─────────────┼─────────────┼─────────────┼─┤│
-│ │DON-  │ Anonymous     │ ₹1,000      │ Temple      │ 15 Jan 2024 ││
+│ │YD-  │ Anonymous     │ ₹1,000      │ Temple      │ 15 Jan 2024 ││
 │ │DEF456│               │             │ Construction│ 09:15 AM   ││
 │ ├─────┼─────────────┼─────────────┼─────────────┼─────────────┼─┤│
-│ │DON-  │ Jane Smith    │ ₹5,000      │ Seva        │ 14 Jan 2024││
+│ │YD-  │ Jane Smith    │ ₹5,000      │ Seva        │ 14 Jan 2024││
 │ │GHI789│ jane@email.com│             │             │ 16:45 PM   ││
 │ └─────┴─────────────┴─────────────┴─────────────┴─────────────┴─┘│
 │                                                                 │
@@ -86,7 +86,7 @@ This wireframe outlines the redesigned admin donations page (`/admin/donations`)
 │                                                                 │
 │ ┌─────────────────────────────────────────────────────────────┐ │
 │ │ Receipt Information                                         │ │
-│ │ Receipt #: DON-ABC123456789                                 │ │
+│ │ Receipt #: YD-ABC123456789                                 │ │
 │ │ Amount: ₹2,500                                             │ │
 │ │ Status: ✅ Completed                                        │ │
 │ │ Payment Gateway: Cashfree                                   │ │

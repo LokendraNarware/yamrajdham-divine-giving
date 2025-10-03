@@ -1,10 +1,10 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { generateReceiptNumber } from "@/lib/utils";
 import { 
   DollarSign, 
   TrendingUp, 
@@ -105,7 +105,6 @@ export default function DonationsManagement() {
   const itemsPerPage = 10;
   const { toast } = useToast();
   const { user } = useAuth();
-  const router = useRouter();
 
   // Fetch donations on component mount
   useEffect(() => {
@@ -265,7 +264,7 @@ export default function DonationsManagement() {
     const csvContent = [
       ['Receipt Number', 'Donor Name', 'Email', 'Mobile', 'Amount', 'Type', 'Date', 'Payment Gateway', 'Dedication Message'].join(','),
       ...filteredDonations.map(donation => [
-        donation.receipt_number || `DON-${donation.id.slice(-8).toUpperCase()}`,
+        generateReceiptNumber(donation.id, donation.receipt_number),
         donation.is_anonymous ? 'Anonymous' : (donation.user?.name || 'Unknown'),
         donation.is_anonymous ? 'Hidden' : (donation.user?.email || ''),
         donation.is_anonymous ? 'Hidden' : (donation.user?.mobile || ''),
@@ -563,7 +562,7 @@ export default function DonationsManagement() {
                           >
                             <TableCell>
                               <span className="font-mono text-sm">
-                                {donation.receipt_number || `DON-${donation.id.slice(-8).toUpperCase()}`}
+                                {generateReceiptNumber(donation.id, donation.receipt_number)}
                               </span>
                             </TableCell>
                             <TableCell>
@@ -662,7 +661,7 @@ export default function DonationsManagement() {
                 <div>
                         <label className="text-sm font-medium text-gray-600">Receipt #</label>
                   <p className="text-lg font-mono">
-                    {selectedDonation.receipt_number || `DON-${selectedDonation.id.slice(-8).toUpperCase()}`}
+                    {generateReceiptNumber(selectedDonation.id, selectedDonation.receipt_number)}
                   </p>
                 </div>
                 <div>

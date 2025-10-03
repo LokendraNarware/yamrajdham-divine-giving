@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { generateReceiptNumber } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -165,7 +166,7 @@ export default function ReportsPage() {
     
     const headers = ['Receipt Number', 'Donor Name', 'Email', 'Mobile', 'Amount', 'Donation Type', 'Date', 'Dedication Message'];
     const rows = reportData.donations.map(donation => [
-      donation.receipt_number || `DON-${donation.id.slice(-8).toUpperCase()}`,
+      generateReceiptNumber(donation.id, donation.receipt_number),
       donation.is_anonymous ? 'Anonymous' : (donation.user?.name || 'Unknown'),
       donation.is_anonymous ? 'Hidden' : (donation.user?.email || ''),
       donation.is_anonymous ? 'Hidden' : (donation.user?.mobile || ''),
