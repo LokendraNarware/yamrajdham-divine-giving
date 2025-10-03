@@ -27,6 +27,8 @@ const nextConfig: NextConfig = {
     dangerouslyAllowSVG: true,
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
     domains: ['yamrajdham.com', 'www.yamrajdham.com'],
+    quality: 100,
+    unoptimized: false,
   },
   
   // Headers for better caching and security

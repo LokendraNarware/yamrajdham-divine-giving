@@ -38,8 +38,10 @@ const Header = () => {
             <Image 
               src="/LOGO.png" 
               alt="Yamrajdham Temple Logo" 
-              width={48}
-              height={48}
+              width={64}
+              height={64}
+              quality={100}
+              priority
               className="h-12 w-auto object-contain"
             />
           </div>

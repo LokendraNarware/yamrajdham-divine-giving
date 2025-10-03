@@ -25,8 +25,9 @@ const AboutHeroSection = () => {
               <Image 
                 src="/LOGO.png" 
                 alt="Yamrajdham Temple Logo" 
-                width={16}
-                height={16}
+                width={24}
+                height={24}
+                quality={100}
                 className="w-4 h-4 object-contain"
               />
               DHARAM DHAM TRUST

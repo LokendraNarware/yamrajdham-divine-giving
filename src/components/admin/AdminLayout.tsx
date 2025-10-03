@@ -185,28 +185,8 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
 
   return (
     <div className="bg-gray-50 min-h-screen">
-      {/* Admin Panel Header */}
-      <div className="bg-white shadow-sm border-b border-gray-200">
-        <div className="container mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-sm">Y</span>
-              </div>
-              <div>
-                <h1 className="text-xl font-bold text-gray-900">Admin Panel</h1>
-                <p className="text-sm text-gray-500">Yamrajdham Temple Management</p>
-              </div>
-            </div>
-            <Button onClick={handleSignOut} variant="outline" size="sm">
-              Sign Out
-            </Button>
-          </div>
-        </div>
-      </div>
-
       {/* Main Layout with Sidebar */}
-      <div className="flex h-[calc(100vh-80px)]">
+      <div className="flex h-screen">
         {/* Sidebar */}
         <AdminSidebar onSignOut={handleSignOut} userEmail={user?.email} />
         
