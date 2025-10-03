@@ -201,7 +201,7 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
 CASHFREE_APP_ID=TEST10758970030978c58449ce8e073107985701
 CASHFREE_SECRET_KEY=cfsk_ma_test_180b2c26eda0cf5a0750b646047f7dd4_5f14dbaf
 CASHFREE_ENVIRONMENT=sandbox
-NEXT_PUBLIC_APP_URL=http://localhost:3000
+NEXT_PUBLIC_APP_URL=https://yamrajdham.com
 ```
 
 ### **Phase 3: Component Migration**

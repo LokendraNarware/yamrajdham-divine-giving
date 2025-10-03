@@ -51,7 +51,7 @@ CASHFREE_ENVIRONMENT=production
 CASHFREE_WEBHOOK_SECRET=your_webhook_secret
 
 # Site Configuration
-NEXT_PUBLIC_SITE_URL=https://your-domain.vercel.app
+NEXT_PUBLIC_SITE_URL=https://yamrajdham.com
 NEXT_PUBLIC_CASHFREE_ENVIRONMENT=production
 ```
 

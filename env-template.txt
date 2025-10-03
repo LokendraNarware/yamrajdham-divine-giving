@@ -14,7 +14,7 @@ CASHFREE_ENVIRONMENT=sandbox
 CASHFREE_WEBHOOK_SECRET=your_webhook_secret_here
 
 # Site Configuration
-NEXT_PUBLIC_SITE_URL=http://localhost:3000
+NEXT_PUBLIC_SITE_URL=https://yamrajdham.com
 NEXT_PUBLIC_CASHFREE_ENVIRONMENT=sandbox
 
 # For development/testing only - replace with your test credentials
@@ -22,3 +22,32 @@ NEXT_PUBLIC_CASHFREE_ENVIRONMENT=sandbox
 # CASHFREE_SECRET_KEY=your_test_secret_key
 # CASHFREE_ENVIRONMENT=sandbox
 # CASHFREE_WEBHOOK_SECRET=your_test_webhook_secret
+
+# ===========================================
+# VERCEL DEPLOYMENT ENVIRONMENT VARIABLES
+# ===========================================
+# Copy these to your Vercel project settings:
+# 
+# Production Environment Variables:
+# NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+# NEXT_PUBLIC_SUPABASE_ANON_KEY=your_production_anon_key
+# CASHFREE_APP_ID=your_production_app_id
+# CASHFREE_SECRET_KEY=your_production_secret_key
+# CASHFREE_ENVIRONMENT=production
+# CASHFREE_WEBHOOK_SECRET=your_production_webhook_secret
+# NEXT_PUBLIC_SITE_URL=https://yamrajdham.com
+# NEXT_PUBLIC_CASHFREE_ENVIRONMENT=production
+# NODE_ENV=production
+# NEXT_TELEMETRY_DISABLED=1
+#
+# Preview Environment Variables (for testing):
+# NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+# NEXT_PUBLIC_SUPABASE_ANON_KEY=your_production_anon_key
+# CASHFREE_APP_ID=your_test_app_id
+# CASHFREE_SECRET_KEY=your_test_secret_key
+# CASHFREE_ENVIRONMENT=sandbox
+# CASHFREE_WEBHOOK_SECRET=your_test_webhook_secret
+# NEXT_PUBLIC_SITE_URL=https://yamrajdham.com
+# NEXT_PUBLIC_CASHFREE_ENVIRONMENT=sandbox
+# NODE_ENV=production
+# NEXT_TELEMETRY_DISABLED=1

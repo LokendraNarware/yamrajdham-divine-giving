@@ -9,7 +9,7 @@ Based on the comprehensive audit, here are all the terminology inconsistencies b
 | **INCONSISTENT TEMPLE NAMING** | Multiple files | "Yamraj dham Temple" | "Yamrajdham Temple" | Temple references | 🟡 MEDIUM |
 | **WRONG EMAIL DOMAIN** | Multiple files | "@yamrajdham.org" | "@dharamdhamtrust.org" | Contact information | 🔴 HIGH |
 | **MIXED CAPITALIZATION** | Multiple files | "yamraj dham" | "Yamraj Dham" | Proper nouns | 🟡 MEDIUM |
-| **INCONSISTENT WEBSITE URL** | Multiple files | "yamrajdhamtemple.org" | "dharamdhamtrust.org" | Website references | 🟡 MEDIUM |
+| **INCONSISTENT WEBSITE URL** | Multiple files | "yamrajdhamtemple.org" | "yamrajdham.com" | Website references | 🟡 MEDIUM |
 
 ---
 
@@ -75,7 +75,7 @@ Based on the comprehensive audit, here are all the terminology inconsistencies b
 #### 4. **Inconsistent Website URL**
 | File | Line | Current | Should Be | Issue |
 |---|---|---|---|---|
-| `src/app/about/page.tsx` | 539,622 | "yamrajdhamtemple.org" | "dharamdhamtrust.org" | Wrong domain |
+| `src/app/about/page.tsx` | 539,622 | "yamrajdhamtemple.org" | "yamrajdham.com" | Wrong domain |
 
 #### 5. **Database Schema Issues**
 | File | Line | Current | Should Be | Issue |

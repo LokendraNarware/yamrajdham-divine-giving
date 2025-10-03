@@ -71,7 +71,7 @@ Special Hours:
 ### **Contact Methods:**
 1. **Primary Phone:** +91-84273-83381
 2. **Email:** dharamdhamtrust@gmail.com
-3. **Website:** https://yamrajdhamtemple.org
+3. **Website:** https://yamrajdham.com
 4. **Address:** Rajgarh Churu, Rajasthan, India
 
 ## 📸 **Photos & Media Strategy**

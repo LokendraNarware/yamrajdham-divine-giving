@@ -1,7 +1,7 @@
 # Admin Dashboard Redesign Implementation Plan
 
 ## Overview
-Redesign the admin dashboard at `http://localhost:3000/admin` to focus exclusively on completed payments with enhanced visual analytics, better UX, and actionable insights.
+Redesign the admin dashboard at `https://yamrajdham.com/admin` to focus exclusively on completed payments with enhanced visual analytics, better UX, and actionable insights.
 
 ## Current State Analysis ✅
 - ✅ Database already filters completed payments (`payment_status = 'completed'`)

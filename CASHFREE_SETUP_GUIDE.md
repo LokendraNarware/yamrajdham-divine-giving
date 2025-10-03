@@ -16,7 +16,7 @@ CASHFREE_ENVIRONMENT=sandbox
 CASHFREE_WEBHOOK_SECRET=your_webhook_secret
 
 # Site Configuration
-NEXT_PUBLIC_SITE_URL=http://localhost:3000
+NEXT_PUBLIC_SITE_URL=https://yamrajdham.com
 NEXT_PUBLIC_CASHFREE_ENVIRONMENT=sandbox
 ```
 
@@ -38,7 +38,7 @@ The following payment methods are now enabled:
 ## How to Test
 
 1. Start your development server: `pnpm dev`
-2. Go to `http://localhost:3000/donate`
+2. Go to `https://yamrajdham.com/donate`
 3. Fill in donation details
 4. Click "Pay" button
 5. You should see either:
