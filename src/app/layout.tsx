@@ -5,8 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { QueryProvider } from "@/components/providers/QueryProvider";
 import WhatsAppIcon from "@/components/WhatsAppIcon";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
+import ConditionalLayout from "@/components/ConditionalLayout";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -178,11 +177,9 @@ export default function RootLayout({
       >
         <AuthProvider>
           <QueryProvider>
-            <Header />
-            <main>
+            <ConditionalLayout>
               {children}
-            </main>
-            <Footer />
+            </ConditionalLayout>
             <Toaster />
             <WhatsAppIcon />
           </QueryProvider>

@@ -31,6 +31,7 @@ export const queryKeys = {
     users: ['admin', 'users'] as const,
     analytics: ['admin', 'analytics'] as const,
     reports: ['admin', 'reports'] as const,
+    recentDonations: ['admin', 'recent-donations'] as const,
   },
   // User dashboard queries
   user: {
