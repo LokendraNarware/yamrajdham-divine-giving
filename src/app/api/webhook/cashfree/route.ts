@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createHmac, timingSafeEqual } from 'crypto';
 import { supabase } from '@/integrations/supabase/client';
+import { queryClient } from '@/lib/react-query';
 
 type DbStatus = 'pending' | 'completed' | 'failed' | 'refunded';
 
@@ -98,6 +99,35 @@ export async function POST(request: NextRequest) {
     await (supabase.from('user_donations') as any)
       .update(updateData)
       .eq('id', donation.id);
+
+    // Invalidate relevant caches after successful update
+    try {
+      // Invalidate admin dashboard data
+      await queryClient.invalidateQueries({ 
+        queryKey: ['admin', 'stats'] 
+      });
+      await queryClient.invalidateQueries({ 
+        queryKey: ['admin', 'analytics'] 
+      });
+      
+      // Invalidate user-specific data if we have user_id
+      if (donation.user_id) {
+        await queryClient.invalidateQueries({ 
+          queryKey: ['user', 'donations', donation.user_id] 
+        });
+        await queryClient.invalidateQueries({ 
+          queryKey: ['user', 'stats', donation.user_id] 
+        });
+      }
+      
+      // Invalidate public recent donations
+      await queryClient.invalidateQueries({ 
+        queryKey: ['public', 'recent-donations'] 
+      });
+    } catch (cacheError) {
+      // Log cache invalidation errors but don't fail the webhook
+      console.warn('Cache invalidation failed:', cacheError);
+    }
 
     return NextResponse.json({ success: true });
   } catch (err) {

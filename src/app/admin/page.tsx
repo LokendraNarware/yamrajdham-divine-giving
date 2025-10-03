@@ -1,12 +1,11 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { DollarSign, Users, TrendingUp, Download } from "lucide-react";
+import { DollarSign, Users, TrendingUp, Download, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import AdminLayout from "@/components/admin/AdminLayout";
-import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { useAdminStats, useInvalidateAdminData } from "@/hooks/use-dashboard-data";
 
 interface DashboardStats {
   totalDonations: number;
@@ -21,133 +20,13 @@ interface DashboardStats {
 }
 
 export default function AdminDashboard() {
-  const [stats, setStats] = useState<DashboardStats>({
-    totalDonations: 0,
-    totalAmount: 0,
-    totalUsers: 0,
-    completedDonations: 0,
-    pendingDonations: 0,
-    failedDonations: 0,
-    refundedDonations: 0,
-    systemStatus: 'healthy',
-    systemMessage: 'All systems operational',
-  });
-  const [loading, setLoading] = useState(true);
   const { user } = useAuth();
+  const { data: stats, isLoading, error, refetch } = useAdminStats();
+  const { invalidateStats } = useInvalidateAdminData();
 
-  useEffect(() => {
-    if (user) {
-      fetchDashboardStats();
-    }
-  }, [user]);
-
-  const checkSystemHealth = async () => {
-    try {
-      // Test database connection
-      const { error: dbError } = await supabase
-        .from('users')
-        .select('id')
-        .limit(1);
-
-      // Test payment gateway (basic check)
-      const paymentGatewayHealthy = process.env.NEXT_PUBLIC_CASHFREE_APP_ID && 
-                                   process.env.NEXT_PUBLIC_CASHFREE_SECRET_KEY;
-
-      if (dbError) {
-        return {
-          status: 'error' as const,
-          message: 'Database connection failed'
-        };
-      }
-
-      if (!paymentGatewayHealthy) {
-        return {
-          status: 'warning' as const,
-          message: 'Payment gateway not configured'
-        };
-      }
-
-      return {
-        status: 'healthy' as const,
-        message: 'All systems operational'
-      };
-    } catch (error) {
-      return {
-        status: 'error' as const,
-        message: 'System health check failed'
-      };
-    }
-  };
-
-  const fetchDashboardStats = async () => {
-    try {
-      setLoading(true);
-
-      // Fetch ONLY completed donations for calculations
-      const { data: completedDonationsData, error: completedDonationsError } = await supabase
-        .from('user_donations')
-        .select('amount, payment_status')
-        .eq('payment_status', 'completed');
-
-      if (completedDonationsError) {
-        console.error('Error fetching completed donations:', completedDonationsError);
-      }
-
-      // Fetch all donations for status counts (but not for calculations)
-      const { data: allDonationsData, error: allDonationsError } = await supabase
-        .from('user_donations')
-        .select('payment_status');
-
-      if (allDonationsError) {
-        console.error('Error fetching all donations:', allDonationsError);
-      }
-
-      // Fetch users count
-      const { data: usersData, error: usersError } = await supabase
-        .from('users')
-        .select('id', { count: 'exact' });
-
-      if (usersError) {
-        console.error('Error fetching users:', usersError);
-      }
-
-      // Check system health
-      const systemHealth = await checkSystemHealth();
-
-      // Calculate stats - ONLY use completed donations for totals
-      const completedDonations = completedDonationsData || [];
-      const allDonations = allDonationsData || [];
-      
-      const totalDonations = completedDonations.length; // Only completed donations count
-      const totalAmount = completedDonations.reduce((sum, d) => sum + d.amount, 0); // Only completed donations
-      const completedDonationsCount = completedDonations.length;
-      const pendingDonations = allDonations.filter(d => d.payment_status === 'pending').length;
-      const failedDonations = allDonations.filter(d => d.payment_status === 'failed').length;
-      const refundedDonations = allDonations.filter(d => d.payment_status === 'refunded').length;
-      const totalUsers = usersData?.length || 0;
-
-      setStats({
-        totalDonations,
-        totalAmount,
-        totalUsers,
-        completedDonations: completedDonationsCount,
-        pendingDonations,
-        failedDonations,
-        refundedDonations,
-        systemStatus: systemHealth.status,
-        systemMessage: systemHealth.message,
-      });
-
-      setLoading(false);
-    } catch (error) {
-      console.error('Error fetching dashboard stats:', error);
-      setStats(prev => ({
-        ...prev,
-        systemStatus: 'error',
-        systemMessage: 'Failed to load dashboard data'
-      }));
-      setLoading(false);
-    }
+  const handleRefresh = () => {
+    invalidateStats();
+    refetch();
   };
 
   const formatCurrency = (amount: number) => {
@@ -157,12 +36,83 @@ export default function AdminDashboard() {
     }).format(amount);
   };
 
+  // Show loading state
+  if (isLoading) {
+    return (
+      <AdminLayout>
+        <div className="space-y-6">
+          <div className="mb-6">
+            <h2 className="text-2xl font-bold text-gray-900">Dashboard</h2>
+            <p className="text-gray-600">Loading dashboard data...</p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {[1, 2, 3, 4].map((i) => (
+              <Card key={i}>
+                <CardHeader>
+                  <div className="h-4 w-24 bg-gray-200 rounded animate-pulse"></div>
+                </CardHeader>
+                <CardContent>
+                  <div className="h-8 w-16 bg-gray-200 rounded animate-pulse mb-2"></div>
+                  <div className="h-3 w-24 bg-gray-200 rounded animate-pulse"></div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </AdminLayout>
+    );
+  }
+
+  // Show error state
+  if (error) {
+    return (
+      <AdminLayout>
+        <div className="space-y-6">
+          <div className="mb-6">
+            <h2 className="text-2xl font-bold text-gray-900">Dashboard</h2>
+            <p className="text-red-600">Failed to load dashboard data</p>
+          </div>
+          <Card>
+            <CardContent className="pt-6">
+              <div className="text-center">
+                <p className="text-red-600 mb-4">Error: {error.message}</p>
+                <Button onClick={handleRefresh} variant="outline">
+                  <RefreshCw className="w-4 h-4 mr-2" />
+                  Retry
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </AdminLayout>
+    );
+  }
+
+  // Use default values if stats is undefined
+  const dashboardStats = stats || {
+    totalDonations: 0,
+    totalAmount: 0,
+    totalUsers: 0,
+    completedDonations: 0,
+    pendingDonations: 0,
+    failedDonations: 0,
+    refundedDonations: 0,
+    systemStatus: 'error' as const,
+    systemMessage: 'Unable to load system status',
+  };
+
   return (
     <AdminLayout>
       <div className="space-y-6">
-        <div className="mb-6">
-          <h2 className="text-2xl font-bold text-gray-900">Dashboard</h2>
-          <p className="text-gray-600">Welcome to the admin panel!</p>
+        <div className="mb-6 flex justify-between items-center">
+          <div>
+            <h2 className="text-2xl font-bold text-gray-900">Dashboard</h2>
+            <p className="text-gray-600">Welcome to the admin panel!</p>
+          </div>
+          <Button onClick={handleRefresh} variant="outline" size="sm">
+            <RefreshCw className="w-4 h-4 mr-2" />
+            Refresh
+          </Button>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -172,10 +122,10 @@ export default function AdminDashboard() {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">
-                {loading ? '...' : stats.totalDonations}
+                {dashboardStats.totalDonations}
               </div>
               <p className="text-xs text-gray-500">
-                {stats.totalDonations === 0 ? 'No completed donations yet' : 'Completed donations only'}
+                {dashboardStats.totalDonations === 0 ? 'No completed donations yet' : 'Completed donations only'}
               </p>
             </CardContent>
           </Card>
@@ -186,10 +136,10 @@ export default function AdminDashboard() {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-green-600">
-                {loading ? '...' : formatCurrency(stats.totalAmount)}
+                {formatCurrency(dashboardStats.totalAmount)}
               </div>
               <p className="text-xs text-gray-500">
-                {stats.totalAmount === 0 ? 'No funds raised' : 'From completed donations only'}
+                {dashboardStats.totalAmount === 0 ? 'No funds raised' : 'From completed donations only'}
               </p>
             </CardContent>
           </Card>
@@ -200,10 +150,10 @@ export default function AdminDashboard() {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">
-                {loading ? '...' : stats.totalUsers}
+                {dashboardStats.totalUsers}
               </div>
               <p className="text-xs text-gray-500">
-                {stats.totalUsers === 0 ? 'No users yet' : 'Registered users'}
+                {dashboardStats.totalUsers === 0 ? 'No users yet' : 'Registered users'}
               </p>
             </CardContent>
           </Card>
@@ -214,18 +164,16 @@ export default function AdminDashboard() {
             </CardHeader>
             <CardContent>
               <div className={`text-2xl font-bold ${
-                stats.systemStatus === 'healthy' ? 'text-green-600' :
-                stats.systemStatus === 'warning' ? 'text-yellow-600' :
+                dashboardStats.systemStatus === 'healthy' ? 'text-green-600' :
+                dashboardStats.systemStatus === 'warning' ? 'text-yellow-600' :
                 'text-red-600'
               }`}>
-                {loading ? '...' : (
-                  stats.systemStatus === 'healthy' ? 'Healthy' :
-                  stats.systemStatus === 'warning' ? 'Warning' :
-                  'Error'
-                )}
+                {dashboardStats.systemStatus === 'healthy' ? 'Healthy' :
+                 dashboardStats.systemStatus === 'warning' ? 'Warning' :
+                 'Error'}
               </div>
               <p className="text-xs text-gray-500">
-                {loading ? 'Checking...' : stats.systemMessage}
+                {dashboardStats.systemMessage}
               </p>
             </CardContent>
           </Card>
@@ -239,7 +187,7 @@ export default function AdminDashboard() {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-green-600">
-                {loading ? '...' : stats.completedDonations}
+                {dashboardStats.completedDonations}
               </div>
               <p className="text-xs text-gray-500">Successful donations</p>
             </CardContent>
@@ -251,7 +199,7 @@ export default function AdminDashboard() {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-yellow-600">
-                {loading ? '...' : stats.pendingDonations}
+                {dashboardStats.pendingDonations}
               </div>
               <p className="text-xs text-gray-500">Awaiting processing</p>
             </CardContent>
@@ -263,7 +211,7 @@ export default function AdminDashboard() {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-red-600">
-                {loading ? '...' : stats.failedDonations}
+                {dashboardStats.failedDonations}
               </div>
               <p className="text-xs text-gray-500">Failed transactions</p>
             </CardContent>
@@ -275,7 +223,7 @@ export default function AdminDashboard() {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-blue-600">
-                {loading ? '...' : stats.refundedDonations}
+                {dashboardStats.refundedDonations}
               </div>
               <p className="text-xs text-gray-500">Refunded donations</p>
             </CardContent>

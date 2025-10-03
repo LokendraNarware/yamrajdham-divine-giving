@@ -3,13 +3,13 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
-import { supabase } from '@/integrations/supabase/client';
+import { useUserProfile, useUserDonations, useUserStats, useInvalidateUserData } from '@/hooks/use-dashboard-data';
 import { Button } from '@/components/ui/button';
 import DataTable from '@/components/admin/DataTable';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Loader2, Calendar, DollarSign, Heart, LogOut, Filter, Eye } from 'lucide-react';
+import { Loader2, Calendar, DollarSign, Heart, LogOut, Filter, Eye, RefreshCw } from 'lucide-react';
 
 interface Donation {
   id: string;
@@ -30,133 +30,42 @@ interface UserProfile {
 }
 
 export default function DashboardPage() {
-  const [donations, setDonations] = useState<Donation[]>([]);
   const [filteredDonations, setFilteredDonations] = useState<Donation[]>([]);
-  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
-  const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState<string>('completed');
   const { user, signOut } = useAuth();
   const router = useRouter();
+
+  // Use cached data hooks
+  const { data: userProfile, isLoading: profileLoading, error: profileError } = useUserProfile(user?.id || '');
+  const { data: donations = [], isLoading: donationsLoading, error: donationsError } = useUserDonations(user?.id || '');
+  const { data: userStats, isLoading: statsLoading } = useUserStats(user?.id || '');
+  const { invalidateAll: invalidateUserData } = useInvalidateUserData(user?.id || '');
+
+  const isLoading = profileLoading || donationsLoading || statsLoading;
+  const hasError = profileError || donationsError;
 
   useEffect(() => {
     if (!user) {
       router.push('/login');
       return;
     }
-
-    // Add a small delay to prevent flash of loading state for fast responses
-    const timeoutId = setTimeout(() => {
-      fetchUserData();
-    }, 100);
-
-    return () => clearTimeout(timeoutId);
   }, [user, router]);
 
-  // Filter donations based on status
+  // Filter donations based on status (exclude refunded donations)
   useEffect(() => {
+    // First filter out refunded donations
+    const nonRefundedDonations = donations.filter(donation => donation.payment_status !== 'refunded');
+    
     if (statusFilter === 'all') {
-      setFilteredDonations(donations);
+      setFilteredDonations(nonRefundedDonations);
     } else {
-      const filtered = donations.filter(donation => donation.payment_status === statusFilter);
+      const filtered = nonRefundedDonations.filter(donation => donation.payment_status === statusFilter);
       setFilteredDonations(filtered);
     }
   }, [donations, statusFilter]);
 
-  const fetchUserData = async () => {
-    if (!user) return;
-
-    console.log('Fetching data for user:', user.id, user.email);
-
-    try {
-      // Use Promise.all to fetch user profile and donations in parallel
-      const [profileResult, donationsResult] = await Promise.allSettled([
-        // Optimized user profile query with better error handling
-        supabase
-          .from('users')
-          .select('*')
-          .eq('id', user.id)
-          .maybeSingle(), // Use maybeSingle instead of single to avoid errors when no data found
-        
-        // Fetch donations immediately with user.id (most common case)
-        supabase
-          .from('user_donations')
-          .select('*')
-          .eq('user_id', user.id)
-          .order('created_at', { ascending: false })
-          .limit(50) // Limit to recent 50 donations for better performance
-      ]);
-
-      let resolvedUserProfile: UserProfile | null = null;
-
-      // Handle user profile result
-      if (profileResult.status === 'fulfilled') {
-        const { data: profileData, error: profileError } = profileResult.value;
-        
-        if (profileData) {
-          console.log('User profile found:', profileData);
-          resolvedUserProfile = profileData;
-        } else if (!profileError || profileError.code === 'PGRST116') {
-          // Profile doesn't exist, try to find by email or create
-          console.log('User profile not found, checking by email...');
-          
-          const { data: existingUser } = await supabase
-            .from('users')
-            .select('*')
-            .eq('email', user.email)
-            .maybeSingle();
-          
-          if (existingUser) {
-            console.log('Found existing user by email:', existingUser.email);
-            resolvedUserProfile = existingUser;
-          } else {
-            console.log('Creating new user profile...');
-            const { data: newProfile, error: createError } = await supabase
-              .from('users')
-              .upsert({
-                id: user.id,
-                email: user.email || '',
-                name: user.user_metadata?.name || user.email?.split('@')[0] || 'User',
-                mobile: user.user_metadata?.phone || '',
-              }, {
-                onConflict: 'id'
-              })
-              .select()
-              .single();
-            
-            if (!createError && newProfile) {
-              console.log('User profile created:', newProfile);
-              resolvedUserProfile = newProfile;
-            } else {
-              console.error('Error creating user profile:', createError);
-            }
-          }
-        } else {
-          console.error('Error fetching user profile:', profileError);
-        }
-      }
-
-      // Set the resolved user profile
-      setUserProfile(resolvedUserProfile);
-
-      // Handle donations result
-      if (donationsResult.status === 'fulfilled') {
-        const { data: donationsData, error: donationsError } = donationsResult.value;
-        
-        if (donationsError) {
-          console.error('Error fetching donations:', donationsError);
-        } else {
-          console.log('Found donations:', donationsData?.length || 0);
-          setDonations(donationsData || []);
-        }
-      } else {
-        console.error('Error fetching donations:', donationsResult.reason);
-      }
-
-    } catch (error) {
-      console.error('Error fetching user data:', error);
-    } finally {
-      setLoading(false);
-    }
+  const handleRefresh = () => {
+    invalidateUserData();
   };
 
   const handleSignOut = async () => {
@@ -187,20 +96,62 @@ export default function DashboardPage() {
     });
   };
 
-  // Memoize expensive calculations
+  // Memoize expensive calculations using cached data (exclude refunded donations)
   const donationStats = useMemo(() => {
-    const completedDonations = donations.filter(d => d.payment_status === 'completed');
-    const totalAmount = completedDonations.reduce((sum, d) => sum + d.amount, 0);
-    const totalCount = completedDonations.length;
+    // Filter out refunded donations from all calculations
+    const nonRefundedDonations = donations.filter(d => d.payment_status !== 'refunded');
+    const completedDonations = nonRefundedDonations.filter(d => d.payment_status === 'completed');
+    const totalAmount = userStats?.totalAmount || completedDonations.reduce((sum, d) => sum + d.amount, 0);
+    const totalCount = userStats?.totalCount || completedDonations.length;
     
     return {
       totalAmount,
       totalCount,
       completedDonations
     };
-  }, [donations]);
+  }, [donations, userStats]);
 
-  if (loading) {
+
+  // Show error state
+  if (hasError) {
+    return (
+      <div className="w-full">
+        <div className="max-w-4xl mx-auto">
+          <div className="flex justify-between items-center mb-8">
+            <div>
+              <h1 className="text-3xl font-bold">My Dashboard</h1>
+              <p className="text-muted-foreground">Error loading dashboard data</p>
+            </div>
+            <div className="flex gap-2">
+              <Button onClick={handleRefresh} variant="outline">
+                <RefreshCw className="w-4 h-4 mr-2" />
+                Retry
+              </Button>
+              <Button onClick={handleSignOut} variant="outline">
+                <LogOut className="w-4 h-4 mr-2" />
+                Sign Out
+              </Button>
+            </div>
+          </div>
+          <Card>
+            <CardContent className="pt-6">
+              <div className="text-center">
+                <p className="text-red-600 mb-4">
+                  {profileError?.message || donationsError?.message || 'Failed to load dashboard data'}
+                </p>
+                <Button onClick={handleRefresh} variant="outline">
+                  <RefreshCw className="w-4 h-4 mr-2" />
+                  Try Again
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
+  }
+
+  if (isLoading) {
     return (
       <div className="w-full">
         <div className="max-w-4xl mx-auto">
@@ -265,10 +216,16 @@ export default function DashboardPage() {
                 Welcome back, {userProfile?.name || 'User'}!
               </p>
             </div>
-            <Button onClick={handleSignOut} variant="outline">
-              <LogOut className="w-4 h-4 mr-2" />
-              Sign Out
-            </Button>
+            <div className="flex gap-2">
+              <Button onClick={handleRefresh} variant="outline" size="sm">
+                <RefreshCw className="w-4 h-4 mr-2" />
+                Refresh
+              </Button>
+              <Button onClick={handleSignOut} variant="outline">
+                <LogOut className="w-4 h-4 mr-2" />
+                Sign Out
+              </Button>
+            </div>
           </div>
 
           {/* Stats Cards */}
@@ -331,7 +288,7 @@ export default function DashboardPage() {
               </div>
             </CardHeader>
             <CardContent>
-              {donations.length === 0 ? (
+              {filteredDonations.length === 0 ? (
                 <div className="text-center py-8">
                   <Heart className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                   <h3 className="text-lg font-semibold mb-2">No donations yet</h3>
@@ -344,7 +301,7 @@ export default function DashboardPage() {
                 </div>
               ) : (
                 <DataTable
-                  data={donations as unknown as Record<string, unknown>[]}
+                  data={filteredDonations as unknown as Record<string, unknown>[]}
                   columns={[
                     { key: 'id', label: 'Donation ID', sortable: true },
                     { key: 'amount', label: 'Amount', sortable: true, render: (v) => `₹${Number(v || 0).toLocaleString()}` },

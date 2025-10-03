@@ -7,10 +7,17 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { CheckCircle, Download, Mail, Heart, Loader2 } from "lucide-react";
 import { verifyPayment } from "@/services/cashfree";
 import { useToast } from "@/hooks/use-toast";
-import DonationReceipt from "@/components/DonationReceipt";
 import ModernDonationReceipt from "@/components/ModernDonationReceipt";
-import PDFModernDonationReceipt from "@/components/PDFModernDonationReceipt";
-import { generateReceiptPDF } from "@/lib/receipt-utils";
+import dynamic from "next/dynamic";
+
+// Lazy load PDF components to improve initial page load
+const PDFModernDonationReceipt = dynamic(
+  () => import("@/components/PDFModernDonationReceipt"),
+  { 
+    ssr: false,
+    loading: () => <div className="animate-pulse bg-gray-200 h-64 rounded-lg"></div>
+  }
+);
 
 export default function PaymentSuccessPage() {
   const searchParams = useSearchParams();
@@ -61,9 +68,10 @@ export default function PaymentSuccessPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [paymentLoaded, setPaymentLoaded] = useState(false);
   const [donationLoaded, setDonationLoaded] = useState(false);
-  const [receiptType, setReceiptType] = useState<'traditional' | 'modern'>('modern');
+  // Removed receiptType state since we only use modern receipts now
   const [receiptRef, setReceiptRef] = useState<HTMLDivElement | null>(null);
   const [isDownloading, setIsDownloading] = useState(false);
+  const [showReceiptPreview, setShowReceiptPreview] = useState(false);
   
   const orderId = searchParams.get("order_id");
 
@@ -71,11 +79,23 @@ export default function PaymentSuccessPage() {
     const fetchPaymentDetails = async () => {
       if (orderId) {
         try {
-          // Fetch both payment verification and donation data in parallel
-          const [details, donationResponse] = await Promise.all([
+          // Show loading immediately
+          setIsLoading(true);
+          
+          // Fetch both payment verification and donation data in parallel with timeout
+          const timeoutPromise = new Promise((_, reject) => 
+            setTimeout(() => reject(new Error('Request timeout')), 10000)
+          );
+          
+          const fetchPromise = Promise.all([
             verifyPayment(orderId),
             fetch(`/api/donations/${orderId}`)
           ]);
+          
+          const [details, donationResponse] = await Promise.race([
+            fetchPromise,
+            timeoutPromise
+          ]) as [any, Response];
           
           setPaymentDetails(details);
           setPaymentLoaded(true);
@@ -152,8 +172,12 @@ export default function PaymentSuccessPage() {
 
     try {
       console.log('Starting modern receipt download...');
-      console.log('Payment details:', paymentDetails);
-      console.log('Donation data:', donationData);
+      
+      // Lazy load PDF generation utilities
+      const [{ generateReceiptPDF }, { createRoot }] = await Promise.all([
+        import("@/lib/receipt-utils"),
+        import('react-dom/client')
+      ]);
 
       // Create a temporary container for the modern receipt
       const tempContainer = document.createElement('div');
@@ -169,7 +193,6 @@ export default function PaymentSuccessPage() {
       document.body.appendChild(tempContainer);
 
       // Render the modern receipt in the temporary container
-      const { createRoot } = await import('react-dom/client');
       const root = createRoot(tempContainer);
       
       const ModernReceiptElement = (
@@ -185,8 +208,8 @@ export default function PaymentSuccessPage() {
 
       root.render(ModernReceiptElement);
 
-      // Wait for the component to render and images to load
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Wait for the component to render and images to load (reduced timeout)
+      await new Promise(resolve => setTimeout(resolve, 300));
 
       // Generate PDF from the temporary container
       await generateReceiptPDF(tempContainer, {
@@ -203,15 +226,15 @@ export default function PaymentSuccessPage() {
       document.body.removeChild(tempContainer);
 
       toast({
-        title: "Modern Donation Receipt Downloaded",
-        description: "Your modern donation receipt has been downloaded successfully.",
+        title: "Donation Receipt Downloaded",
+        description: "Your donation receipt has been downloaded successfully.",
       });
     } catch (error) {
       console.error('Error downloading modern receipt:', error);
       const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
       toast({
         title: "Error",
-        description: `Failed to download modern receipt: ${errorMessage}`,
+        description: `Failed to download receipt: ${errorMessage}`,
         variant: "destructive",
       });
     } finally {
@@ -232,7 +255,7 @@ export default function PaymentSuccessPage() {
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-muted-foreground">Loading...</p>
+          <p className="text-muted-foreground">Loading payment details...</p>
         </div>
       </div>
     );
@@ -245,13 +268,15 @@ export default function PaymentSuccessPage() {
           <div className="max-w-2xl mx-auto">
             <div className="text-center">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-              <p className="text-muted-foreground">Verifying payment...</p>
+              <p className="text-muted-foreground">Verifying your donation...</p>
+              <p className="text-sm text-muted-foreground mt-2">This may take a few seconds</p>
             </div>
             
             {/* Progressive loading placeholders */}
             <div className="mt-8 space-y-6">
               <div className="h-32 bg-gray-100 rounded-lg animate-pulse"></div>
               <div className="h-48 bg-gray-100 rounded-lg animate-pulse"></div>
+              <div className="h-24 bg-gray-100 rounded-lg animate-pulse"></div>
             </div>
           </div>
         </main>
@@ -450,7 +475,7 @@ export default function PaymentSuccessPage() {
                             minute: '2-digit',
                             timeZone: 'Asia/Kolkata'
                           })
-                        : paymentDetails.payment_time
+                        : new Date(paymentDetails.payment_time).toISOString()
                       }
                     </p>
                   </div>
@@ -463,30 +488,12 @@ export default function PaymentSuccessPage() {
           {shouldShowSuccessComponents && paymentLoaded && donationLoaded && (
             <Card className="mb-6">
               <CardHeader>
-                <div className="flex justify-between items-center">
                   <div>
                     <CardTitle>Donation Receipt</CardTitle>
                     <CardDescription>
-                      Download your donation receipt for your records
+                      Download your modern donation receipt for your records
                     </CardDescription>
                   </div>
-                  <div className="flex gap-2">
-                    <Button
-                      variant={receiptType === 'modern' ? 'default' : 'outline'}
-                      size="sm"
-                      onClick={() => setReceiptType('modern')}
-                    >
-                      Modern
-                    </Button>
-                    <Button
-                      variant={receiptType === 'traditional' ? 'default' : 'outline'}
-                      size="sm"
-                      onClick={() => setReceiptType('traditional')}
-                    >
-                      Traditional
-                    </Button>
-                  </div>
-                </div>
               </CardHeader>
               <CardContent>
                 <div className="space-y-6">
@@ -496,12 +503,12 @@ export default function PaymentSuccessPage() {
                       {isDownloading ? (
                         <>
                           <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                          Processing...
+                          Generating PDF...
                         </>
                       ) : (
                         <>
                           <Download className="w-4 h-4 mr-2" />
-                          Download Modern Receipt
+                          Download Receipt
                         </>
                       )}
                     </Button>
@@ -511,9 +518,20 @@ export default function PaymentSuccessPage() {
                     </Button>
                   </div>
 
-                  {/* Receipt Preview */}
-                  <div ref={setReceiptRef}>
-                    {receiptType === 'modern' ? (
+                  {/* Receipt Preview Toggle */}
+                  <div className="flex justify-center">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setShowReceiptPreview(!showReceiptPreview)}
+                    >
+                      {showReceiptPreview ? 'Hide' : 'Show'} Receipt Preview
+                    </Button>
+                  </div>
+
+                  {/* Receipt Preview - Lazy loaded only when requested */}
+                  {showReceiptPreview && (
+                    <div ref={setReceiptRef} className="border rounded-lg p-4 bg-gray-50">
                       <ModernDonationReceipt
                         key={`modern-receipt-${paymentDetails.order_id}`}
                         donationId={paymentDetails.order_id || 'N/A'}
@@ -523,18 +541,8 @@ export default function PaymentSuccessPage() {
                         purpose={donationData?.donationType === 'general' ? 'Temple Construction' : donationData?.donationType || 'Temple Construction'}
                         paymentMethod={paymentDetails.payment_method || "Online Payment"}
                       />
-                    ) : (
-                      <DonationReceipt
-                        key={`traditional-receipt-${paymentDetails.order_id}`}
-                        donationId={paymentDetails.order_id || 'N/A'}
-                        donorName={donationData?.donor?.name || "Devotee"}
-                        amount={paymentDetails.order_amount || 0}
-                        date={paymentDetails.payment_time || donationData?.createdAt || stableDateFallback}
-                        purpose={donationData?.donationType === 'general' ? 'Temple Construction' : donationData?.donationType || 'Temple Construction'}
-                        paymentMethod={paymentDetails.payment_method || "Online Payment"}
-                      />
-                    )}
-                  </div>
+                    </div>
+                  )}
                 </div>
               </CardContent>
             </Card>
