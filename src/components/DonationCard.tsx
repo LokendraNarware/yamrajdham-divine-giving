@@ -1,7 +1,9 @@
+"use client";
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Heart, Users, Target } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { Heart } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 interface DonationCardProps {
   title: string;
@@ -12,10 +14,10 @@ interface DonationCardProps {
 }
 
 const DonationCard = ({ title, description, amount, icon, isPopular }: DonationCardProps) => {
-  const navigate = useNavigate();
+  const router = useRouter();
 
   const handleDonate = () => {
-    navigate(`/donate?amount=${amount}`);
+    router.push(`/donate?amount=${amount}`);
   };
 
   return (
