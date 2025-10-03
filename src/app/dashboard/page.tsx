@@ -50,17 +50,19 @@ export default function DashboardPage() {
     }
   }, [user, router]);
 
-  // Filter donations based on status (exclude refunded donations) using useMemo
+  // Filter donations based on status (exclude refunded donations)
   const filteredDonations = useMemo(() => {
+    if (isLoading || !donations || donations.length === 0) return [];
+    
     // First filter out refunded donations
-    const nonRefundedDonations = (donations as any).filter((donation: any) => donation.payment_status !== 'refunded');
+    const nonRefundedDonations = donations.filter((donation: any) => donation.payment_status !== 'refunded');
     
     if (statusFilter === 'all') {
       return nonRefundedDonations;
     } else {
       return nonRefundedDonations.filter((donation: any) => donation.payment_status === statusFilter);
     }
-  }, [donations, statusFilter]);
+  }, [isLoading, donations?.length, statusFilter]);
 
   const handleRefresh = () => {
     invalidateUserData();

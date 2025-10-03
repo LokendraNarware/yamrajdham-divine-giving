@@ -179,17 +179,17 @@ export const adminApi = {
       .range(offset, offset + limit - 1);
 
     // Apply filters
-    if (filters.status) {
-      query = query.eq('payment_status', filters.status);
+    if ((filters as any).status) {
+      query = query.eq('payment_status', (filters as any).status);
     } else {
       // By default, exclude refunded donations unless specifically requested
       query = query.neq('payment_status', 'refunded');
     }
-    if (filters.startDate) {
-      query = query.gte('created_at', filters.startDate);
+    if ((filters as any).startDate) {
+      query = query.gte('created_at', (filters as any).startDate);
     }
-    if (filters.endDate) {
-      query = query.lte('created_at', filters.endDate);
+    if ((filters as any).endDate) {
+      query = query.lte('created_at', (filters as any).endDate);
     }
 
     const { data, error, count } = await query;
@@ -244,7 +244,7 @@ export const userApi = {
   async getUserStats(userId: string) {
     try {
       // Try to use the optimized database function first
-      const { data: optimizedStats, error: optimizedError } = await supabase
+      const { data: optimizedStats, error: optimizedError } = await (supabase as any)
         .rpc('get_user_dashboard_stats', { p_user_id: userId });
 
       if (!optimizedError && optimizedStats && optimizedStats.length > 0) {
