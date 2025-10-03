@@ -187,8 +187,10 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     <div className="bg-gray-50 min-h-screen">
       {/* Main Layout with Sidebar */}
       <div className="flex h-screen">
-        {/* Sidebar */}
-        <AdminSidebar onSignOut={handleSignOut} userEmail={user?.email} />
+        {/* Sticky Sidebar */}
+        <div className="sticky top-0 h-screen">
+          <AdminSidebar onSignOut={handleSignOut} userEmail={user?.email} />
+        </div>
         
         {/* Main Content */}
         <div className="flex-1 overflow-y-auto">

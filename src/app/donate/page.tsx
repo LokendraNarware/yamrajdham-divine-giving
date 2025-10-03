@@ -13,7 +13,7 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form, FormControl, FormField, FormItem, FormLabel } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
-import { createUser, getUserByEmail, getUserById, createDonation } from "@/services/donations";
+import { createUser, getUserByEmail, getUserById, createDonation, updateDonationPayment } from "@/services/donations";
 import { useAuth } from "@/contexts/AuthContext";
 import { createPaymentSession, generateCustomerId, formatPhoneForCashfree } from "@/services/cashfree";
 // Removed PaymentModal import - using direct payment gateway redirect
@@ -329,6 +329,14 @@ function DonatePageContent() {
           
           
           if (paymentResponse.success && paymentResponse.data) {
+            // Update donation with Cashfree order ID for webhook processing
+            const updateResult = await updateDonationPayment(orderId, {
+              payment_status: 'pending',
+              payment_id: paymentResponse.data.cashfree_order_id || paymentResponse.data.order_id,
+              payment_gateway: 'cashfree'
+            });
+            console.log('Donation update result:', updateResult);
+
             // Check if this is a mock response (credentials not configured)
             if (paymentResponse.message?.includes('Mock payment session')) {
               console.log('Mock payment session detected, redirecting to success page');

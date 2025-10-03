@@ -5,6 +5,34 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const limit = parseInt(searchParams.get('limit') || '10');
+    const startDate = searchParams.get('startDate');
+    const endDate = searchParams.get('endDate');
+    
+    // Convert date strings to timestamps if provided
+    const startTimestamp = startDate ? new Date(startDate).toISOString() : null;
+    const endTimestamp = endDate ? new Date(endDate).toISOString() : null;
+    
+    // Try to use the date-filtered database function first if dates are provided
+    if (startTimestamp || endTimestamp) {
+      const { data: filteredDonations, error: filteredError } = await supabase
+        .rpc('get_recent_donations_filtered', {
+          start_date: startTimestamp,
+          end_date: endTimestamp,
+          limit_count: limit
+        });
+
+      if (!filteredError && filteredDonations && (filteredDonations as Array<any>).length > 0) {
+        const result = (filteredDonations as Array<any>)[0];
+        return NextResponse.json({
+          donations: result.donations || [],
+          total: (result.donations || []).length,
+          dateRange: {
+            startDate: startTimestamp,
+            endDate: endTimestamp
+          }
+        });
+      }
+    }
 
     // Get recent completed donations with user information
     const { data: donations, error } = await supabase

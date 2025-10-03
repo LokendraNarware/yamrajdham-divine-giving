@@ -106,7 +106,7 @@ const AdminSidebar = ({ onSignOut, userEmail }: AdminSidebarProps) => {
 
   return (
     <div className={cn(
-      "flex flex-col h-full bg-temple-cream border-r border-temple-gold/20 transition-all duration-300",
+      "flex flex-col h-screen bg-temple-cream border-r border-temple-gold/20 transition-all duration-300",
       isCollapsed ? "w-16" : "w-64"
     )}>
       {/* Header */}

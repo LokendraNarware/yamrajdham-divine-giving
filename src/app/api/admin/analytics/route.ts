@@ -1,8 +1,39 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabase } from '@/integrations/supabase/client';
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
+    const { searchParams } = new URL(request.url);
+    const startDate = searchParams.get('startDate');
+    const endDate = searchParams.get('endDate');
+    
+    // Convert date strings to timestamps if provided
+    const startTimestamp = startDate ? new Date(startDate).toISOString() : null;
+    const endTimestamp = endDate ? new Date(endDate).toISOString() : null;
+    
+    // Try to use the date-filtered database function first if dates are provided
+    if (startTimestamp || endTimestamp) {
+      const { data: filteredAnalytics, error: filteredError } = await supabase
+        .rpc('get_admin_analytics_filtered', {
+          start_date: startTimestamp,
+          end_date: endTimestamp
+        });
+
+      if (!filteredError && filteredAnalytics && (filteredAnalytics as Array<any>).length > 0) {
+        const analytics = (filteredAnalytics as Array<any>)[0];
+        return NextResponse.json({
+          monthlyTrends: analytics.monthly_trends || [],
+          categoryBreakdown: analytics.category_breakdown || [],
+          topDonors: analytics.top_donors || [],
+          dateRange: {
+            startDate: startTimestamp,
+            endDate: endTimestamp
+          },
+          success: true
+        });
+      }
+    }
+    
     // Get analytics data for the dashboard
     const [
       monthlyTrendsResult,

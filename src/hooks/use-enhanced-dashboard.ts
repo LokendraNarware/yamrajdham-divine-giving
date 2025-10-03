@@ -3,11 +3,16 @@ import { queryKeys } from '@/lib/react-query';
 
 // Enhanced dashboard hooks for the new design
 
-export const useRecentDonations = (limit = 10) => {
+export const useRecentDonations = (limit = 10, startDate?: Date | null, endDate?: Date | null) => {
   return useQuery({
-    queryKey: [...queryKeys.admin.recentDonations, limit],
+    queryKey: [...queryKeys.admin.recentDonations, limit, startDate?.toISOString(), endDate?.toISOString()],
     queryFn: async () => {
-      const response = await fetch(`/api/admin/recent-donations?limit=${limit}`);
+      const params = new URLSearchParams();
+      params.append('limit', limit.toString());
+      if (startDate) params.append('startDate', startDate.toISOString());
+      if (endDate) params.append('endDate', endDate.toISOString());
+      
+      const response = await fetch(`/api/admin/recent-donations?${params.toString()}`);
       if (!response.ok) {
         throw new Error('Failed to fetch recent donations');
       }
@@ -18,11 +23,15 @@ export const useRecentDonations = (limit = 10) => {
   });
 };
 
-export const useDashboardAnalytics = () => {
+export const useDashboardAnalytics = (startDate?: Date | null, endDate?: Date | null) => {
   return useQuery({
-    queryKey: [...queryKeys.admin.analytics, 'enhanced'],
+    queryKey: [...queryKeys.admin.analytics, 'enhanced', startDate?.toISOString(), endDate?.toISOString()],
     queryFn: async () => {
-      const response = await fetch('/api/admin/analytics');
+      const params = new URLSearchParams();
+      if (startDate) params.append('startDate', startDate.toISOString());
+      if (endDate) params.append('endDate', endDate.toISOString());
+      
+      const response = await fetch(`/api/admin/analytics?${params.toString()}`);
       if (!response.ok) {
         throw new Error('Failed to fetch analytics data');
       }
@@ -33,11 +42,18 @@ export const useDashboardAnalytics = () => {
   });
 };
 
-export const useEnhancedDashboard = () => {
+export const useEnhancedDashboard = (startDate?: Date | null, endDate?: Date | null) => {
+  console.log('useEnhancedDashboard: Called with dates:', { startDate, endDate });
+  
   const stats = useQuery({
-    queryKey: queryKeys.admin.stats,
+    queryKey: [...queryKeys.admin.stats, startDate?.toISOString(), endDate?.toISOString()],
     queryFn: async () => {
-      const response = await fetch('/api/admin/stats');
+      const params = new URLSearchParams();
+      if (startDate) params.append('startDate', startDate.toISOString());
+      if (endDate) params.append('endDate', endDate.toISOString());
+      
+      console.log('useEnhancedDashboard: Making API call with params:', params.toString());
+      const response = await fetch(`/api/admin/stats?${params.toString()}`);
       if (!response.ok) {
         throw new Error('Failed to fetch dashboard stats');
       }
@@ -47,8 +63,8 @@ export const useEnhancedDashboard = () => {
     gcTime: 5 * 60 * 1000,
   });
 
-  const analytics = useDashboardAnalytics();
-  const recentDonations = useRecentDonations();
+  const analytics = useDashboardAnalytics(startDate, endDate);
+  const recentDonations = useRecentDonations(10, startDate, endDate);
 
   return {
     stats: stats.data,

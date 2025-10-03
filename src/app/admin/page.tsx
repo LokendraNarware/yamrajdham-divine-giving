@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { RefreshCw, DollarSign, Users, TrendingUp, CheckCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import AdminLayout from "@/components/admin/AdminLayout";
@@ -10,11 +11,20 @@ import DonationTrendsChart from "@/components/admin/DonationTrendsChart";
 import CategoryBreakdownChart from "@/components/admin/CategoryBreakdownChart";
 import RecentDonationsFeed from "@/components/admin/RecentDonationsFeed";
 import PaymentStatusOverview from "@/components/admin/PaymentStatusOverview";
+import DateFilter from "@/components/admin/DateFilter";
 import { formatCurrencyClean } from "@/lib/currency-utils";
 
 export default function AdminDashboard() {
   const { user } = useAuth();
-  const { stats, analytics, recentDonations, isLoading, error, refetch } = useEnhancedDashboard();
+  const [dateRange, setDateRange] = useState<{startDate: Date | null, endDate: Date | null}>({
+    startDate: null,
+    endDate: null
+  });
+  
+  const { stats, analytics, recentDonations, isLoading, error, refetch } = useEnhancedDashboard(
+    dateRange.startDate,
+    dateRange.endDate
+  );
 
   const handleRefresh = () => {
     refetch();
@@ -22,6 +32,11 @@ export default function AdminDashboard() {
 
   const handleViewAllDonations = () => {
     window.location.href = '/admin/donations';
+  };
+
+  const handleDateRangeChange = (startDate: Date | null, endDate: Date | null) => {
+    console.log('AdminDashboard: Date range changed:', { startDate, endDate });
+    setDateRange({ startDate, endDate });
   };
 
 
@@ -97,10 +112,15 @@ export default function AdminDashboard() {
             <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
             <p className="text-gray-600 mt-1">Yamrajdham Temple Management - Completed Payments Only</p>
           </div>
-          <Button onClick={handleRefresh} variant="outline" size="sm">
-            <RefreshCw className="w-4 h-4 mr-2" />
-            Refresh
-          </Button>
+          <div className="flex items-center gap-4">
+            <DateFilter 
+              onDateRangeChange={handleDateRangeChange}
+            />
+            <Button onClick={handleRefresh} variant="outline" size="sm">
+              <RefreshCw className="w-4 h-4 mr-2" />
+              Refresh
+            </Button>
+          </div>
         </div>
 
         {/* Key Performance Indicators */}

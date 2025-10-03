@@ -98,8 +98,10 @@ export type Database = {
           is_anonymous: boolean | null
           dedication_message: string | null
           preacher_name: string | null
+          cashfree_order_id: string | null
           created_at: string | null
           updated_at: string | null
+          last_verified_at: string | null
         }
         Insert: {
           id?: string
@@ -128,8 +130,10 @@ export type Database = {
           is_anonymous?: boolean | null
           dedication_message?: string | null
           preacher_name?: string | null
+          cashfree_order_id?: string | null
           created_at?: string | null
           updated_at?: string | null
+          last_verified_at?: string | null
         }
       }
       donors: {

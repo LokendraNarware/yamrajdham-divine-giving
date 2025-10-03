@@ -70,8 +70,9 @@ export async function POST(request: NextRequest) {
       raw.trim() === '' || 
       raw === '{}' ||
       raw.includes('"type":"test"') ||
-      raw.includes('test') ||
-      userAgent?.includes('Cashfree') ||
+      raw.includes('"event":"test"') ||
+      raw.includes('test_webhook') ||
+      raw.includes('webhook_test') ||
       userAgent?.includes('test') ||
       !signature || // No signature usually means test request
       !secret || // No webhook secret configured
@@ -134,26 +135,55 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: true, ignored: true });
     }
 
-    // Find donation row by id (primary order id) or fallback to payment_id
-    let { data: donation } = await supabase
+    // Find donation row by cashfree_order_id (primary lookup) or fallback to payment_id
+    console.log('Looking up donation with order ID:', orderId);
+    
+    let { data: donation, error: lookupError } = await supabase
       .from('user_donations')
       .select('*')
-      .eq('id', orderId)
+      .eq('cashfree_order_id', orderId)
       .single();
 
-    if (!donation) {
+    if (!donation && !lookupError) {
+      console.log('Not found by cashfree_order_id, trying payment_id fallback...');
       const fb = await supabase
         .from('user_donations')
         .select('*')
         .eq('payment_id', orderId)
         .single();
       donation = fb.data as any;
+      lookupError = fb.error;
+    }
+
+    if (!donation && !lookupError) {
+      console.log('Not found by payment_id, trying id fallback...');
+      const fb2 = await supabase
+        .from('user_donations')
+        .select('*')
+        .eq('id', orderId)
+        .single();
+      donation = fb2.data as any;
+      lookupError = fb2.error;
+    }
+
+    if (lookupError) {
+      console.error('Database lookup error:', lookupError);
+      return NextResponse.json({ success: false, error: 'Database lookup failed' }, { status: 500 });
     }
 
     if (!donation) {
-      // If we can’t find it, nothing to update, acknowledge to avoid retries loop
-      return NextResponse.json({ success: true, not_found: true });
+      console.log('Donation not found for order ID:', orderId);
+      // If we can't find it, nothing to update, acknowledge to avoid retries loop
+      return NextResponse.json({ success: true, not_found: true, order_id: orderId });
     }
+
+    console.log('Found donation:', {
+      id: (donation as any).id,
+      amount: (donation as any).amount,
+      current_status: (donation as any).payment_status,
+      cashfree_order_id: (donation as any).cashfree_order_id,
+      payment_id: (donation as any).payment_id
+    });
 
     const updateData: Record<string, any> = { 
       payment_status: mapped,
@@ -163,20 +193,55 @@ export async function POST(request: NextRequest) {
       updateData.payment_id = paymentId;
     }
 
+    console.log('Updating donation with data:', {
+      donation_id: (donation as any).id,
+      update_data: updateData,
+      event_type: eventType,
+      mapped_status: mapped,
+      payment_id: paymentId
+    });
+
     const { error: updateError } = await (supabase.from('user_donations') as any)
       .update(updateData)
       .eq('id', (donation as any).id);
 
     if (updateError) {
-      console.error('Error updating donation status:', updateError);
-      return NextResponse.json({ success: false, error: 'Database update failed' }, { status: 500 });
+      console.error('Error updating donation status:', {
+        donation_id: (donation as any).id,
+        update_data: updateData,
+        error: updateError,
+        event_type: eventType,
+        order_id: orderId
+      });
+      return NextResponse.json({ 
+        success: false, 
+        error: 'Database update failed',
+        details: {
+          donation_id: (donation as any).id,
+          update_data: updateData,
+          error_message: updateError.message
+        }
+      }, { status: 500 });
     }
 
-    console.log(`Successfully updated donation ${(donation as any).id} status to ${mapped}`);
+    console.log(`Successfully updated donation ${(donation as any).id} status to ${mapped}`, {
+      donation_id: (donation as any).id,
+      old_status: (donation as any).payment_status,
+      new_status: mapped,
+      event_type: eventType,
+      order_id: orderId,
+      payment_id: paymentId
+    });
 
     // Cache invalidation removed - not available in webhook context
 
-    return NextResponse.json({ success: true });
+    return NextResponse.json({ 
+      success: true,
+      donation_id: (donation as any).id,
+      old_status: (donation as any).payment_status,
+      new_status: mapped,
+      event_type: eventType
+    });
   } catch (err) {
     console.error('Cashfree webhook error:', err);
     return NextResponse.json({ success: false, error: 'Internal server error' }, { status: 500 });

@@ -77,6 +77,7 @@ export async function POST(request: NextRequest) {
           order_amount: validatedData.order_amount,
           order_currency: validatedData.order_currency,
           customer_details: validatedData.customer_details,
+          cashfree_order_id: validatedData.order_id, // Include Cashfree order ID for webhook processing
         },
         message: 'Mock payment session created (credentials not configured)'
       };
@@ -150,6 +151,7 @@ export async function POST(request: NextRequest) {
         order_amount: validatedData.order_amount,
         order_currency: validatedData.order_currency,
         customer_details: validatedData.customer_details,
+        cashfree_order_id: orderId, // Include Cashfree order ID for webhook processing
       },
       message: 'Payment session created successfully'
     });

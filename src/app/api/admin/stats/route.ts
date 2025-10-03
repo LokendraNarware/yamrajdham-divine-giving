@@ -1,8 +1,44 @@
 import { NextResponse } from 'next/server';
 import { supabase } from '@/integrations/supabase/client';
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
+    const { searchParams } = new URL(request.url);
+    const startDate = searchParams.get('startDate');
+    const endDate = searchParams.get('endDate');
+    
+    // Convert date strings to timestamps if provided
+    const startTimestamp = startDate ? new Date(startDate).toISOString() : null;
+    const endTimestamp = endDate ? new Date(endDate).toISOString() : null;
+    
+    // Try to use the date-filtered database function first if dates are provided
+    if (startTimestamp || endTimestamp) {
+      const { data: filteredStats, error: filteredError } = await supabase
+        .rpc('get_admin_dashboard_stats_filtered', {
+          start_date: startTimestamp,
+          end_date: endTimestamp
+        });
+
+      if (!filteredError && filteredStats && (filteredStats as Array<any>).length > 0) {
+        const stats = (filteredStats as Array<any>)[0];
+        return NextResponse.json({
+          totalDonations: stats.total_donations,
+          totalAmount: stats.total_amount,
+          totalUsers: stats.total_users,
+          completedDonations: stats.completed_donations,
+          pendingDonations: stats.pending_donations,
+          failedDonations: stats.failed_donations,
+          refundedDonations: stats.refunded_donations,
+          systemStatus: stats.system_status as 'healthy' | 'warning' | 'error',
+          systemMessage: stats.system_status === 'healthy' ? 'All systems operational' : 'System health check failed',
+          dateRange: {
+            startDate: startTimestamp,
+            endDate: endTimestamp
+          }
+        });
+      }
+    }
+    
     // Try to use the optimized database function first
     const { data: optimizedStats, error: optimizedError } = await supabase
       .rpc('get_admin_dashboard_stats');
