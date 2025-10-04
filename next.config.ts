@@ -11,6 +11,38 @@ const nextConfig: NextConfig = {
     ignoreBuildErrors: false,
   },
   
+  // Experimental features for better HMR stability
+  experimental: {
+    optimizePackageImports: ['@supabase/supabase-js'],
+  },
+  
+  // Temporarily disable webpack configuration to test
+  // webpack: (config, { isServer, dev }) => {
+  //   if (!isServer) {
+  //     // Only apply fallbacks in development to avoid production issues
+  //     if (dev) {
+  //       config.resolve.fallback = {
+  //         ...config.resolve.fallback,
+  //         fs: false,
+  //         net: false,
+  //         tls: false,
+  //         crypto: false,
+  //         stream: false,
+  //         url: false,
+  //         zlib: false,
+  //         http: false,
+  //         https: false,
+  //         assert: false,
+  //         os: false,
+  //         path: false,
+  //         process: require.resolve('process/browser'),
+  //       };
+  //     }
+  //   }
+  //   
+  //   return config;
+  // },
+  
   // SEO and Performance Optimizations
   compress: true,
   poweredByHeader: false,

@@ -20,6 +20,14 @@ CASHFREE_WEBHOOK_SECRET=your_production_webhook_secret
 NEXT_PUBLIC_SITE_URL=https://yamrajdham.com
 NEXT_PUBLIC_CASHFREE_ENVIRONMENT=production
 
+# Email Configuration (Production)
+# Configure your production email service provider
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_SECURE=false
+SMTP_USER=your_production_email@yamrajdham.com
+SMTP_PASS=your_production_app_password
+
 # Additional Production Settings
 NODE_ENV=production
 NEXT_TELEMETRY_DISABLED=1
@@ -58,8 +66,11 @@ NEXT_TELEMETRY_DISABLED=1
 - [ ] Verify all environment variables
 - [ ] Check Supabase production settings
 - [ ] Test admin dashboard functionality
-- [ ] Verify email configurations
+- [ ] Configure email service (SMTP settings)
+- [ ] Test email service connection via admin panel
+- [ ] Send test donation receipt email
 - [ ] Test donation flow end-to-end
+- [ ] Verify email receipts are sent automatically
 
 ## Post-Deployment Steps
 

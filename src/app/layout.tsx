@@ -177,15 +177,11 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <AuthProvider>
-          <QueryProvider>
-            <QueryErrorBoundary>
-              <ConditionalLayout>
-                {children}
-              </ConditionalLayout>
-            </QueryErrorBoundary>
-            <Toaster />
-            <WhatsAppIcon />
-          </QueryProvider>
+          <ConditionalLayout>
+            {children}
+          </ConditionalLayout>
+          <Toaster />
+          <WhatsAppIcon />
         </AuthProvider>
       </body>
     </html>

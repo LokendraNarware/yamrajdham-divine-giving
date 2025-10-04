@@ -13,7 +13,7 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form, FormControl, FormField, FormItem, FormLabel } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
-import { createUser, getUserByEmail, getUserById, createDonation, updateDonationPayment } from "@/services/donations";
+import { createUser, getUserByEmail, getUserByMobile, getUserById, createDonation, updateDonationPayment } from "@/services/donations";
 import { useAuth } from "@/contexts/AuthContext";
 import { createPaymentSession, generateCustomerId, formatPhoneForCashfree } from "@/services/cashfree";
 import { generateReceiptNumber } from "@/lib/utils";
@@ -223,49 +223,69 @@ function DonatePageContent() {
       // Auto account creation logic - no login required
       let userId: string | null = null;
 
-      // Check if user already exists by email
-      const userResult = await getUserByEmail(formData.email);
+      // First check if user exists by mobile number (primary identifier)
+      const userByMobileResult = await getUserByMobile(formData.mobile);
       
-      if (userResult.success && userResult.data) {
-        // User exists, use their ID
-        userId = userResult.data.id;
+      if (userByMobileResult.success && userByMobileResult.data) {
+        // User exists with this mobile number, use their ID
+        userId = userByMobileResult.data.id;
+        console.log('Found existing user by mobile:', userId);
       } else {
-        // User doesn't exist, create new account automatically
+        // Check if user exists by email as fallback
+        const userByEmailResult = await getUserByEmail(formData.email);
         
-        const userData = {
-          email: formData.email,
-          name: formData.name,
-          mobile: formData.mobile,
-          address: formData.address || undefined,
-          city: formData.city || undefined,
-          state: formData.state || undefined,
-          pin_code: formData.pinCode || undefined,
-          country: formData.country,
-          pan_no: formData.panNo || undefined,
-        };
-
-        const createUserResult = await createUser(userData);
-        
-        if (createUserResult.success && createUserResult.data) {
-          userId = createUserResult.data.id;
-          console.log('New user account created:', userId);
+        if (userByEmailResult.success && userByEmailResult.data) {
+          // User exists with this email, use their ID
+          userId = userByEmailResult.data.id;
+          console.log('Found existing user by email:', userId);
         } else {
-          const errorMessage = createUserResult.error?.message || 'Failed to create user account';
-          console.error('User creation failed:', createUserResult.error);
-          console.error('User creation error details:', JSON.stringify(createUserResult.error, null, 2));
+          // User doesn't exist, create new account automatically
+          console.log('Creating new user account...');
           
-          // If it's a duplicate email error, try to get the existing user
-          if (errorMessage.includes('duplicate') || errorMessage.includes('unique')) {
-            console.log('User already exists, trying to get existing user...');
-            const existingUserResult = await getUserByEmail(formData.email);
-            if (existingUserResult.success && existingUserResult.data) {
-              userId = existingUserResult.data.id;
-              console.log('Found existing user:', userId);
+          const userData = {
+            email: formData.email,
+            name: formData.name,
+            mobile: formData.mobile,
+            address: formData.address || undefined,
+            city: formData.city || undefined,
+            state: formData.state || undefined,
+            pin_code: formData.pinCode || undefined,
+            country: formData.country,
+            pan_no: formData.panNo || undefined,
+          };
+
+          const createUserResult = await createUser(userData);
+          
+          if (createUserResult.success && createUserResult.data) {
+            userId = createUserResult.data.id;
+            console.log('New user account created:', userId);
+          } else {
+            const errorMessage = createUserResult.error?.message || 'Failed to create user account';
+            console.error('User creation failed:', createUserResult.error);
+            console.error('User creation error details:', JSON.stringify(createUserResult.error, null, 2));
+            
+            // Handle duplicate key constraint errors
+            if (errorMessage.includes('duplicate') || errorMessage.includes('unique')) {
+              console.log('Duplicate user detected, trying to find existing user...');
+              
+              // Try to find user by mobile first
+              const existingUserByMobile = await getUserByMobile(formData.mobile);
+              if (existingUserByMobile.success && existingUserByMobile.data) {
+                userId = existingUserByMobile.data.id;
+                console.log('Found existing user by mobile after duplicate error:', userId);
+              } else {
+                // Try to find user by email
+                const existingUserByEmail = await getUserByEmail(formData.email);
+                if (existingUserByEmail.success && existingUserByEmail.data) {
+                  userId = existingUserByEmail.data.id;
+                  console.log('Found existing user by email after duplicate error:', userId);
+                } else {
+                  throw new Error(`Account creation failed: ${errorMessage}`);
+                }
+              }
             } else {
               throw new Error(`Account creation failed: ${errorMessage}`);
             }
-          } else {
-            throw new Error(`Account creation failed: ${errorMessage}`);
           }
         }
       }
@@ -296,6 +316,7 @@ function DonatePageContent() {
         
         // Update the donation with the receipt number
         await updateDonationPayment(orderId, {
+          payment_status: 'pending',
           receipt_number: receiptNumber,
         });
         

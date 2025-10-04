@@ -79,6 +79,27 @@ export const getUserByEmail = async (email: string): Promise<{ success: boolean;
   }
 };
 
+export const getUserByMobile = async (mobile: string): Promise<{ success: boolean; data?: any; error?: any }> => {
+  try {
+    const { data, error } = await supabase
+      .from('users')
+      .select('*')
+      .eq('mobile', mobile)
+      .maybeSingle(); // Use maybeSingle() instead of single() to handle no results gracefully
+
+    if (error) {
+      console.error('Error fetching user by mobile:', error);
+      throw error;
+    }
+
+    // Return success even if no user found (data will be null)
+    return { success: true, data };
+  } catch (err) {
+    console.error('Error in getUserByMobile:', err);
+    return { success: false, error: err };
+  }
+};
+
 export const getUserById = async (userId: string): Promise<{ success: boolean; data?: any; error?: any }> => {
   try {
     console.log('Fetching user by ID:', userId);
@@ -313,7 +334,7 @@ export const getDonations = async (): Promise<{ success: boolean; data?: any; er
   }
 };
 
-export const updateDonationPayment = async (id: string, paymentData: { payment_status: string; payment_id?: string; cashfree_order_id?: string }): Promise<{ success: boolean; data?: any; error?: any }> => {
+export const updateDonationPayment = async (id: string, paymentData: { payment_status: string; payment_id?: string; cashfree_order_id?: string; receipt_number?: string }): Promise<{ success: boolean; data?: any; error?: any }> => {
   try {
     const result = await DatabaseService.updateOne<UserDonation>('user_donations', id, paymentData);
     

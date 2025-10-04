@@ -1,10 +1,96 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createHmac, timingSafeEqual } from 'crypto';
-import { UserDonation, WebhookPayload } from '@/types/donation';
+import { UserDonation, WebhookPayload, User } from '@/types/donation';
 import { logger, LogContext } from '@/lib/structured-logger';
-import { DonationService, DatabaseUtils } from '@/services/database';
+import { DonationService, DatabaseUtils, DatabaseService } from '@/services/database';
+import { emailService } from '@/services/email';
+import { serverPDFGenerator } from '@/services/pdf-generator';
 
 type DbStatus = 'pending' | 'completed' | 'failed' | 'refunded';
+
+async function sendDonationReceiptEmail(
+  donation: UserDonation,
+  orderId?: string,
+  paymentId?: string
+): Promise<void> {
+  try {
+    // Get donor information from users table
+    let donorEmail: string | null = null;
+    let donorName = 'Devotee';
+
+    if (donation.user_id) {
+      const userResult = await DatabaseService.findOne<User>(
+        'users',
+        'id',
+        donation.user_id,
+        'id, email, name'
+      );
+
+      if (userResult.data) {
+        donorEmail = userResult.data.email;
+        donorName = userResult.data.name || 'Devotee';
+      }
+    }
+
+    if (!donorEmail) {
+      logger.warn('No donor email found, skipping email send', {
+        donation_id: donation.id,
+        user_id: donation.user_id,
+        has_user_id: !!donation.user_id,
+      });
+      return;
+    }
+
+    // Generate PDF receipt
+    const receiptData = {
+      donationId: donation.receipt_number || donation.id,
+      donorName,
+      amount: donation.amount,
+      date: donation.created_at || new Date().toISOString(),
+      purpose: donation.donation_type === 'general' ? 'Temple Construction' : donation.donation_type || 'Temple Construction',
+      paymentMethod: 'Online Payment',
+      orderId: orderId || paymentId,
+    };
+
+    const pdfBuffer = await serverPDFGenerator.generateReceiptPDF(receiptData);
+
+    // Prepare email data
+    const emailData = {
+      donorName,
+      donorEmail,
+      amount: donation.amount,
+      donationId: donation.id,
+      receiptNumber: donation.receipt_number || donation.id,
+      date: donation.created_at || new Date().toISOString(),
+      purpose: receiptData.purpose,
+      paymentMethod: receiptData.paymentMethod,
+      orderId: receiptData.orderId,
+    };
+
+    // Send email
+    const emailResult = await emailService.sendDonationReceipt(emailData, pdfBuffer);
+
+    if (emailResult.success) {
+      logger.info('Donation receipt email sent successfully', {
+        donation_id: donation.id,
+        donor_email: donorEmail,
+        receipt_number: donation.receipt_number,
+      });
+    } else {
+      logger.error('Failed to send donation receipt email', {
+        donation_id: donation.id,
+        donor_email: donorEmail,
+        error: emailResult.error,
+      });
+    }
+  } catch (error) {
+    logger.error('Exception in sendDonationReceiptEmail', {
+      donation_id: donation.id,
+      error,
+    });
+    throw error;
+  }
+}
 
 function eventToDbStatus(eventType: string): DbStatus | null {
   switch (eventType) {
@@ -297,6 +383,19 @@ export async function POST(request: NextRequest) {
       order_id: orderId,
       payment_id: paymentId
     });
+
+    // Send email receipt if donation is completed
+    if (mapped === 'completed') {
+      try {
+        await sendDonationReceiptEmail(currentDonation, orderId, paymentId);
+      } catch (emailError) {
+        logger.error('Failed to send donation receipt email', {
+          donation_id: currentDonation.id,
+          error: emailError,
+        });
+        // Don't fail the webhook if email fails
+      }
+    }
 
     // Cache invalidation removed - not available in webhook context
 
