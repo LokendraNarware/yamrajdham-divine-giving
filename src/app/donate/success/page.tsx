@@ -323,11 +323,15 @@ function PaymentSuccessContent() {
 
   if (!isClient) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-muted-foreground">Loading payment details...</p>
-        </div>
+      <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
+        <main className="container mx-auto py-12 px-4">
+          <div className="max-w-4xl mx-auto">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+              <p className="text-muted-foreground">Loading payment details...</p>
+            </div>
+          </div>
+        </main>
       </div>
     );
   }
